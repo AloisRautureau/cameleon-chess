@@ -3,8 +3,8 @@
 //
 
 #include "BoardRepresentation.h"
-#include "Engine.h"
 #include "Utility.h"
+#include "Engine.h"
 #include <sstream>
 
 /*
@@ -767,7 +767,16 @@ void BoardRepresentation::showCurrentPosition() {
     }
 
     std::cout << std::endl << "  | A | B | C | D | E | F | G | H |" << std::endl;
-    std::cout << "Evaluation : " << evalutation() << std::endl << std::endl;
+    std::string evalutaion = std::to_string(evalutation());
+
+    if(checkmated() == 1){
+        evalutaion = "Checkmate!";
+    }
+    else if(checkmated() == -1){
+        evalutaion = "Stalem-ate!";
+    }
+
+    std::cout << "Evaluation : " << evalutaion << std::endl << std::endl;
 
     std::cout << "Move : " << m_coups << std::endl;
 }
@@ -799,7 +808,7 @@ std::string BoardRepresentation::adressToMoveParser(int adress) {
     return move;
 }
 
-int BoardRepresentation::play(int engineSide, int cvSide) {
+int BoardRepresentation::play(int engineSide) {
 
     if(m_sideToMove == 1) m_coups++;
 
@@ -810,24 +819,14 @@ int BoardRepresentation::play(int engineSide, int cvSide) {
 
     moveGenerator();
 
-    if(checkmated()) return m_sideToMove;
+    if(checkmated() == 1) return m_sideToMove;
 
-    if(engineSide == m_sideToMove){
-        auto* engine = new Engine(3, m_sideToMove, this);
-        std::vector<int> moves = engine->minimax();
-        //std::vector<int> move = engine->valueBasedMove();
-        start = adressToMoveParser(moves.at(0));
-        end = adressToMoveParser(moves.at(1));
-        promotion = moves.at(2);
-    }
-
-    else if(cvSide == m_sideToMove){
-        auto* engine = new Engine(7, m_sideToMove, this);
-        std::vector<int> moves = engine->minimax();
-        //std::vector<int> move = engine->valueBasedMove();
-        start = adressToMoveParser(moves.at(0));
-        end = adressToMoveParser(moves.at(1));
-        promotion = moves.at(2);
+    if(engineSide){
+        Engine engine = Engine(3, this);
+        std::vector<int> engineMove = engine.search();
+        start = adressToMoveParser(engineMove.at(0));
+        end = adressToMoveParser(engineMove.at(1));
+        promotion = engineMove.at(2);
     }
 
     else{
@@ -839,14 +838,16 @@ int BoardRepresentation::play(int engineSide, int cvSide) {
 
     if(!makeMove(writtenMoveParser(start), writtenMoveParser(end), promotion)){
         std::cout << "This move isn't legal ! Please enter a legal move" << std::endl << std::endl;
-        play(engineSide, cvSide);
+        play(engineSide);
     }
 
     else{
         showCurrentPosition();
-        play(engineSide, cvSide);
+        play(engineSide);
     }
-    return -1;
+
+    if(checkmated() == -1) return -1;
+    return m_sideToMove;
 }
 
 int BoardRepresentation::checkmated() {
@@ -859,85 +860,57 @@ std::vector<std::vector<int>> BoardRepresentation::getMoves() {
     return m_moves;
 }
 
-float BoardRepresentation::evalutation() {
-    float eval = 0;
-    for(int i = 0; i < 64; i++){
-        if(m_color[i] == 1){
-            switch(m_piece[i]){
-                case 0:
-                    break;
+int BoardRepresentation::evalutation() {
+    std::vector<int> whitePieces;
+    std::vector<int> whiteAdresses;
+    std::vector<int> blackPieces;
+    std::vector<int> blackAdresses;
+    for(int i = 0; i < 64; i++) {
+        switch(m_piece[i]){
+            case 0:
+                break;
 
-                case 1:
-                    eval += 100;
-                    eval += m_pieceSquare[0][i];
-                    break;
-
-                case 3:
-                    eval += m_pieceSquare[1][i];
-                case 4:
-                    eval += 300;
-                    eval += m_pieceSquare[2][i];
-                    break;
-
-                case 5:
-                    eval += 500;
-                    eval += m_pieceSquare[3][i];
-                    break;
-
-                case 9:
-                    eval += 900;
-                    eval += m_pieceSquare[4][i];
-                    break;
-
-                case 100:
-                    eval += 9999;
-                    eval += m_pieceSquare[5][i];
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        else{
-            switch(m_piece[i]){
-                case 0:
-                    break;
-
-                case 1:
-                    eval -= 100;
-                    eval -= m_pieceSquare[0][i];
-                    break;
-
-                case 3:
-                    eval -= m_pieceSquare[1][i];
-                case 4:
-                    eval -= 300;
-                    eval -= m_pieceSquare[2][i];
-                    break;
-
-                case 5:
-                    eval -= 500;
-                    eval -= m_pieceSquare[3][i];
-                    break;
-
-                case 9:
-                    eval -= 900;
-                    eval -= m_pieceSquare[4][i];
-                    break;
-
-                case 100:
-                    eval -= 9999;
-                    eval -= m_pieceSquare[5][i];
-                    break;
-
-                default:
-                    break;
-            }
+            default:
+                m_color[i] == 1 ? whitePieces.push_back(m_piece[i]) : blackPieces.push_back(m_piece[i]);
+                m_color[i] == 1 ? whiteAdresses.push_back((7-(i/8))*8 + i%8) : blackAdresses.push_back(i);
         }
     }
-    //Checking is considered a bonus to avoid passive games
-    if(inCheck(1)) eval -= 50;
-    else if (inCheck(2)) eval += 50;
-    return eval/10;
+    
+    int whiteEval = 0;
+    int wbishopPair = 0, wrookPair = 0, wknightPair = 0;
+    for(int i = 0; i < whitePieces.size(); i++){
+        switch(whitePieces.at(i)){
+            case 1 : whiteEval += 100 + m_pieceSquare[0][whiteAdresses.at(i)]; break;
+            case 3 : whiteEval += 350 + m_pieceSquare[1][whiteAdresses.at(i)]; wknightPair++; break;
+            case 4 : whiteEval += 350 + m_pieceSquare[2][whiteAdresses.at(i)]; wbishopPair++; break;
+            case 5 : whiteEval += 525 + m_pieceSquare[3][whiteAdresses.at(i)]; wrookPair++; break;
+            case 9 : whiteEval += 1000 + m_pieceSquare[4][whiteAdresses.at(i)]; break;
+            case 100 : whiteEval += 10000 + m_pieceSquare[5][whiteAdresses.at(i)]; break;
+            default: break;
+        }
+    }
+
+    int blackEval = 0;
+    int bbishopPair = 0, brookPair = 0, bknightPair = 0;
+    for(int i = 0; i < blackPieces.size(); i++){
+        switch(blackPieces.at(i)){
+            case 1 : blackEval += 100 + m_pieceSquare[0][blackAdresses.at(i)]; break;
+            case 3 : blackEval += 350 + m_pieceSquare[1][blackAdresses.at(i)]; bknightPair++; break;
+            case 4 : blackEval += 350 + m_pieceSquare[2][blackAdresses.at(i)]; bbishopPair++; break;
+            case 5 : blackEval += 525 + m_pieceSquare[3][blackAdresses.at(i)]; brookPair++; break;
+            case 9 : blackEval += 1000 + m_pieceSquare[4][blackAdresses.at(i)]; break;
+            case 100 : blackEval += 10000 + m_pieceSquare[5][blackAdresses.at(i)]; break;
+            default: break;
+        }
+    }
+
+    //Checks bishop pairs
+    if(bbishopPair >= 2) blackEval += 50;
+    if(wbishopPair >= 2) whiteEval += 50;
+    if(bknightPair >= 2) blackEval -= 50;
+    if(wknightPair >= 2) whiteEval -= 50;
+    if(brookPair >= 2) blackEval -= 50;
+    if(wrookPair >= 2) whiteEval -= 50;
+
+    return whiteEval - blackEval;
 }

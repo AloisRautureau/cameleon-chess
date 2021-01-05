@@ -4,11 +4,7 @@
 #include "Engine.h"
 #include <random>
 
-Engine::Engine(int depth, int side, BoardRepresentation* board) {
-    m_board = board;
-    m_depth = depth;
-    m_side = side;
-}
+Engine::Engine(int depth, BoardRepresentation* board) : m_board(board), m_depth(depth){}
 
 //The idea for minimax algorithm is that :
 /*
@@ -17,89 +13,72 @@ Engine::Engine(int depth, int side, BoardRepresentation* board) {
  * All of that, while not modifying the stat of the board in the end
 */
 
-//The idea here is to follow a line up until the desired depth has been reached, then throw back the value of the last node
-float Engine::followLine(BoardRepresentation board, int depth) {
-    //If we're at the desired depth, we return the evaluation
-    if(depth <= 0){
-        float eval = board.evalutation();
-        for(int i = 0; i < m_depth; i++){
-            board.takeback();
-        }
-        return eval;
+int Engine::alphaBeta(int alpha, int beta, int depth){
+    if(depth == 0) return m_board->evalutation();
+
+    if(m_board->checkmated() == 1){
+        return m_board->getSide() == 1 ? -10000 : 10000;
     }
 
-    if(board.checkmated() == 1){
-        float eval = board.getSide() == 1 ? -9999 : 9999;
-        for(int i = depth; depth < m_depth; depth++){
-            board.takeback();
-        }
-        return eval;
-    }
-
-    if(board.checkmated() == -1){
-        for(depth; depth < m_depth; depth++){
-            board.takeback();
-        }
+    if(m_board->checkmated() == -1){
         return 0;
     }
 
-    //Otherwise, we get alll of the possible moves, then for each move we call that function
-    board.moveGenerator();
-    std::vector<std::vector<int>> moves = board.getMoves();
+    //Genere les coups
+    m_board->moveGenerator();
+    std::vector<std::vector<int>> moves = m_board->getMoves();
 
-    float value;
-    for(auto move : moves){
-        //Make the move
-        if(board.makeMove(move.at(0), move.at(1), move.at(2))) {
-            board.showCurrentPosition();
-
-            //Continue following the line after this move
-            depth = depth - 1;
-            value = followLine(board, depth);
-        }
+    //For each move, we call alphaBeta recursively and invert alpha and beta
+    for(std::vector<int> move : moves){
+        m_board->makeMove(move.at(0), move.at(1), move.at(2));
+        int eval = alphaBeta(-beta, -alpha, depth - 1);
+        m_board->takeback();
+        if(eval >= beta)
+            return beta;
+        if(eval > alpha)
+            alpha = eval;
     }
 
-    return value;
+    return alpha;
 }
 
-std::vector<int> Engine::minimax() {
-    //Get all the moves from the current position
-    std::vector<std::vector<int>> moves = m_board -> getMoves();
+std::vector<int> Engine::search() {
 
-    //This vector will hold the final values of each move
-    std::vector<float> values;
+    //Stocke les valeurs de chaque coup root+1
+    std::vector<int> bestMove;
+    int bestValue = -99999;
+    std::vector<int> worstMove;
+    int worstValue = 99999;
 
-    //For each move, we follow the line of the move, and we put the walue of this move in the values vector
-    for(auto & move : moves){
-        std::cout << "##### TESTING MOVE " << m_board->adressToMoveParser(move.at(0)) << " -> " << m_board->adressToMoveParser(move.at(1)) << " #####" << std::endl;
+    //On génère les coups root+1
+    m_board->moveGenerator();
+    std::vector<std::vector<int>> moves = m_board->getMoves();
+
+    for(std::vector<int> move : moves){
+        //std::cout << "Testing " << BoardRepresentation::adressToMoveParser(move.at(0)) << " -> " << BoardRepresentation::adressToMoveParser(move.at(1)) << std::endl;
+        //Pour chaque coup, on appelle alphabeta pour trouver la valeur de ce coup
         m_board->makeMove(move.at(0), move.at(1), move.at(2));
-        values.push_back(followLine(*m_board, m_depth-1));
-        std::cin.get();
+        int score = alphaBeta(-99999, 99999, m_depth);
         m_board->takeback();
-    }
-
-    //m_board->moveGenerator();
-
-    //On cherche la meilleure et la pire valeur
-    float max = -2000;
-    std::vector<int> bestMove = moves.at(0);
-    float min = 2000;
-    std::vector<int> worstMove = moves.at(0);
-    for(int i = 0; i < values.size(); i++){
-
-        std::cout << "Valeur de " << m_board->adressToMoveParser(moves.at(i).at(0)) << " -> " << m_board->adressToMoveParser(moves.at(i).at(1)) << " : " << values.at(i) << std::endl;
-
-        if(values.at(i) < min){
-            min = values.at(i);
-            worstMove = moves.at(i);
+        //std::cout << score << std::endl;
+        if(score > bestValue){
+            bestValue = score;
+            bestMove.clear();
+            bestMove.push_back(move.at(0));
+            bestMove.push_back(move.at(1));
+            bestMove.push_back(move.at(2));
         }
-        else if(values.at(i) > max){
-            max = values.at(i);
-            bestMove = moves.at(i);
+        
+        if(score < worstValue){
+            worstValue = score;
+            worstMove.clear();
+            worstMove.push_back(move.at(0));
+            worstMove.push_back(move.at(1));
+            worstMove.push_back(move.at(2));
         }
     }
 
-
-    if(m_side == 1) return bestMove;
-    else return worstMove;
+    std::cout << std::endl << "Best move : " << BoardRepresentation::adressToMoveParser(bestMove.at(0)) << " -> " << BoardRepresentation::adressToMoveParser(bestMove.at(1)) << " " << bestValue <<std::endl;
+    std::cout << "Worst move : " << BoardRepresentation::adressToMoveParser(worstMove.at(0)) << " -> " << BoardRepresentation::adressToMoveParser(worstMove.at(1)) << " " << worstValue << std::endl << std::endl;
+    return m_board->getSide() == 1 ? bestMove : worstMove;
 }

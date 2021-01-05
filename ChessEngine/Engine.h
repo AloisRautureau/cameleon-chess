@@ -9,18 +9,14 @@
 
 
 class Engine{
-    friend BoardRepresentation;
-
 private:
     int m_depth;
-    int m_side;
     BoardRepresentation* m_board;
 
 public:
-    Engine(int depth, int side, BoardRepresentation* board);
-    std::vector<int> minimax();
-
-    float followLine(BoardRepresentation board, int depth);
+    explicit Engine(int depth, BoardRepresentation* board);
+    int alphaBeta(int alpha, int beta, int depth);
+    std::vector<int> search();
 };
 
 

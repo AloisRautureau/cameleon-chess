@@ -6,7 +6,10 @@ int main() {
 
     testBoard.showCurrentPosition();
 
-    switch(testBoard.play(1, 0)){
+
+    int result = testBoard.play(1);
+
+    switch(result){
         case 1:
             std::cout << "Black won!" << std::endl;
             break;
@@ -16,6 +19,7 @@ int main() {
             break;
 
         case 0:
+        case -1:
             std::cout << "Stalemate" << std::endl;
             break;
 

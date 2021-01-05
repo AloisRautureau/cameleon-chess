@@ -10,7 +10,6 @@
 #include <string>
 #include <iostream>
 
-
 class BoardRepresentation {
 protected:
     /*Variable qui garde en mémoire le side to move */
@@ -73,9 +72,9 @@ protected:
     int m_coups = 0;
 
     //On inclut pas le 9 car un pion sera autopromote en reine automatiquement si rien d'autre n'est précisé, pas la peine de générer des doublons
-    const int m_possibleProm[4] = {3, 4, 5};
+    int m_possibleProm[4] = {3, 4, 5};
 
-    const int m_pieceSquare[7][64] = {
+    int m_pieceSquare[7][64] = {
             //PAWNS
             { 100,  100,  100,  100,  100,  100,  100,  100,
               50, 50, 50, 50, 50, 50, 50, 50,
@@ -227,13 +226,13 @@ public:
     int checkmated();
 
     //Plays one move before changing side
-    int play(int engineSide, int cvSide);
+    int play(int engineSide);
 
     //Renvoie les moves disponibles
     std::vector<std::vector<int>> getMoves();
 
     //Evalue la position
-    float evalutation();
+    int evalutation();
 
     int getSide() const {return m_sideToMove;}
 
