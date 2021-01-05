@@ -55,7 +55,9 @@ protected:
 
     // Listes de coups pseudos légaux pour la position actuelle
     // Les coups sont stockés sous forme d'une liste (caseDepart, caseArrivee, valeur)
-    std::vector<std::vector<int>> m_moves = {{0, 0}};
+    std::vector<std::vector<int>> m_moves;
+    std::vector<std::vector<int>> m_attackingMoves;
+    std::vector<std::vector<int>> m_quietMoves;
 
     /*
      * 1  2  3  4
@@ -208,6 +210,7 @@ public:
 
     //Génère tous les moves possibles pour la position actuelle
     void moveGenerator();
+    void generateCaptures();
 
     /* Permet de rétablir la position d'avant
      * Lancée automatiquement si la position actuelle est illégale */
@@ -230,6 +233,7 @@ public:
 
     //Renvoie les moves disponibles
     std::vector<std::vector<int>> getMoves();
+    std::vector<std::vector<int>> getAttackingMoves(){return m_attackingMoves;}
 
     //Evalue la position
     int evalutation();

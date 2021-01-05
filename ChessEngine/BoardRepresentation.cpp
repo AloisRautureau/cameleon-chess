@@ -712,32 +712,79 @@ void BoardRepresentation::moveGenerator() {
      */
 
     m_moves.clear();
+    m_attackingMoves.clear();
+    m_quietMoves.clear();
+
+    std::vector<int> coup;
+
+    for(int caseDepart = 0; caseDepart < 64; caseDepart++){
+        for(int caseArrivee = 0; caseArrivee < 64; caseArrivee++) {
+            if (m_piece[caseDepart] != 0 && m_color[caseDepart] == m_sideToMove) {
+                if (makeMove(caseDepart, caseArrivee, -1)) {
+                    coup.clear();
+                    coup.push_back(caseDepart);
+                    coup.push_back(caseArrivee);
+                    coup.push_back(-1);
+
+                    takeback();
+
+                    if (m_piece[caseArrivee] != 0) m_attackingMoves.push_back(coup);
+                    else m_quietMoves.push_back(coup);
+
+                    if (m_piece[caseDepart] == 1 && (caseArrivee <= 63 && caseArrivee >= 56) ||
+                        (caseArrivee <= 7 && caseArrivee >= 0)) {
+                        for (int prom : m_possibleProm) {
+                            coup.pop_back();
+                            coup.push_back(prom);
+                            m_moves.push_back(coup);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //Permet à la fonction alpha-beta de tester les captures en premieres
+    m_moves.insert(m_moves.end(), m_attackingMoves.begin(), m_attackingMoves.end());
+    m_moves.insert(m_moves.end(), m_quietMoves.begin(), m_quietMoves.end());
+}
+
+void BoardRepresentation::generateCaptures() {
+    //Pareil que moveGenerator(), mais ne s'occupe que des captures pour améliorer la vitesse de la recherche quiescence
+
+    m_attackingMoves.clear();
 
     std::vector<int> coup;
 
     for(int caseDepart = 0; caseDepart < 64; caseDepart++){
         for(int caseArrivee = 0; caseArrivee < 64; caseArrivee++){
-            if(makeMove(caseDepart, caseArrivee, -1)){
-                coup.clear();
-                coup.push_back(caseDepart);
-                coup.push_back(caseArrivee);
-                coup.push_back(-1);
+            if(m_piece[caseDepart] != 0 && m_piece[caseArrivee] != 0){
+                if(makeMove(caseDepart, caseArrivee, -1)){
+                    coup.clear();
+                    coup.push_back(caseDepart);
+                    coup.push_back(caseArrivee);
+                    coup.push_back(-1);
 
-                takeback();
-                m_moves.push_back(coup);
+                    takeback();
 
-                if(m_piece[caseDepart] == 1 && (caseArrivee <= 63 && caseArrivee >= 56) || (caseArrivee <= 7 && caseArrivee >= 0)){
-                    for(int prom : m_possibleProm){
-                        coup.pop_back();
-                        coup.push_back(prom);
-                        m_moves.push_back(coup);
+                    if(m_piece[caseArrivee] != 0) m_attackingMoves.push_back(coup);
+                    else m_quietMoves.push_back(coup);
+
+                    if(m_piece[caseDepart] == 1 && (caseArrivee <= 63 && caseArrivee >= 56) || (caseArrivee <= 7 && caseArrivee >= 0)){
+                        for(int prom : m_possibleProm){
+                            coup.pop_back();
+                            coup.push_back(prom);
+                            m_moves.push_back(coup);
+                        }
                     }
-                }
 
+                }
             }
         }
     }
 }
+
+
 
 void BoardRepresentation::takeback() {
     if(m_positionHistory.size() > 1) m_positionHistory.pop();
@@ -773,7 +820,7 @@ void BoardRepresentation::showCurrentPosition() {
         evalutaion = "Checkmate!";
     }
     else if(checkmated() == -1){
-        evalutaion = "Stalem-ate!";
+        evalutaion = "Stalemate!";
     }
 
     std::cout << "Evaluation : " << evalutaion << std::endl << std::endl;

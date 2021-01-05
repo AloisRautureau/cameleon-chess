@@ -26,6 +26,12 @@ string
 iostream
 -
 
+/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.cpp
+Engine.h
+/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.h
+random
+-
+
 /home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.h
 BoardRepresentation.h
 /home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
@@ -35,4 +41,10 @@ string
 -
 vector
 -
+
+/home/bitterboyy/Documents/baub_chess/main.cpp
+iostream
+-
+ChessEngine/BoardRepresentation.h
+/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
 
