@@ -24,4 +24,34 @@ std::vector<std::string> split(std::string toSplit, char splitter){
     return substrings;
 }
 
+int pieceCorrespondance(int piece, int color){
+    int pieceTransf;
+    switch(piece){
+        case 1:
+            pieceTransf = color == 1 ? 0 : 6;
+            break;
+        case 3:
+            pieceTransf = color == 1 ? 1 : 7;
+            break;
+        case 4:
+            pieceTransf = color == 1 ? 2 : 8;
+            break;
+        case 5:
+            pieceTransf = color == 1 ? 3 : 9;
+            break;
+        case 9:
+            pieceTransf = color == 1 ? 4 : 10;
+            break;
+        case 100:
+            pieceTransf = color == 1 ? 5 : 11;
+            break;
+
+        default:
+            pieceTransf = 0;
+            break;
+    }
+
+    return pieceTransf;
+}
+
 #endif //BAUB_CHESS_UTILITY_H

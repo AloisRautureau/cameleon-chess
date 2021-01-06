@@ -15,6 +15,8 @@ Engine.h
 /home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.h
 sstream
 -
+iomanip
+-
 
 /home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
 vector
@@ -25,10 +27,6 @@ string
 -
 iostream
 -
-
-/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.cpp
-Engine.h
-/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.h
 random
 -
 
@@ -41,10 +39,4 @@ string
 -
 vector
 -
-
-/home/bitterboyy/Documents/baub_chess/main.cpp
-iostream
--
-ChessEngine/BoardRepresentation.h
-/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
 

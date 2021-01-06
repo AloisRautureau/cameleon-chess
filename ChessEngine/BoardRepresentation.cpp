@@ -6,6 +6,7 @@
 #include "Utility.h"
 #include "Engine.h"
 #include <sstream>
+#include <iomanip>
 
 /*
  * FEN PART :
@@ -377,6 +378,56 @@ std::string BoardRepresentation::getFEN() {
     return fen;
 }
 
+unsigned long long BoardRepresentation::getHash() {
+    unsigned long long hash = 0;
+    unsigned long long toXor;
+    int piece;
+    
+    //Hash pieces
+    for(int i = 0; i < 64; i++){
+        if(m_piece[i] != 0){
+            piece = pieceCorrespondance(m_piece[i], m_color[i]);
+            toXor = m_zobrist_hash[((i+1 * piece+1)) - 1];
+            if(hash == 0) hash = toXor;
+            else hash = hash xor toXor;
+        }
+    }
+
+    //Hash side to move
+    if(m_sideToMove == 2){
+        hash = hash xor m_zobrist_hash[768];
+    }
+    
+    //Hash castling rights
+    int castling = m_castlingRights;
+    while(castling > 0){
+        if(castling >= 0x1000){
+            hash = hash xor m_zobrist_hash[769];
+            castling -= 0x1000;
+        }
+        else if(castling >= 0x0100){
+            hash = hash xor m_zobrist_hash[770];
+            castling -= 0x0100;
+        }
+        else if(castling >= 0x0010) {
+            hash = hash xor m_zobrist_hash[771];
+            castling -= 0x0010;
+        }
+        else if(castling >= 0x0001) {
+            hash = hash xor m_zobrist_hash[772];
+            castling -= 0x0001;
+        }
+    }
+    
+    //Hash enPassant file
+    int enPassantFile = m_enPassant%8;
+    if(m_enPassant != -1) hash = hash xor m_zobrist_hash[773 + enPassantFile];
+    
+    m_positionHash = hash;
+    return hash;
+}
+
+
 /*
  * LEGALITE DES COUPS
  * Ces fonctions servent à vérifier ensembles la légalité des coups :
@@ -666,6 +717,8 @@ bool BoardRepresentation::makeMove(int startAdress, int endAdress, int special) 
     m_piece[startAdress] = 0;
     m_color[startAdress] = 0;
 
+
+
     if(isPromotable && ((endAdress <= 63 && endAdress >= 56) || (endAdress <= 7 && endAdress >= 0))){
         switch(special){
             case 3:
@@ -690,7 +743,10 @@ bool BoardRepresentation::makeMove(int startAdress, int endAdress, int special) 
     m_sideToMove = m_sideToMove == 1 ? 2: 1;
 
     //Si m_enPassant == enPAssantStart, on reset
-    m_enPassant = m_enPassant == enPassantStart ? -1 : m_enPassant;
+    if(m_enPassant == enPassantStart && enPassantStart != -1)
+        m_enPassant = -1;
+
+
 
     m_positionHistory.push(getFEN());
 
@@ -698,6 +754,8 @@ bool BoardRepresentation::makeMove(int startAdress, int endAdress, int special) 
         takeback();
         return false;
     }
+
+    getHash();
 
     return true;
 }
@@ -789,6 +847,7 @@ void BoardRepresentation::generateCaptures() {
 void BoardRepresentation::takeback() {
     if(m_positionHistory.size() > 1) m_positionHistory.pop();
     setFEN(m_positionHistory.top());
+    m_positionHash = getHash();
 }
 
 void BoardRepresentation::showCurrentPosition() {
@@ -814,18 +873,17 @@ void BoardRepresentation::showCurrentPosition() {
     }
 
     std::cout << std::endl << "  | A | B | C | D | E | F | G | H |" << std::endl;
-    std::string evalutaion = std::to_string(evalutation());
 
-    if(checkmated() == 1){
-        evalutaion = "Checkmate!";
-    }
-    else if(checkmated() == -1){
-        evalutaion = "Stalemate!";
-    }
-
-    std::cout << "Evaluation : " << evalutaion << std::endl << std::endl;
+    std::cout << "Evaluation : " << evalutation() << std::endl << std::endl;
 
     std::cout << "Move : " << m_coups << std::endl;
+
+    std::cout << std::showbase // show the 0x prefix
+         << std::internal // fill between the prefix and the number
+         << std::setfill('0'); // fill with 0s
+
+
+    std::cout << "Current hash : " << std::hex << std::setw(4) << m_positionHash << std::dec << std::setw(3) << std::endl << std::endl;
 }
 
 
@@ -961,3 +1019,5 @@ int BoardRepresentation::evalutation() {
 
     return whiteEval - blackEval;
 }
+
+

@@ -9,9 +9,13 @@
 #include <stack>
 #include <string>
 #include <iostream>
+#include <random>
 
 class BoardRepresentation {
 protected:
+    unsigned long long m_zobrist_hash[781];
+    unsigned long long m_positionHash;
+
     /*Variable qui garde en mémoire le side to move */
     int m_sideToMove = 1;
 
@@ -151,7 +155,9 @@ protected:
 
 public:
     //CONSTRUCTEURS
-    /* Initialise une board sur une position de base */
+    /* Initialise une board sur une position de base
+     * et met en place les hash
+     */
     BoardRepresentation(){
         int baseColor[64] = {
                 1, 1, 1, 1, 1, 1, 1, 1,
@@ -180,12 +186,29 @@ public:
             m_piece[i] = basePiece[i];
         }
 
+        std::mt19937_64 mersenne_twister;
+        mersenne_twister.seed(random());
+
+        for(int i = 0; i < 781; i++){
+            m_zobrist_hash[i] = mersenne_twister();
+            std::cout << m_zobrist_hash[i];
+        }
+
+
         m_positionHistory.push(getFEN());
     };
 
     /* Initialise une board utilisant une notation FERN */
     explicit BoardRepresentation(std::string fen){
         setFEN(std::move(fen));
+
+        std::mt19937_64 mersenne_twister;
+        mersenne_twister.seed(random());
+
+        for(int i = 0; i < 781; i++){
+            m_zobrist_hash[i] = mersenne_twister();
+        }
+
         m_positionHistory.push(getFEN());
     };
 
@@ -195,6 +218,9 @@ public:
     //Permet de récupérer la notation FEN de la position actuelle
     //Utile pour créer un historique de position
     std::string getFEN();
+
+    //Genere le hash de la position actuelle
+    unsigned long long getHash();
 
     //Vérifie si le côté donné est en echec ou non
     bool inCheck(int side);

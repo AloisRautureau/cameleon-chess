@@ -19,7 +19,7 @@ int Engine::quiescence(int alpha, int beta){
     if(!captures.empty()){
         for(std::vector<int> capture : captures){
             m_board->makeMove(capture.at(0), capture.at(1), capture.at(2));
-            int eval = quiescence(-beta, -alpha);
+            int eval = -quiescence(-beta, -alpha);
             m_board->takeback();
 
             int delta = 1000;
@@ -52,7 +52,7 @@ int Engine::alphaBeta(int alpha, int beta, int depth){
     //For each move, we call alphaBeta recursively and invert alpha and beta
     for(std::vector<int> move : moves){
         m_board->makeMove(move.at(0), move.at(1), move.at(2));
-        int eval = alphaBeta(-beta, -alpha, depth - 1);
+        int eval = -alphaBeta(-beta, -alpha, depth - 1);
         m_board->takeback();
         if(eval >= beta)
             return beta;
