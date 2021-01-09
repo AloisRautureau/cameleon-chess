@@ -6,18 +6,6 @@
 
 #IncludeRegexTransform: 
 
-/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.cpp
-BoardRepresentation.h
-/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
-Engine.h
-/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.h
-sstream
--
-iomanip
--
-utility
--
-
 /home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
 stack
 -
@@ -43,10 +31,14 @@ TranspositionTable.h
 /home/bitterboyy/Documents/baub_chess/ChessEngine/TranspositionTable.h
 BoardRepresentation.h
 /home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
+array
+-
 
 /home/bitterboyy/Documents/baub_chess/ChessEngine/TranspositionTable.h
 string
 -
 vector
 -
+BoardRepresentation.h
+/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h
 
