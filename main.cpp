@@ -1,31 +1,39 @@
 #include <iostream>
-#include "ChessEngine/BoardRepresentation.h"
+#include "ChessEngine/BoardRep.h"
 
 int main() {
-    BoardRepresentation testBoard = BoardRepresentation();
+    BoardRep board = BoardRep();
 
-    testBoard.showCurrentPosition();
+    do{
+        board.showCurrentPosition();
+        board.generatePseudoLegal();
+        std::string movestr;
+        bool legal = false;
+        Move move(0, 0, 0);
 
+        do{
+        std::cin >> movestr;
 
-    int result = testBoard.play(true);
+        if(movestr.size() >= 5){
+            int start = coordinateToInt(movestr.substr(0, 2));
+            int end = coordinateToInt(movestr.substr(2, 2));
+            int special = movestr.at(4) - '0';
+            move = board.getMoveStack().searchMove(start, end);
+            move.special = special;
+            if(move.start == move.end) std::cout << "Ce move n'est pas légal!" << std::endl;
+            else legal = true;
+        } else {
+            int start = coordinateToInt(movestr.substr(0, 2));
+            int end = coordinateToInt(movestr.substr(2, 2));
+            move = board.getMoveStack().searchMove(start, end);
+            if(move.start == move.end) std::cout << "Ce move n'est pas légal!" << std::endl;
+            else legal = true;
+        }
 
-    switch(result){
-        case 1:
-            std::cout << "Black won!" << std::endl;
-            break;
+        }while(!legal);
 
-        case 2:
-            std::cout << "White won!" << std::endl;
-            break;
+        board.makeMove(move);
+    }while(board.checkmated(WHITE) == -1 || board.checkmated(BLACK) == -1);
 
-        case 0:
-        case -1:
-            std::cout << "Stalemate" << std::endl;
-            break;
-
-        default:
-            std::cout << "Euh aled?" << std::endl;
-            break;
-    }
     return 0;
 }

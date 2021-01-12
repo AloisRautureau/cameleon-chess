@@ -258,22 +258,10 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.cpp">
+		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRep.h">
 			<Option target="baub_chess"/>
 		</Unit>
-		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.h">
-			<Option target="baub_chess"/>
-		</Unit>
-		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/Data.h">
-			<Option target="baub_chess"/>
-		</Unit>
-		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.cpp">
-			<Option target="baub_chess"/>
-		</Unit>
-		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.h">
-			<Option target="baub_chess"/>
-		</Unit>
-		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/TranspositionTable.h">
+		<Unit filename="/home/bitterboyy/Documents/baub_chess/ChessEngine/Constants.h">
 			<Option target="baub_chess"/>
 		</Unit>
 		<Unit filename="/home/bitterboyy/Documents/baub_chess/googletest/BoardRepresentationTests.cpp">

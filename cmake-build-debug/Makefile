@@ -228,60 +228,6 @@ gtest/fast:
 	$(MAKE) $(MAKESILENT) -f googletest/lib/CMakeFiles/gtest.dir/build.make googletest/lib/CMakeFiles/gtest.dir/build
 .PHONY : gtest/fast
 
-ChessEngine/BoardRepresentation.o: ChessEngine/BoardRepresentation.cpp.o
-
-.PHONY : ChessEngine/BoardRepresentation.o
-
-# target to build an object file
-ChessEngine/BoardRepresentation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/BoardRepresentation.cpp.o
-.PHONY : ChessEngine/BoardRepresentation.cpp.o
-
-ChessEngine/BoardRepresentation.i: ChessEngine/BoardRepresentation.cpp.i
-
-.PHONY : ChessEngine/BoardRepresentation.i
-
-# target to preprocess a source file
-ChessEngine/BoardRepresentation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/BoardRepresentation.cpp.i
-.PHONY : ChessEngine/BoardRepresentation.cpp.i
-
-ChessEngine/BoardRepresentation.s: ChessEngine/BoardRepresentation.cpp.s
-
-.PHONY : ChessEngine/BoardRepresentation.s
-
-# target to generate assembly for a file
-ChessEngine/BoardRepresentation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/BoardRepresentation.cpp.s
-.PHONY : ChessEngine/BoardRepresentation.cpp.s
-
-ChessEngine/Engine.o: ChessEngine/Engine.cpp.o
-
-.PHONY : ChessEngine/Engine.o
-
-# target to build an object file
-ChessEngine/Engine.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/Engine.cpp.o
-.PHONY : ChessEngine/Engine.cpp.o
-
-ChessEngine/Engine.i: ChessEngine/Engine.cpp.i
-
-.PHONY : ChessEngine/Engine.i
-
-# target to preprocess a source file
-ChessEngine/Engine.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/Engine.cpp.i
-.PHONY : ChessEngine/Engine.cpp.i
-
-ChessEngine/Engine.s: ChessEngine/Engine.cpp.s
-
-.PHONY : ChessEngine/Engine.s
-
-# target to generate assembly for a file
-ChessEngine/Engine.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/Engine.cpp.s
-.PHONY : ChessEngine/Engine.cpp.s
-
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -325,12 +271,6 @@ help:
 	@echo "... baub_chess"
 	@echo "... gtest"
 	@echo "... gtest_main"
-	@echo "... ChessEngine/BoardRepresentation.o"
-	@echo "... ChessEngine/BoardRepresentation.i"
-	@echo "... ChessEngine/BoardRepresentation.s"
-	@echo "... ChessEngine/Engine.o"
-	@echo "... ChessEngine/Engine.i"
-	@echo "... ChessEngine/Engine.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

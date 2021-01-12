@@ -1,6 +1,4 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/baub_chess.dir/ChessEngine/BoardRepresentation.cpp.o"
-  "CMakeFiles/baub_chess.dir/ChessEngine/Engine.cpp.o"
   "CMakeFiles/baub_chess.dir/main.cpp.o"
   "baub_chess"
   "baub_chess.pdb"

@@ -4,8 +4,6 @@ project(baub_chess)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(baub_chess main.cpp
-        ChessEngine/BoardRepresentation.cpp ChessEngine/BoardRepresentation.h
-        ChessEngine/Engine.cpp ChessEngine/Engine.h
-        ChessEngine/TranspositionTable.h ChessEngine/Data.h)
+        ChessEngine/Constants.h ChessEngine/BoardRep.h)
 
 add_subdirectory(googletest)

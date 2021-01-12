@@ -4,8 +4,6 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/bitterboyy/Documents/baub_chess/ChessEngine/BoardRepresentation.cpp" "/home/bitterboyy/Documents/baub_chess/cmake-build-release/CMakeFiles/baub_chess.dir/ChessEngine/BoardRepresentation.cpp.o"
-  "/home/bitterboyy/Documents/baub_chess/ChessEngine/Engine.cpp" "/home/bitterboyy/Documents/baub_chess/cmake-build-release/CMakeFiles/baub_chess.dir/ChessEngine/Engine.cpp.o"
   "/home/bitterboyy/Documents/baub_chess/main.cpp" "/home/bitterboyy/Documents/baub_chess/cmake-build-release/CMakeFiles/baub_chess.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
