@@ -1,39 +1,33 @@
 #include <iostream>
 #include "ChessEngine/BoardRep.h"
+#include "ChessEngine/Engine.h"
+
+int play(int engineSide, bool engineOnly, BoardRep board, Engine engine){
+    Move move = Move(0, 0, 0);
+    bool legal;
+
+    board.showCurrentPosition();
+
+    do{
+        if(engineSide == board.getSide()) move = engine.searchRoot(board.getSide());
+        if(engineOnly) move = engine.searchRoot(board.getSide());
+        else{
+            
+
+            std::cin >> humanMove;
+
+            if(humanMove.size() >= 5){
+
+            }
+        }
+
+    }while(!legal)
+}
 
 int main() {
     BoardRep board = BoardRep();
+    Engine engine = Engine(3, &board);
 
-    do{
-        board.showCurrentPosition();
-        board.generatePseudoLegal();
-        std::string movestr;
-        bool legal = false;
-        Move move(0, 0, 0);
-
-        do{
-        std::cin >> movestr;
-
-        if(movestr.size() >= 5){
-            int start = coordinateToInt(movestr.substr(0, 2));
-            int end = coordinateToInt(movestr.substr(2, 2));
-            int special = movestr.at(4) - '0';
-            move = board.getMoveStack().searchMove(start, end);
-            move.special = special;
-            if(move.start == move.end) std::cout << "Ce move n'est pas légal!" << std::endl;
-            else legal = true;
-        } else {
-            int start = coordinateToInt(movestr.substr(0, 2));
-            int end = coordinateToInt(movestr.substr(2, 2));
-            move = board.getMoveStack().searchMove(start, end);
-            if(move.start == move.end) std::cout << "Ce move n'est pas légal!" << std::endl;
-            else legal = true;
-        }
-
-        }while(!legal);
-
-        board.makeMove(move);
-    }while(board.checkmated(WHITE) == -1 || board.checkmated(BLACK) == -1);
 
     return 0;
 }

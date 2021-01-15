@@ -699,6 +699,110 @@ public:
     }
 
     MoveStack getMoveStack(){ return m_moveStack; }
+
+    int getSide(){ return m_sideToMove; }
+
+
+    /*
+     * EVALUATION
+     */
+
+    int evaluation(){
+        //Deux array pour stocker les valeurs matérielles de chaque côté en séparant pions et pièces
+        //Cette séparation servira à définir le moment ou on entre dans la fin de partie
+        int material_pawns[2] = {0, 0};
+        int material_pieces[2]= {0, 0};
+
+        //Socre général dedeux cotés
+        int scores[2] = {0, 0};
+
+        //On itère les listes de pièces une première fois pour avoir les valeurs matérielles
+        for(int i = 0; i < 16; i++){
+            switch(m_pieces[m_whitePieces[i]]){
+                default:
+                case EMPTY:
+                    break;
+
+                case PAWN:
+                    material_pawns[WHITE] += pieceValue[PAWN];
+                    scores[WHITE] += TBLPIONS[INVERT[m_whitePieces[i]]];
+                    break;
+
+                case KNIGHT:
+                    material_pieces[WHITE] += pieceValue[KNIGHT];
+                    scores[WHITE] += TBLKNIGHT[INVERT[m_whitePieces[i]]];
+                    break;
+
+                case BISHOP:
+                    material_pieces[WHITE] += pieceValue[BISHOP];
+                    scores[WHITE] += TBLBISHOP[INVERT[m_whitePieces[i]]];
+                    break;
+
+                case ROOK:
+                    material_pieces[WHITE] += pieceValue[ROOK];
+                    scores[WHITE] += TBLROOK[INVERT[m_whitePieces[i]]];
+                    break;
+
+                case QUEEN:
+                    material_pieces[WHITE] += pieceValue[QUEEN];
+                    scores[WHITE] += TBLQUEEN[INVERT[m_whitePieces[i]]];
+                    break;
+
+                case KING:
+                    scores[WHITE] += pieceValue[KING];
+                    break;
+            }
+            switch(m_pieces[m_blackPieces[i]]){
+                default:
+                case EMPTY:
+                    break;
+
+                case PAWN:
+                    material_pawns[BLACK] += pieceValue[PAWN];
+                    scores[BLACK] += TBLPIONS[m_blackPieces[i]];
+                    break;
+
+                case KNIGHT:
+                    material_pieces[BLACK] += pieceValue[KNIGHT];
+                    scores[BLACK] += TBLKNIGHT[m_blackPieces[i]];
+                    break;
+
+                case BISHOP:
+                    material_pieces[BLACK] += pieceValue[BISHOP];
+                    scores[BLACK] += TBLBISHOP[m_blackPieces[i]];
+                    break;
+
+                case ROOK:
+                    material_pieces[BLACK] += pieceValue[ROOK];
+                    scores[BLACK] += TBLROOK[m_blackPieces[i]];
+                    break;
+
+                case QUEEN:
+                    material_pieces[BLACK] += pieceValue[QUEEN];
+                    scores[BLACK] += TBLQUEEN[m_blackPieces[i]];
+                    break;
+
+                case KING:
+                    scores[BLACK] += pieceValue[KING];
+                    break;
+            }
+        }
+        scores[WHITE] += material_pieces[WHITE] + material_pawns[WHITE];
+        scores[BLACK] += material_pieces[BLACK] + material_pawns[BLACK];
+
+        //On réitère une dernière fois pour évaluer la position du roi
+        for(int i = 0; i < 16; i++){
+            if(m_pieces[m_whitePieces[i]] == KING){
+                scores[WHITE] += material_pieces[BLACK] <= 1350 ? TBLKING_END[m_whitePieces[i]] : TBLKING[m_whitePieces[i]];
+            }
+            if(m_pieces[m_blackPieces[i]] == KING){
+                scores[BLACK] += material_pieces[WHITE] <= 1350 ? TBLKING_END[m_blackPieces[i]] : TBLKING[m_blackPieces[i]];
+            }
+        }
+
+        //Renvoit la différence de score, négative si les noirs ont l'avantage, positive si les blanc l'ont
+        return scores[WHITE] - scores[BLACK];
+    }
 };
 
 
