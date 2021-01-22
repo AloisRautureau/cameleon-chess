@@ -8,6 +8,7 @@
 #include "Constants.h"
 #include <utility>
 #include <cmath>
+#include <chrono>
 
 /*
  * Board class is used to represent the current position, generate and make moves, and generally speaking modify the board in any meaningful way
@@ -117,23 +118,43 @@ public:
      * Move generation functions
      * Generate all psuedolegal moves/only captures, in the current position
      */
+
+    //Reset movelist
+    void resetList(){
+        moveListIndx = 0;
+        for(unsigned int & i : moveList){
+            if(i == 0) break;
+            i = 0;
+        }
+    }
+
     void gen(){
+        resetList();
+
         //For each piece in each pieceType
         for(int pieceType = 0; pieceType < 6; pieceType++){
             for(int piece = 0; piece < 10; piece++){
                 int adress = sideToMove == WHITE ? whitePieces[pieceType][piece] : blackPieces[pieceType][piece];
                 //If the adress points to an invalid square, piece doesn't exist and we skip to the next pieceType
-                if(adress == INV) break;
+                if(adress == INV && (sideToMove == WHITE ? whitePieces[pieceType][piece+1] : blackPieces[pieceType][piece+1] == INV)) break;
 
                 if(pieceType == PAWN){
-                    if(colors[adress] == WHITE){
+                    if(sideToMove == WHITE){
                         if(pieces[adress + 16] == EMPTY){
-                            if(pieces[adress + 32] == EMPTY){
+                            if(pieces[adress + 32] == EMPTY && adress >= 0x10 && adress <= 0x17){
                                 moveList[moveListIndx] = encodeMove(adress, adress+32, DPAWNPUSH);
                                 moveListIndx++;
                             }
-                            moveList[moveListIndx] = encodeMove(adress, adress+16, QUIET);
-                            moveListIndx++;
+                            if(adress >= 0x60 && adress <= 0x67){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress+16, KNIGHTPROM+i);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress+16, QUIET);
+                                moveListIndx++;
+                            }
                         }
 
                         if(colors[adress + 15] == BLACK || adress+15 == enPassant){
@@ -141,8 +162,16 @@ public:
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
-                            moveList[moveListIndx] = encodeMove(adress, adress+15, CAP);
-                            moveListIndx++;
+                            else if(adress + 15 >= 0x70 && adress + 15 <= 0x77){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress+15, KNIGHTPROM+i);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress+15, CAP);
+                                moveListIndx++;
+                            }
                         }
 
                         if(colors[adress + 17] == BLACK || adress+17 == enPassant){
@@ -150,19 +179,35 @@ public:
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
-                            moveList[moveListIndx] = encodeMove(adress, adress+17, CAP);
-                            moveListIndx++;
+                            else if(adress + 17 >= 0x70 && adress + 17 <= 0x77){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress+17, KNIGHTPROM+i);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress+17, CAP);
+                                moveListIndx++;
+                            }
                         }
                     }
 
                     else{
                         if(pieces[adress - 16] == EMPTY){
-                            if(pieces[adress - 32] == EMPTY){
+                            if(pieces[adress - 32] == EMPTY && adress >= 0x60 && adress <= 0x67){
                                 moveList[moveListIndx] = encodeMove(adress, adress-32, DPAWNPUSH);
                                 moveListIndx++;
                             }
-                            moveList[moveListIndx] = encodeMove(adress, adress-16, QUIET);
-                            moveListIndx++;
+                            if(adress >= 0x10 && adress <= 0x17){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress-16, KNIGHTPROM+i);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress-16, QUIET);
+                                moveListIndx++;
+                            }
                         }
 
                         if(colors[adress - 15] == WHITE || adress-15 == enPassant){
@@ -170,8 +215,16 @@ public:
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
-                            moveList[moveListIndx] = encodeMove(adress, adress-15, CAP);
-                            moveListIndx++;
+                            else if(adress - 15 >= 0x00 && adress - 15 <= 0x07){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress-15, KNIGHTPROM+i);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress-15, CAP);
+                                moveListIndx++;
+                            }
                         }
 
                         if(colors[adress - 17] == WHITE || adress-17 == enPassant){
@@ -179,8 +232,16 @@ public:
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
-                            moveList[moveListIndx] = encodeMove(adress, adress-17, CAP);
-                            moveListIndx++;
+                            else if(adress - 17 >= 0x00 && adress - 17 <= 0x07){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress-17, KNIGHTPROM+i);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress-17, CAP);
+                                moveListIndx++;
+                            }
                         }
                     }
                 }
@@ -191,20 +252,19 @@ public:
                     for(int i = 0; i < 8; i++){
                         int direction = pieceMv[pieceType][i];
                         if(direction == 0) break;
-                        bool done = false;
                         BYTE currentSquare = adress + direction;
-                        while(!done){
-                            if(isInvalid(currentSquare) || colors[currentSquare] == sideToMove || currentSquare>0x7F) done = true;
+                        while(true){
+                            if(isInvalid(currentSquare) || colors[currentSquare] == sideToMove || currentSquare > 0x7F) break;
                             else if(colors[currentSquare] == (sideToMove^1)){
                                 moveList[moveListIndx] = encodeMove(adress, currentSquare, CAP);
                                 moveListIndx++;
-                                done = true;
+                                break;
                             }
                             else{
                                 moveList[moveListIndx] = encodeMove(adress, currentSquare, QUIET);
                                 moveListIndx++;
                                 currentSquare += direction;
-                                done = pieceMv[0][pieceType] == false;
+                                if(!pieceMv[0][pieceType]) break;
                             }
                         }
                     }
@@ -214,42 +274,53 @@ public:
         //Generate castling moves
         //To do this sort of effectively, we check conditions gradually by order of time complexity
         //Therefore, we end up by checking if the squares are attacked
-        if((castlingRights & 0b1000) == 0b1000){
-            //White kingside castle
-            if(pieces[0x05] == EMPTY && pieces[0x06] == EMPTY && sideToMove == WHITE){
-                if(!(isUnderAttack(0x05, BLACK) || isUnderAttack(0x06, BLACK) || isUnderAttack(0x04, BLACK))){
-                    moveList[moveListIndx] = encodeMove(0x04, 0x06, KCASTLE);
-                    moveListIndx++;
+        if(sideToMove == WHITE){
+            if((castlingRights & 0b1000) == 0b1000){
+                //White kingside castle
+                if(pieces[0x05] == EMPTY && pieces[0x06] == EMPTY){
+                    if(!(isUnderAttack(0x05, BLACK) || isUnderAttack(0x06, BLACK) || isUnderAttack(0x04, BLACK))){
+                        moveList[moveListIndx] = encodeMove(0x04, 0x06, KCASTLE);
+                        moveListIndx++;
+                    }
+                }
+            }
+            if((castlingRights & 0b0100) == 0b0100){
+                //White queenside castle
+                if(pieces[0x03] == EMPTY && pieces[0x02] == EMPTY && pieces[0x01] == EMPTY){
+                    if(!(isUnderAttack(0x02, BLACK) || isUnderAttack(0x03, BLACK) || isUnderAttack(0x04, BLACK) || isUnderAttack(0x01, BLACK))){
+                        moveList[moveListIndx] = encodeMove(0x04, 0x02, QCASTLE);
+                        moveListIndx++;
+                    }
                 }
             }
         }
-        if((castlingRights & 0b0100) == 0b0100){
-            //White queenside castle
-            if(pieces[0x03] == EMPTY && pieces[0x02] == EMPTY && pieces[0x01] == EMPTY && sideToMove == WHITE){
-                if(!(isUnderAttack(0x02, BLACK) || isUnderAttack(0x03, BLACK) || isUnderAttack(0x04, BLACK) || isUnderAttack(0x01, BLACK))){
-                    moveList[moveListIndx] = encodeMove(0x04, 0x02, QCASTLE);
-                    moveListIndx++;
+        else{
+            if((castlingRights & 0b0010) == 0b0010){
+                //Black kingside castle
+                if(pieces[0x75] == EMPTY && pieces[0x76] == EMPTY){
+                    if(!(isUnderAttack(0x75, WHITE) || isUnderAttack(0x76, WHITE) || isUnderAttack(0x74, WHITE))){
+                        moveList[moveListIndx] = encodeMove(0x74, 0x76, KCASTLE);
+                        moveListIndx++;
+                    }
+                }
+            }
+            if((castlingRights & 0b0001) == 0b0001){
+                //Black queenside castle
+                if(pieces[0x73] == EMPTY && pieces[0x72] == EMPTY && pieces[0x71] == EMPTY){
+                    if(!(isUnderAttack(0x72, WHITE) || isUnderAttack(0x73, WHITE) || isUnderAttack(0x74, WHITE) || isUnderAttack(0x71, WHITE))){
+                        moveList[moveListIndx] = encodeMove(0x74, 0x72, QCASTLE);
+                        moveListIndx++;
+                    }
                 }
             }
         }
-        if((castlingRights & 0b0010) == 0b0010){
-            //Black kingside castle
-            if(pieces[0x75] == EMPTY && pieces[0x76] == EMPTY && sideToMove == BLACK){
-                if(!(isUnderAttack(0x75, WHITE) || isUnderAttack(0x76, WHITE) || isUnderAttack(0x74, WHITE))){
-                    moveList[moveListIndx] = encodeMove(0x74, 0x76, KCASTLE);
-                    moveListIndx++;
-                }
-            }
+
+        /*
+        for(int i = 0; i < moveListIndx; i++){
+            std::cout << std::hex << (int)fromSq(moveList[i]) << " -> " << (int)toSq(moveList[i]) << std::dec << " " << moveList[i] << std::endl;
         }
-        if((castlingRights & 0b0001) == 0b0001){
-            //Black queenside castle
-            if(pieces[0x73] == EMPTY && pieces[0x72] == EMPTY && pieces[0x71] == EMPTY && sideToMove == BLACK){
-                if(!(isUnderAttack(0x72, WHITE) || isUnderAttack(0x73, WHITE) || isUnderAttack(0x74, WHITE) || isUnderAttack(0x71, WHITE))){
-                    moveList[moveListIndx] = encodeMove(0x74, 0x72, QCASTLE);
-                    moveListIndx++;
-                }
-            }
-        }
+        std::cout << std::dec << std::endl;
+         */
     }
 
     //Checks if a given square is under attack by the given side
@@ -257,12 +328,12 @@ public:
     bool isUnderAttack(BYTE square, int side){
         for(int pieceType = 0; pieceType < 6; pieceType++){
             for(int piece = 0; piece < 10; piece++){
-                int adress = side == WHITE ? blackPieces[pieceType][piece] : whitePieces[pieceType][piece];
+                int adress = (side == WHITE ? whitePieces[pieceType][piece] : blackPieces[pieceType][piece]);
                 //If the adress points to an invalid square, piece doesn't exist and we skip to the next pieceType
-                if(adress == INV) break;
+                if(adress == INV && (sideToMove == WHITE ? whitePieces[pieceType][piece+1] : blackPieces[pieceType][piece+1] == INV)) break;
 
                 if(pieceType == PAWN){
-                    if(colors[adress] == WHITE) {
+                    if(side == WHITE) {
                         if (adress + 15 == square || adress + 17 == square) return true;
                     }
 
@@ -278,14 +349,14 @@ public:
                         int direction = pieceMv[pieceType][i];
                         if(direction == 0) break;
                         //If the signs are different, it means we're not going in the right direction and can ignore it
-                        if(std::signbit(direction) == std::signbit(square - adress)) continue;
-
-                        bool done = false;
+                        //if(std::signbit(direction) == std::signbit(square - adress)) continue;
                         BYTE currentSquare = adress + direction;
 
-                        while(!done){
-                            if(isInvalid(currentSquare) || colors[currentSquare] != EMPTY || currentSquare>0x7F || pieceMv[0][pieceType] == false) done = true;
-                            else if(currentSquare == square) return true;
+                        while(true){
+                            if(isInvalid(currentSquare) || colors[currentSquare] == side || currentSquare>0x7F) break;
+                            if(currentSquare == square) return true;
+                            if(colors[currentSquare] == (side^1) || !pieceMv[0][pieceType]) break;
+                            currentSquare += direction;
                         }
                     }
                 }
@@ -299,87 +370,28 @@ public:
      */
 
     //Updates the piecelist
+    //Flags are 0 for changing adress, 1 to insert a new piece, 2 delete an entry
     void updatePieceList(int side, BYTE from, BYTE to, BYTE pieceType, int flag){
         bool deleted = false;
         for(int i = 0; i < 10; i++){
-            switch(flag){
-                case 0:
-                default:
-                    if(side == WHITE){
-                        if(whitePieces[pieceType][i] == INV) break;
-                        if(whitePieces[pieceType][i] == from) whitePieces[pieceType][i] = to;
-                    }
-                    else{
-                        if(blackPieces[pieceType][i] == INV) break;
-                        if(blackPieces[pieceType][i] == from) blackPieces[pieceType][i] = to;
-                    }
-                    break;
+            if((side == WHITE ? whitePieces[pieceType][i] : blackPieces[pieceType][i]) == from){
+                switch(flag){
+                    default: //Change adress
+                    case 1: //Insert (changing from INV to given square
+                        (side == WHITE ? whitePieces[pieceType][i] : blackPieces[pieceType][i]) = to;
+                        break;
 
-                case 1: //Insert
-                    if(side == WHITE){
-                        if(whitePieces[pieceType][i] == INV) whitePieces[pieceType][i] = to;
-                    }
-                    else{
-                        if(blackPieces[pieceType][i] == INV) blackPieces[pieceType][i] = to;
-                    }
-                    break;
-
-                case 2: //PROMTION
-                    if(side == WHITE){
-                        if(whitePieces[PAWN][i] == INV) {
-                            for(int j = 0; j < 10; i++){
-                                if(whitePieces[pieceType][j] == from) {
-                                    whitePieces[pieceType][j] = whitePieces[pieceType][i-1];
-                                    whitePieces[pieceType][i-1] = INV;
-                                    break;
-                                }
-                            }
-                            for(int j = 0; j < 10; j++){
-                                if(whitePieces[pieceType][i] == INV) whitePieces[pieceType][i] = to;
+                    case 2: //delete an entry
+                        for(int j = i; j < 10; j++){
+                            if((side == WHITE ? whitePieces[pieceType][j] : blackPieces[pieceType][j]) == INV){
+                                (side == WHITE ? whitePieces[pieceType][i] : blackPieces[pieceType][i]) = (side == WHITE ? whitePieces[pieceType][j-1] : blackPieces[pieceType][j-1]);
+                                (side == WHITE ? whitePieces[pieceType][j-1] : blackPieces[pieceType][j-1]) = INV;
+                                break;
                             }
                         }
-                    }
-                    else{
-                        if(blackPieces[PAWN][i] == INV) {
-                            for(int j = 0; j < 10; i++){
-                                if(blackPieces[pieceType][j] == from) {
-                                    blackPieces[pieceType][j] = blackPieces[pieceType][i-1];
-                                    blackPieces[pieceType][i-1] = INV;
-                                    break;
-                                }
-                            }
-                            for(int j = 0; j < 10; j++){
-                                if(blackPieces[pieceType][i] == INV) blackPieces[pieceType][i] = to;
-                            }
-                        }
-                    }
-                    break;
-
-                case 3: //Delete
-                    if(side == WHITE){
-                        if(whitePieces[pieceType][i] == INV){
-                            for(int j = 0; j < 10; i++){
-                                if(whitePieces[pieceType][j] == from) {
-                                    whitePieces[pieceType][j] = whitePieces[pieceType][i-1];
-                                    whitePieces[pieceType][i-1] = INV;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    else{
-                        if(blackPieces[pieceType][i] == INV){
-                            for(int j = 0; j < 10; i++){
-                                if(blackPieces[pieceType][j] == from) {
-                                    blackPieces[pieceType][j] = blackPieces[pieceType][i-1];
-                                    blackPieces[pieceType][i-1] = INV;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                   break;
-
+                        break;
+                }
+                break;
             }
         }
     }
@@ -387,7 +399,6 @@ public:
     bool makeMove(MOVEBITS move){
         //Save the current position in case we need to takeback
         history.push(encodePosition(move, pieces[toSq(move)], enPassant, castlingRights, fifty));
-
         //We take care of moving the designed rook first if we're dealing with a castling move
         if(flag(move) == KCASTLE){
             if(sideToMove == WHITE){
@@ -447,21 +458,22 @@ public:
         else fifty++;
         //En passant
         if(flag(move) == DPAWNPUSH) enPassant = sideToMove == WHITE ? toSq(move) - 16 : toSq(move) + 16;
+        else enPassant = INV;
 
         //Actual move making
         if((flag(move) & CAP) == CAP){
             if(flag(move) == EPCAP){
                 if(sideToMove == WHITE){
                     pieces[toSq(move) - 16] = EMPTY; colors[toSq(move) - 16] = EMPTY;
-                    updatePieceList(BLACK, toSq(move) - 16, INV, PAWN, 3);
+                    updatePieceList(BLACK, toSq(move) - 16, INV, PAWN, 2);
                 }
                 else{
                     pieces[toSq(move) + 16] = EMPTY; colors[toSq(move) + 16] = EMPTY;
-                    updatePieceList(WHITE, toSq(move) + 16, INV, PAWN, 3);
+                    updatePieceList(WHITE, toSq(move) + 16, INV, PAWN, 2);
                 }
             }
             else{
-                updatePieceList(sideToMove^1, toSq(move), INV, pieces[toSq(move)], 3);
+                updatePieceList(sideToMove^1, toSq(move), INV, pieces[toSq(move)], 2);
             }
         }
 
@@ -472,32 +484,35 @@ public:
         updatePieceList(sideToMove, fromSq(move), toSq(move), pieces[toSq(move)], 0);
 
         //Take care of promotion if necessary
-        if((toSq(move) > 0x70 || toSq(move) < 0x08) && pieces[toSq(move)] == PAWN){
+        if(((toSq(move) >= 0x70 && toSq(move) <= 0x77) || (toSq(move) <= 0x07 && toSq(move) >= 0x00)) && pieces[toSq(move)] == PAWN){
+
             switch(flag(move) & 0b1011){
                 case KNIGHTPROM:
                     pieces[toSq(move)] = KNIGHT;
-                    updatePieceList(sideToMove, toSq(move), toSq(move), KNIGHT, 2);
+                    updatePieceList(sideToMove, INV, toSq(move), KNIGHT, 1);
+                    updatePieceList(sideToMove, toSq(move), INV, PAWN, 2);
                     break;
                 case BISHOPPROM:
                     pieces[toSq(move)] = BISHOP;
-                    updatePieceList(sideToMove, toSq(move), toSq(move), BISHOP, 2);
+                    updatePieceList(sideToMove, INV, toSq(move), BISHOP, 1);
+                    updatePieceList(sideToMove, toSq(move), INV, PAWN, 2);
                     break;
                 case ROOKPROM:
                     pieces[toSq(move)] = ROOK;
-                    updatePieceList(sideToMove, toSq(move), toSq(move), ROOK, 2);
+                    updatePieceList(sideToMove, INV, toSq(move), ROOK, 1);
+                    updatePieceList(sideToMove, toSq(move), INV, PAWN, 2);
                     break;
                 case QUEENPROM:
-                    pieces[toSq(move)] = QUEEN;
-                    updatePieceList(sideToMove, toSq(move), toSq(move), QUEEN, 2);
-                    break;
                 default:
-                    std::cout << "Error when promoting" << std::endl;
+                    pieces[toSq(move)] = QUEEN;
+                    updatePieceList(sideToMove, INV, toSq(move), QUEEN, 1);
+                    updatePieceList(sideToMove, toSq(move), INV, PAWN, 2);
                     break;
             }
         }
 
         //We check if the king is in check, if it's the case we takeback the move
-        if(isUnderAttack(sideToMove == WHITE ? whitePieces[5][0] : blackPieces[5][0], sideToMove^1)){
+        if(isUnderAttack((sideToMove == WHITE ? whitePieces[5][0] : blackPieces[5][0]), sideToMove^1)){
             sideToMove ^= 1;
             unmake();
             return false;
@@ -575,10 +590,12 @@ public:
 
         //Promotion...
         if((flag(move) & 0b1000) == 0b1000){
-            updatePieceList(sideToMove, fromSq(move), INV, pieces[fromSq(move)], 3);
+            updatePieceList(sideToMove, fromSq(move), INV, pieces[fromSq(move)], 2);
             updatePieceList(sideToMove, INV, fromSq(move), PAWN, 1);
             pieces[fromSq(move)] = PAWN;
         }
+
+        history.pop();
     }
 
     long long perft(int depth)
@@ -610,8 +627,78 @@ public:
     void perftTest(){
         std::cout << "##### PERFT TIME YAY !!! #####" << std::endl << std::endl;
         for(int i = 0; i < 10; i++){
-            std::cout << "Number of nodes for depth " << i << " : " << perft(i) << std::endl;
+            auto startTime = std::chrono::high_resolution_clock::now();
+
+            long long nodes = perft(i);
+
+            auto endTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> diff =  endTime - startTime;
+
+            std::cout << "Nodes at depth " << i << " : " << nodes << " calculated in " << diff.count() << " seconds (" << nodes/(diff.count()) << " n/s)" << std::endl;
         }
+    }
+
+    void showBoard(bool flip = false){
+        std::cout << (sideToMove == WHITE ? "White " : "Black ") << "to move" << std::endl;
+        for(int i = 0; i < 0x80; i++){
+            int adress = fileIndex(i) + (7-rankIndex(i))*16;
+            if(flip) adress = i;
+
+            if((i&0x88) != 0) continue;
+            if(fileIndex(adress) == 0){
+                std::cout << std::endl << "   +---+---+---+---+---+---+---+---+" << std::endl << " " << (int)rankIndex(adress) + 1 << " | ";
+            }
+
+            switch(pieces[adress]){
+                case EMPTY:
+                    std::cout << "  | ";
+                    break;
+                case PAWN:
+                    std::cout << (colors[adress] == WHITE ? "P | " : "p | ");
+                    break;
+                case KNIGHT:
+                    std::cout << (colors[adress] == WHITE ? "N | " : "n | ");
+                    break;
+                case BISHOP:
+                    std::cout << (colors[adress] == WHITE ? "B | " : "b | ");
+                    break;
+                case ROOK:
+                    std::cout << (colors[adress] == WHITE ? "R | " : "r | ");
+                    break;
+                case QUEEN:
+                    std::cout << (colors[adress] == WHITE ? "Q | " : "q | ");
+                    break;
+                case KING:
+                    std::cout << (colors[adress] == WHITE ? "K | " : "k | ");
+                    break;
+                default: break;
+            }
+        }
+
+        std::cout << std::endl << "   +---+---+---+---+---+---+---+---+" << std::endl << "     ";
+        for(int i = 0; i < 8; i++){
+            std::cout << (char)('A' + i) << "   ";
+        }
+        std::cout << std::endl << std::endl << "Current ply : " << ply << std::endl;
+
+        std::cout << "Piece list situation :" << std::endl;
+        std::cout << "White : " << std::endl;
+        for(int i = 0; i < 6; i++){
+            std::cout << std::endl << pieceNames[i] << " : ";
+            for(int j = 0; j < 10; j++){
+                if(j != 9 && (whitePieces[i][j] == INV)) break;
+                std::cout <<std::hex << (int)whitePieces[i][j] << ", ";
+            }
+        }
+        std::cout << std::endl << "Black : " << std::endl;
+        for(int i = 0; i < 6; i++){
+            std::cout << std::endl << pieceNames[i] << " : ";
+            for(int j = 0; j < 10; j++){
+                if(blackPieces[i][j] == INV) break;
+                std::cout <<std::hex << (int)blackPieces[i][j] << ", ";
+            }
+        }
+        std::cout << std::dec;
     }
 
 };

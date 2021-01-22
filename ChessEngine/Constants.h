@@ -13,14 +13,16 @@
  * Definition of useful types
  */
 
-typedef unsigned char BYTE;
-typedef unsigned int MOVEBITS;
-typedef unsigned long long POSITIONBITS;
-typedef unsigned short FLAG;
+typedef uint8_t BYTE;
+typedef uint32_t MOVEBITS;
+typedef uint64_t POSITIONBITS;
+typedef uint8_t FLAG;
 
 /*
  * Pieces constants
  */
+
+const std::string pieceNames[6] = {"PAWN", "KNIGHT", "BISHOP", "ROOK", "QUEEN", "KING"};
 
 const BYTE PAWN = 0;
 const BYTE KNIGHT = 1;
@@ -33,7 +35,7 @@ const BYTE WHITE = 0;
 const BYTE BLACK = 1;
 
 const BYTE EMPTY = 6;
-const BYTE INV = 7;
+const BYTE INV = 8;
 
 const FLAG QUIET = 0b0000;
 const FLAG DPAWNPUSH = 0b0001;
@@ -103,12 +105,13 @@ BYTE flag(MOVEBITS move){ return (move & 0b0000000000001111); }
 
 //Encodes a position on 64bits (18 bits for move made, 3bits for piece taken, 8bits for enPassant square, 4bits for castling and 7bits fifty move rule)
 POSITIONBITS encodePosition(MOVEBITS move, BYTE pieceTaken, BYTE enPassant, BYTE castling, int fifty){
-    return (move << 22) + (pieceTaken << 19) + (enPassant << 11) + (castling << 7) + fifty;
+    POSITIONBITS moveB = move, pieceB = pieceTaken, enPassantB = enPassant, castlingB = castling, fiftyB = fifty;
+    return (moveB << 21) + (pieceB << 18) + (enPassantB << 11) + (castlingB << 7) + fiftyB;
 }
 
-MOVEBITS movePlayed(POSITIONBITS position){ return (position & 0b1111111111111111110000000000000000000000) >> 22; }
-BYTE pieceToWakeFromTheDead(POSITIONBITS position){ return (position & 0b1110000000000000000000) >> 19; }
-BYTE enPassantLast(POSITIONBITS position){ return (position & 0b1111111100000000000) >> 11; }
+MOVEBITS movePlayed(POSITIONBITS position){ return (position >> 21); }
+BYTE pieceToWakeFromTheDead(POSITIONBITS position){ return (position & 0b111000000000000000000) >> 18; }
+BYTE enPassantLast(POSITIONBITS position){ return (position & 0b111111100000000000) >> 11; }
 BYTE castling(POSITIONBITS position){ return (position & 0b11110000000) >> 7; }
 int fiftyClock(POSITIONBITS position){ return (position & 0b1111111); }
 

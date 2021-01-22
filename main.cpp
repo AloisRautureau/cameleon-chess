@@ -4,6 +4,9 @@
 
 int main() {
     Board board;
+    //board.makeMove(33280);
+    //board.gen();
+
     board.perftTest();
     return 0;
 }
