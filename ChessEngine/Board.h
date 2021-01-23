@@ -158,7 +158,7 @@ public:
                         }
 
                         if(colors[adress + 15] == BLACK || adress+15 == enPassant){
-                            if(adress+15 == enPassant){
+                            if(adress+15 == enPassant && enPassant != INV){
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
@@ -175,7 +175,7 @@ public:
                         }
 
                         if(colors[adress + 17] == BLACK || adress+17 == enPassant){
-                            if(adress+17 == enPassant){
+                            if(adress+17 == enPassant && enPassant != INV){
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
@@ -211,7 +211,7 @@ public:
                         }
 
                         if(colors[adress - 15] == WHITE || adress-15 == enPassant){
-                            if(adress-15 == enPassant){
+                            if(adress-15 == enPassant && enPassant != INV){
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
@@ -228,7 +228,7 @@ public:
                         }
 
                         if(colors[adress - 17] == WHITE || adress-17 == enPassant){
-                            if(adress-17 == enPassant){
+                            if(adress-17 == enPassant && enPassant != INV){
                                 moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
                                 moveListIndx++;
                             }
@@ -277,7 +277,7 @@ public:
         if(sideToMove == WHITE){
             if((castlingRights & 0b1000) == 0b1000){
                 //White kingside castle
-                if(pieces[0x05] == EMPTY && pieces[0x06] == EMPTY){
+                if(colors[0x05] == EMPTY && colors[0x06] == EMPTY){
                     if(!(isUnderAttack(0x05, BLACK) || isUnderAttack(0x06, BLACK) || isUnderAttack(0x04, BLACK))){
                         moveList[moveListIndx] = encodeMove(0x04, 0x06, KCASTLE);
                         moveListIndx++;
@@ -286,7 +286,7 @@ public:
             }
             if((castlingRights & 0b0100) == 0b0100){
                 //White queenside castle
-                if(pieces[0x03] == EMPTY && pieces[0x02] == EMPTY && pieces[0x01] == EMPTY){
+                if(colors[0x03] == EMPTY && colors[0x02] == EMPTY && colors[0x01] == EMPTY){
                     if(!(isUnderAttack(0x02, BLACK) || isUnderAttack(0x03, BLACK) || isUnderAttack(0x04, BLACK) || isUnderAttack(0x01, BLACK))){
                         moveList[moveListIndx] = encodeMove(0x04, 0x02, QCASTLE);
                         moveListIndx++;
@@ -297,7 +297,7 @@ public:
         else{
             if((castlingRights & 0b0010) == 0b0010){
                 //Black kingside castle
-                if(pieces[0x75] == EMPTY && pieces[0x76] == EMPTY){
+                if(colors[0x75] == EMPTY && colors[0x76] == EMPTY){
                     if(!(isUnderAttack(0x75, WHITE) || isUnderAttack(0x76, WHITE) || isUnderAttack(0x74, WHITE))){
                         moveList[moveListIndx] = encodeMove(0x74, 0x76, KCASTLE);
                         moveListIndx++;
@@ -306,7 +306,7 @@ public:
             }
             if((castlingRights & 0b0001) == 0b0001){
                 //Black queenside castle
-                if(pieces[0x73] == EMPTY && pieces[0x72] == EMPTY && pieces[0x71] == EMPTY){
+                if(colors[0x73] == EMPTY && colors[0x72] == EMPTY && colors[0x71] == EMPTY){
                     if(!(isUnderAttack(0x72, WHITE) || isUnderAttack(0x73, WHITE) || isUnderAttack(0x74, WHITE) || isUnderAttack(0x71, WHITE))){
                         moveList[moveListIndx] = encodeMove(0x74, 0x72, QCASTLE);
                         moveListIndx++;
@@ -321,6 +321,8 @@ public:
         }
         std::cout << std::dec << std::endl;
          */
+
+
     }
 
     //Checks if a given square is under attack by the given side
@@ -399,18 +401,19 @@ public:
     bool makeMove(MOVEBITS move){
         //Save the current position in case we need to takeback
         history.push(encodePosition(move, pieces[toSq(move)], enPassant, castlingRights, fifty));
+
         //We take care of moving the designed rook first if we're dealing with a castling move
         if(flag(move) == KCASTLE){
             if(sideToMove == WHITE){
                 pieces[0x07] = EMPTY; colors[0x07] = EMPTY;
                 pieces[0x05] = ROOK; colors[0x05] = WHITE;
-                castlingRights -= 0b1100;
+                castlingRights -= (0b1100 & castlingRights);
                 updatePieceList(WHITE, 0x07, 0x05, ROOK, 0);
             }
             else{
                 pieces[0x77] = EMPTY; colors[0x77] = EMPTY;
                 pieces[0x75] = ROOK; colors[0x75] = BLACK;
-                castlingRights -= 0b00111;
+                castlingRights -= (0b0011 & castlingRights);
                 updatePieceList(BLACK, 0x77, 0x75, ROOK, 0);
             }
         }
@@ -418,38 +421,41 @@ public:
             if(sideToMove == WHITE){
                 pieces[0x00] = EMPTY; colors[0x00] = EMPTY;
                 pieces[0x03] = ROOK; colors[0x03] = WHITE;
-                castlingRights -= 0b1100;
+                castlingRights -= (0b1100 & castlingRights);
                 updatePieceList(WHITE, 0x00, 0x03, ROOK, 0);
             }
             else{
                 pieces[0x70] = EMPTY; colors[0x70] = EMPTY;
                 pieces[0x73] = ROOK; colors[0x73] = BLACK;
-                castlingRights -= 0b00111;
-                updatePieceList(BLACK, 0X70, 0x73, ROOK, 0);
+                castlingRights -= (0b0011 & castlingRights);
+                updatePieceList(BLACK, 0x70, 0x73, ROOK, 0);
             }
         }
 
         //Update all the "bonus" informations like castling rights, ply, fifty move rule, enPassant
         //Castling
-        if(pieces[fromSq(move)] == KING) castlingRights -= sideToMove == WHITE ? 0b1100 : 0b0011;
+        if(pieces[fromSq(move)] == KING) {
+            if(sideToMove == WHITE) castlingRights -= (0b1100 & castlingRights);
+            else castlingRights -= (0b0011 & castlingRights);
+        }
         else if(pieces[fromSq(move)] == ROOK){
             if(sideToMove == WHITE){
-                if(fromSq(move) == 0x00) castlingRights -= 0b0100;
-                if(fromSq(move) == 0x07) castlingRights -= 0b1000;
+                if(fromSq(move) == 0x00) castlingRights -= (0b0100 & castlingRights);
+                if(fromSq(move) == 0x07) castlingRights -= (0b1000 & castlingRights);
             }
             else{
-                if(fromSq(move) == 0x70) castlingRights -= 0b0001;
-                if(fromSq(move) == 0x77) castlingRights -= 0b0010;
+                if(fromSq(move) == 0x70) castlingRights -= (0b0001 & castlingRights);
+                if(fromSq(move) == 0x77) castlingRights -= (0b0010 & castlingRights);
             }
         }
         else if(pieces[toSq(move)] == ROOK){
             if(sideToMove == BLACK){
-                if(toSq(move) == 0x00) castlingRights -= 0b0100;
-                if(toSq(move) == 0x07) castlingRights -= 0b1000;
+                if(toSq(move) == 0x00) castlingRights -= (0b0100 & castlingRights);
+                if(toSq(move) == 0x07) castlingRights -= (0b1000 & castlingRights);
             }
             else{
-                if(toSq(move) == 0x70) castlingRights -= 0b0001;
-                if(toSq(move) == 0x77) castlingRights -= 0b0010;
+                if(toSq(move) == 0x70) castlingRights -= (0b0001 & castlingRights);
+                if(toSq(move) == 0x77) castlingRights -= (0b0010 & castlingRights);
             }
         }
         //Ply/fifty
@@ -542,23 +548,24 @@ public:
         
         if(flag(move) == EPCAP){
             if(sideToMove == WHITE){
-                pieces[toSq(move) - 16] = pieceTaken;
-                colors[toSq(move) - 16] = sideToMove^1;
+                pieces[toSq(move) - 16] = PAWN;
+                colors[toSq(move) - 16] = BLACK;
                 updatePieceList(BLACK, INV, toSq(move) - 16, PAWN, 1);
             }
             else{
-                pieces[toSq(move) + 16] = pieceTaken;
-                colors[toSq(move) + 16] = sideToMove^1;
+                pieces[toSq(move) + 16] = PAWN;
+                colors[toSq(move) + 16] = WHITE;
                 updatePieceList(WHITE, INV, toSq(move) + 16, PAWN, 1);
             }
         }
-        else{
+        else if(flag(move) == CAP){
             pieces[toSq(move)] = pieceTaken;
-            if(pieceTaken != EMPTY){
-                colors[toSq(move)] = sideToMove^1;
-                updatePieceList(sideToMove^1, INV, toSq(move), pieceTaken, 1);
-            }
-            else colors[toSq(move)] = EMPTY;
+            colors[toSq(move)] = sideToMove^1;
+            updatePieceList(sideToMove^1, INV, toSq(move), pieceTaken, 1);
+        }
+        else {
+            pieces[toSq(move)] = EMPTY;
+            colors[toSq(move)] = EMPTY;
         }
 
 
@@ -598,7 +605,7 @@ public:
         history.pop();
     }
 
-    long long perft(int depth)
+    long long perft(int depth, int* caps, int* ep, int* castles, int* prom, int* checks)
     {
         long long nodes = 0;
 
@@ -616,9 +623,31 @@ public:
 
         for (int i = 0; i < moves; i++) {
             if(makeMove(stack[i])){
-                nodes += perft(depth - 1);
+
+                switch(flag(stack[i])){
+                    case CAP:
+                        *caps = *caps + 1;
+                        break;
+                    case EPCAP:
+                        *ep = *ep + 1;
+                        break;
+                    case KCASTLE:
+                    case QCASTLE:
+                        *castles = *castles + 1;
+                        break;
+                    case KNIGHTPROM:
+                    case BISHOPPROM:
+                    case ROOKPROM:
+                    case QUEENPROM:
+                        *prom = *prom + 1;
+                        break;
+                    default: break;
+                }
+
+                nodes += perft(depth - 1, caps, ep, castles, prom, checks);
                 unmake();
             }
+            else *checks = *checks + 1;
         }
         return nodes;
     }
@@ -626,16 +655,32 @@ public:
     //Calls perft for each depth layer and tests whether the values are right or not with display
     void perftTest(){
         std::cout << "##### PERFT TIME YAY !!! #####" << std::endl << std::endl;
+
+        int caps = 0; int* capsptr = &caps;
+        int ep = 0; int* epptr = &ep;
+        int castles = 0; int* castlesptr = &castles;
+        int prom = 0; int* promptr = &prom;
+        int checks = 0; int* checksptr = &checks;
+
+
         for(int i = 0; i < 10; i++){
+            *capsptr = 0;
+            *epptr = 0;
+            *castlesptr = 0;
+            *promptr = 0;
+
             auto startTime = std::chrono::high_resolution_clock::now();
 
-            long long nodes = perft(i);
+            long long nodes = perft(i, capsptr, epptr, castlesptr, promptr, checksptr);
 
             auto endTime = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff =  endTime - startTime;
 
             std::cout << "Nodes at depth " << i << " : " << nodes << " calculated in " << diff.count() << " seconds (" << nodes/(diff.count()) << " n/s)" << std::endl;
+            std::cout << "CAP : " << caps << "  EP : " << ep << "  CASTLES : " << castles << "  PROM : " << prom << "  CHECKS : " << checks << std::endl;
+            std::cout << std::endl;
         }
+        delete capsptr, epptr, castlesptr, promptr;
     }
 
     void showBoard(bool flip = false){
@@ -682,7 +727,7 @@ public:
         std::cout << std::endl << std::endl << "Current ply : " << ply << std::endl;
 
         std::cout << "Piece list situation :" << std::endl;
-        std::cout << "White : " << std::endl;
+        std::cout << "White : ";
         for(int i = 0; i < 6; i++){
             std::cout << std::endl << pieceNames[i] << " : ";
             for(int j = 0; j < 10; j++){
@@ -690,7 +735,7 @@ public:
                 std::cout <<std::hex << (int)whitePieces[i][j] << ", ";
             }
         }
-        std::cout << std::endl << "Black : " << std::endl;
+        std::cout << std::endl << "Black : ";
         for(int i = 0; i < 6; i++){
             std::cout << std::endl << pieceNames[i] << " : ";
             for(int j = 0; j < 10; j++){
@@ -698,8 +743,201 @@ public:
                 std::cout <<std::hex << (int)blackPieces[i][j] << ", ";
             }
         }
+        std::cout << "En passant square : " << (int)enPassant << std::endl;
         std::cout << std::dec;
     }
+
+
+    /*
+    * FEN notation functions
+    * Those functions are made to set a board state to a given FEN string, or output a FEN from a position
+    */
+    void setFEN(const std::string& fen){
+        //Piece list variables for counting how many pieces we got
+        int blackCounter[6] = {0, 0, 0, 0, 0, 0};
+        int whiteCounter[6] = {0, 0, 0, 0, 0, 0};
+
+        //FEN notation reads from A8 to H1, so we start at A8
+        int charIndex = 0;
+        int squareIndex = 0x70;
+        bool settings = false;
+        for(charIndex; charIndex < fen.size(); charIndex++){
+            if(settings) break;
+
+            switch(fen[charIndex]){
+                case ' ': //Makes the cut to the settings part
+                    settings = true;
+                    break;
+
+                case '/': //In that case, we get to the next line
+                    squareIndex -= 0x18;
+                    break;
+
+                case 'p':
+                    pieces[squareIndex] = PAWN;
+                    colors[squareIndex] = BLACK;
+                    blackPieces[PAWN][blackCounter[PAWN]] = squareIndex;
+                    blackCounter[PAWN]++;
+                    squareIndex++;
+                    break;
+
+                case 'P':
+                    pieces[squareIndex] = PAWN;
+                    colors[squareIndex] = WHITE;
+                    whitePieces[PAWN][whiteCounter[PAWN]] = squareIndex;
+                    whiteCounter[PAWN]++;
+                    squareIndex++;
+                    break;
+
+                case 'n':
+                    pieces[squareIndex] = KNIGHT;
+                    colors[squareIndex] = BLACK;
+                    blackPieces[KNIGHT][blackCounter[KNIGHT]] = squareIndex;
+                    blackCounter[KNIGHT]++;
+                    squareIndex++;
+                    break;
+
+                case 'N':
+                    pieces[squareIndex] = KNIGHT;
+                    colors[squareIndex] = WHITE;
+                    whitePieces[KNIGHT][whiteCounter[KNIGHT]] = squareIndex;
+                    whiteCounter[KNIGHT]++;
+                    squareIndex++;
+                    break;
+
+                case 'b':
+                    pieces[squareIndex] = BISHOP;
+                    colors[squareIndex] = BLACK;
+                    blackPieces[BISHOP][blackCounter[BISHOP]] = squareIndex;
+                    blackCounter[BISHOP]++;
+                    squareIndex++;
+                    break;
+
+                case 'B':
+                    pieces[squareIndex] = BISHOP;
+                    colors[squareIndex] = WHITE;
+                    whitePieces[BISHOP][whiteCounter[BISHOP]] = squareIndex;
+                    whiteCounter[BISHOP]++;
+                    squareIndex++;
+                    break;
+
+                case 'r':
+                    pieces[squareIndex] = ROOK;
+                    colors[squareIndex] = BLACK;
+                    blackPieces[ROOK][blackCounter[ROOK]] = squareIndex;
+                    blackCounter[ROOK]++;
+                    squareIndex++;
+                    break;
+
+                case 'R':
+                    pieces[squareIndex] = ROOK;
+                    colors[squareIndex] = WHITE;
+                    whitePieces[ROOK][whiteCounter[ROOK]] = squareIndex;
+                    whiteCounter[ROOK]++;
+                    squareIndex++;
+                    break;
+
+                case 'q':
+                    pieces[squareIndex] = QUEEN;
+                    colors[squareIndex] = BLACK;
+                    blackPieces[QUEEN][blackCounter[QUEEN]] = squareIndex;
+                    blackCounter[QUEEN]++;
+                    squareIndex++;
+                    break;
+
+                case 'Q':
+                    pieces[squareIndex] = QUEEN;
+                    colors[squareIndex] = WHITE;
+                    whitePieces[QUEEN][whiteCounter[QUEEN]] = squareIndex;
+                    whiteCounter[QUEEN]++;
+                    squareIndex++;
+                    break;
+
+                case 'k':
+                    pieces[squareIndex] = KING;
+                    colors[squareIndex] = BLACK;
+                    blackPieces[KING][blackCounter[KING]] = squareIndex;
+                    blackCounter[KING]++;
+                    squareIndex++;
+                    break;
+
+                case 'K':
+                    pieces[squareIndex] = KING;
+                    colors[squareIndex] = WHITE;
+                    whitePieces[KING][whiteCounter[KING]] = squareIndex;
+                    whiteCounter[KING]++;
+                    squareIndex++;
+                    break;
+
+                default: //We get to this branch if we hit a numeral
+                    for(int i = 0; i < fen[charIndex] - '0'; i++){
+                        pieces[squareIndex] = EMPTY;
+                        colors[squareIndex] = EMPTY;
+                        squareIndex++;
+                    }
+                    break;
+            }
+        }
+        //Once we're out, we clear the rest of the piece lists
+        for(int i = 0; i < 6; i++){
+            while(blackCounter[i] < 10){
+                blackPieces[i][blackCounter[i]] = INV;
+                blackCounter[i]++;
+            }
+            while(whiteCounter[i] < 10){
+                whitePieces[i][whiteCounter[i]] = INV;
+                whiteCounter[i]++;
+            }
+        }
+
+        //Then we set the rest
+        sideToMove = fen[charIndex] == 'w' ? WHITE : BLACK;
+        charIndex+=2;
+
+        castlingRights = 0;
+        if(fen[charIndex] !=  '-'){
+            while(fen[charIndex] != ' '){
+                switch(fen[charIndex]){
+                    case 'K':
+                        castlingRights += 0b1000;
+                        break;
+                    case 'Q':
+                        castlingRights += 0b0100;
+                        break;
+                    case 'k':
+                        castlingRights += 0b0010;
+                        break;
+                    case 'q':
+                        castlingRights += 0b0001;
+                        break;
+                    default:
+                        break;
+                }
+                charIndex++;
+            }
+        }
+        else charIndex++;
+        charIndex++;
+
+        if(fen[charIndex] == '-') {
+            enPassant = INV;
+            charIndex++;
+        }
+        else{
+            enPassant = fileIndex(fen[charIndex] - 'A') + rankIndex(fen[charIndex + 1] - '0')*0x10;
+            charIndex+=2;
+        }
+        charIndex++;
+
+        if(charIndex == fen.size() - 4){
+            ply = fen[charIndex] - '0';
+            charIndex+=2;
+
+            fifty = fen[charIndex] - '0';
+        }
+    }
+
+    //std::string getFen(){}
 
 };
 
