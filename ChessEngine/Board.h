@@ -119,24 +119,15 @@ public:
      * Generate all psuedolegal moves/only captures, in the current position
      */
 
-    //Reset movelist
-    void resetList(){
-        moveListIndx = 0;
-        for(unsigned int & i : moveList){
-            if(i == 0) break;
-            i = 0;
-        }
-    }
-
     void gen(){
-        resetList();
+        moveListIndx = 0;
 
         //For each piece in each pieceType
         for(int pieceType = 0; pieceType < 6; pieceType++){
             for(int piece = 0; piece < 10; piece++){
                 int adress = sideToMove == WHITE ? whitePieces[pieceType][piece] : blackPieces[pieceType][piece];
                 //If the adress points to an invalid square, piece doesn't exist and we skip to the next pieceType
-                if(adress == INV && (sideToMove == WHITE ? whitePieces[pieceType][piece+1] : blackPieces[pieceType][piece+1] == INV)) break;
+                if(adress == INV) break;
 
                 if(pieceType == PAWN){
                     if(sideToMove == WHITE){
@@ -332,7 +323,7 @@ public:
             for(int piece = 0; piece < 10; piece++){
                 int adress = (side == WHITE ? whitePieces[pieceType][piece] : blackPieces[pieceType][piece]);
                 //If the adress points to an invalid square, piece doesn't exist and we skip to the next pieceType
-                if(adress == INV && (sideToMove == WHITE ? whitePieces[pieceType][piece+1] : blackPieces[pieceType][piece+1] == INV)) break;
+                if(adress == INV) break;
 
                 if(pieceType == PAWN){
                     if(side == WHITE) {
@@ -355,9 +346,8 @@ public:
                         BYTE currentSquare = adress + direction;
 
                         while(true){
-                            if(isInvalid(currentSquare) || colors[currentSquare] == side || currentSquare>0x7F) break;
                             if(currentSquare == square) return true;
-                            if(colors[currentSquare] == (side^1) || !pieceMv[0][pieceType]) break;
+                            if(isInvalid(currentSquare) || colors[currentSquare] != EMPTY || currentSquare>0x7F || !pieceMv[0][pieceType]) break;
                             currentSquare += direction;
                         }
                     }
@@ -659,7 +649,6 @@ public:
         int prom = 0; int* promptr = &prom;
         int checks = 0; int* checksptr = &checks;
 
-
         for(int i = 0; i < 14; i++){
             *capsptr = 0;
             *epptr = 0;
@@ -677,6 +666,7 @@ public:
             std::cout << "CAP : " << caps << "  EP : " << ep << "  CASTLES : " << castles << "  PROM : " << prom << "  CHECKS : " << checks << std::endl;
             std::cout << std::endl;
         }
+
         delete capsptr, epptr, castlesptr, promptr;
     }
 
