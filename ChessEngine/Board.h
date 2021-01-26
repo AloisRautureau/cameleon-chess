@@ -59,16 +59,6 @@ private:
             //King
             {0x04, INV, INV, INV, INV, INV, INV, INV, INV, INV},
     };
-    BYTE whiteIndexBoard[64] = {
-            0, 0, 0, 0, 0, 1, 1, 1,
-            0, 1, 2, 3, 4, 5, 6, 7,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV, 
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV
-    };
 
     BYTE blackPieces[6][10] = {
             //Pawns
@@ -83,16 +73,6 @@ private:
             {0x73, INV, INV, INV, INV, INV, INV, INV, INV, INV},
             //King
             {0x74, INV, INV, INV, INV, INV, INV, INV, INV, INV},
-    };
-    BYTE blackIndexBoard[64] = {
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            INV, INV, INV, INV, INV, INV, INV, INV,
-            0, 1, 2, 3, 4, 5, 6, 7,
-            0, 0, 0, 0, 0, 1, 1, 1
     };
 
     /*
@@ -322,7 +302,7 @@ public:
     }
 
     //Generates only captures for quiescence search
-    bool genCaps(){
+    void genCaps(){
         moveListIndx = 0;
         //For each piece in each pieceType
         for(int pieceType = 0; pieceType < 6; pieceType++){
@@ -428,7 +408,6 @@ public:
                 }
             }
         }
-        return moveListIndx != 0;
     }
 
     //Checks if a given square is under attack by the given side
@@ -479,7 +458,12 @@ public:
     //Updates the piecelist
     //Flags are 0 for changing adress, 1 to insert a new piece, 2 delete an entry
     void updatePieceList(int side, BYTE from, BYTE to, BYTE pieceType, int flag){
-        bool deleted = false;
+        //Checks once to make sure the given adress doesn't already exist
+        for(int i = 0; i < 10; i++){
+            if(to != INV && (side == WHITE ? whitePieces[pieceType][i] : blackPieces[pieceType][i]) == to){
+                return;
+            }
+        }
         for(int i = 0; i < 10; i++){
             if((side == WHITE ? whitePieces[pieceType][i] : blackPieces[pieceType][i]) == from){
                 switch(flag){
@@ -490,10 +474,19 @@ public:
 
                     case 2: //delete an entry
                         for(int j = i; j < 10; j++){
-                            if((side == WHITE ? whitePieces[pieceType][j] : blackPieces[pieceType][j]) == INV){
-                                (side == WHITE ? whitePieces[pieceType][i] : blackPieces[pieceType][i]) = (side == WHITE ? whitePieces[pieceType][j-1] : blackPieces[pieceType][j-1]);
-                                (side == WHITE ? whitePieces[pieceType][j-1] : blackPieces[pieceType][j-1]) = INV;
-                                break;
+                            if(side == WHITE){
+                                if(whitePieces[pieceType][j] == INV){
+                                    whitePieces[pieceType][i] = whitePieces[pieceType][j-1];
+                                    whitePieces[pieceType][j-1] = to;
+                                    break;
+                                }
+                            }
+                            else{
+                                if(blackPieces[pieceType][j] == INV){
+                                    blackPieces[pieceType][i] = blackPieces[pieceType][j-1];
+                                    blackPieces[pieceType][j-1] = to;
+                                    break;
+                                }
                             }
                         }
                         break;
@@ -650,6 +643,7 @@ public:
         pieces[fromSq(move)] = pieces[toSq(move)];
         colors[fromSq(move)] = colors[toSq(move)];
         pieces[toSq(move)] = EMPTY; colors[toSq(move)] = EMPTY;
+        //std::cout << std::hex << "Putting back " << (int)pieces[fromSq(move)] << " from " << (int)toSq(move) << " to " << (int)fromSq(move) << std::dec <<std::endl;
         updatePieceList(sideToMove, toSq(move), fromSq(move), pieces[fromSq(move)], 0);
         
         if(flag(move) == EPCAP){
@@ -833,7 +827,7 @@ public:
         for(int i = 0; i < 6; i++){
             std::cout << std::endl << pieceNames[i] << " : ";
             for(int j = 0; j < 10; j++){
-                if(j != 9 && (whitePieces[i][j] == INV)) break;
+                if(whitePieces[i][j] == INV) break;
                 std::cout <<std::hex << (int)whitePieces[i][j] << ", ";
             }
         }
