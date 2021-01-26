@@ -111,6 +111,12 @@ private:
     BYTE castlingRights = 0b1111;
     std::stack<POSITIONBITS> history;
 
+    /*
+     * Lets Evaluation.h and Search.h access Board class private members
+     */
+    friend class Evaluation;
+    friend class Search;
+
 
 
 public:
@@ -121,7 +127,6 @@ public:
 
     void gen(){
         moveListIndx = 0;
-
         //For each piece in each pieceType
         for(int pieceType = 0; pieceType < 6; pieceType++){
             for(int piece = 0; piece < 10; piece++){
@@ -314,6 +319,116 @@ public:
          */
 
 
+    }
+
+    //Generates only captures for quiescence search
+    bool genCaps(){
+        moveListIndx = 0;
+        //For each piece in each pieceType
+        for(int pieceType = 0; pieceType < 6; pieceType++){
+            for(int piece = 0; piece < 10; piece++){
+                int adress = sideToMove == WHITE ? whitePieces[pieceType][piece] : blackPieces[pieceType][piece];
+                //If the adress points to an invalid square, piece doesn't exist and we skip to the next pieceType
+                if(adress == INV) break;
+
+                if(pieceType == PAWN){
+                    if(sideToMove == WHITE){
+                        if(colors[adress + 15] == BLACK || adress+15 == enPassant){
+                            if(adress+15 == enPassant && enPassant != INV){
+                                moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
+                                moveListIndx++;
+                            }
+                            else if(adress + 15 >= 0x70 && adress + 15 <= 0x77){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress+15, KNIGHTPROM+i | CAP);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress+15, CAP);
+                                moveListIndx++;
+                            }
+                        }
+
+                        if(colors[adress + 17] == BLACK || adress+17 == enPassant){
+                            if(adress+17 == enPassant && enPassant != INV){
+                                moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
+                                moveListIndx++;
+                            }
+                            else if(adress + 17 >= 0x70 && adress + 17 <= 0x77){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress+17, KNIGHTPROM+i | CAP);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress+17, CAP);
+                                moveListIndx++;
+                            }
+                        }
+                    }
+
+                    else{
+                        if(colors[adress - 15] == WHITE || adress-15 == enPassant){
+                            if(adress-15 == enPassant && enPassant != INV){
+                                moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
+                                moveListIndx++;
+                            }
+                            else if(adress - 15 >= 0x00 && adress - 15 <= 0x07){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress-15, KNIGHTPROM+i | CAP);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress-15, CAP);
+                                moveListIndx++;
+                            }
+                        }
+
+                        if(colors[adress - 17] == WHITE || adress-17 == enPassant){
+                            if(adress-17 == enPassant && enPassant != INV){
+                                moveList[moveListIndx] = encodeMove(adress, enPassant, EPCAP);
+                                moveListIndx++;
+                            }
+                            else if(adress - 17 >= 0x00 && adress - 17 <= 0x07){ //Generate promotions
+                                for(int i = 0; i < 4; i++){
+                                    moveList[moveListIndx] = encodeMove(adress, adress-17, KNIGHTPROM+i | CAP);
+                                    moveListIndx++;
+                                }
+                            }
+                            else{
+                                moveList[moveListIndx] = encodeMove(adress, adress-17, CAP);
+                                moveListIndx++;
+                            }
+                        }
+                    }
+                }
+
+                else{
+                    //For each move direction of the pieceType, we check if the move is valid or not
+                    //In the case the piece can slide, we repeat the operation until we find an invalid move
+                    for(int i = 0; i < 8; i++){
+                        int direction = pieceMv[pieceType][i];
+                        if(direction == 0) break;
+                        BYTE currentSquare = adress + direction;
+                        while(true){
+                            if(isInvalid(currentSquare) || colors[currentSquare] == sideToMove || currentSquare > 0x7F) break;
+                            else if(colors[currentSquare] == (sideToMove^1)){
+                                moveList[moveListIndx] = encodeMove(adress, currentSquare, CAP);
+                                moveListIndx++;
+                                break;
+                            }
+                            else{
+                                currentSquare += direction;
+                                if(!pieceMv[0][pieceType]) break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return moveListIndx != 0;
     }
 
     //Checks if a given square is under attack by the given side
@@ -923,26 +1038,6 @@ public:
             fifty = fen[charIndex] - '0';
         }
     }
-
-    //A symetric evaluation function (sideToMove is max)
-    int evaluation(){
-        //Considers pure material as well as piece-square value first
-        int material[2] = {0, 0};
-        int pcSq[2] = {0, 0};
-
-        for(int side = 0; side < 2; side++){
-            for(int pieceType = 0; pieceType < 6; pieceType++){
-                for(int piece = 0; piece < 10; piece++){
-                    if((side == WHITE ? whitePieces[pieceType][piece] : blackPieces[pieceType][piece]) == INV) break;
-                        material[side] += pieceValue[pieceType];
-                        pcSq[side] += pieceSquareTables[pieceType][side == WHITE ? invSquare8x8(whitePieces[pieceType][piece]) : square8x8(blackPieces[pieceType][piece])];
-                }
-            }
-        }
-
-        return pcSq[0] - pcSq[1];
-    }
-
 };
 
 #endif //BAUB_CHESS_BOARD_H
