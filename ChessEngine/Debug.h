@@ -19,7 +19,7 @@ private:
 public:
     Debug(Board& board) : debug_board(board){};
 
-    long long perft(int depth, int* quiet, int* caps, int* ep, int* castles, int* prom, int* checks, bool debug = false, bool verbose = false)
+    long long perft(int depth, int* quiet, int* caps, int* ep, int* castles, int* prom, int* checks, bool debug = false)
     {
         long long nodes = 0;
 
@@ -32,6 +32,7 @@ public:
 
         //Generate and copy moves
         debug_board.gen();
+
         MOVEBITS stack[256];
         int moves = 0;
         for(int i = 0; i < debug_board.moveListIndx; i++){
@@ -52,7 +53,7 @@ public:
                     }
                 }
 
-                if(verbose){
+                if(debug){
                     if(debug_board.isUnderAttack(debug_board.sideToMove == WHITE ? debug_board.whitePieces[5][0] : debug_board.blackPieces[5][0], debug_board.sideToMove^1)){
                         *checks = *checks+1;
                     }
@@ -113,11 +114,11 @@ public:
         int* capsptr = &caps; int* epptr = &ep; int* castlesptr = &castles;
         int* promptr = &prom; int* checksptr = &checks; int* quietptr = &quiet;
 
-        for(int i = 0; i < 14; i++){
+        for(int i = 0; i < 10; i++){
             caps = 0; ep = 0; castles = 0; prom = 0; checks = 0; quiet = 0;
             auto startTime = std::chrono::high_resolution_clock::now();
 
-            long long nodes = perft(i, quietptr, capsptr, epptr, castlesptr, promptr, checksptr, debug, verbose);
+            long long nodes = perft(i, quietptr, capsptr, epptr, castlesptr, promptr, checksptr, debug);
 
             auto endTime = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff =  endTime - startTime;
@@ -126,8 +127,6 @@ public:
             if(verbose) std::cout << "QUIET : " << quiet << "  CAPS : " << caps << "  EP : " << ep << "  CASTLES : " << castles << "  PROM : " << prom << "  CHECKS : " << checks << std::endl << std::endl;
             std::cout << std::endl;
         }
-
-
         delete capsptr;
         delete epptr;
         delete castlesptr;

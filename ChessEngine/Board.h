@@ -452,6 +452,27 @@ public:
         return false;
     }
 
+    //Checks if a given side is in check
+    bool inCheck(int side){
+        if(side == WHITE){
+            if(isUnderAttack(whitePieces[5][0], BLACK)) return true;
+        }
+        else if(isUnderAttack(blackPieces[5][0], WHITE)) return true;
+
+        return false;
+    }
+
+    //Checks if a given side is in a checkmate state
+    bool mated(int side){
+        //We've got no moves and we're in check
+        return inCheck(side) && moveListIndx == 0;
+    }
+
+    //Checks if there is a stalemate
+    bool stalemate(){
+        return (moveListIndx == 0 && !inCheck(sideToMove)) || fifty >= 100;
+    }
+
     /*
      * Make and unmake functions
      */
@@ -617,7 +638,7 @@ public:
         }
 
         //We check if the king is in check, if it's the case we takeback the move
-        if(isUnderAttack((sideToMove == WHITE ? whitePieces[5][0] : blackPieces[5][0]), sideToMove^1)){
+        if(inCheck(sideToMove)){
             sideToMove ^= 1;
             unmake();
             return false;
