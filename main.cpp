@@ -6,7 +6,8 @@
 void debugMenu(Debug& debug, Board& board){
     while(true){
         std::cout << "(1) Perft\n"
-                     "(2) Menu\n" << std::endl;
+                     "(2) Debugging environement\n"
+                     "(3) Menu\n" << std::endl;
 
         std::cout << "Enter your choice here : ";
         int choice = 1;
@@ -21,10 +22,9 @@ void debugMenu(Debug& debug, Board& board){
                 std::cout << "(1) Initial\n"
                              "(2) Kiwipete\n"
                              "(3) Position 3\n"
-                             "(4) Position 4\n"
-                             "(5) Position 5\n"
-                             "(6) Position 6\n"
-                             "(5) Menu\n" << std::endl;
+                             "(4) Position 5\n"
+                             "(5) Position 6\n"
+                             "(6) Menu\n" << std::endl;
 
                 std::cout << "Enter your choice here : ";
                 std::cin >> choicePos;
@@ -49,24 +49,25 @@ void debugMenu(Debug& debug, Board& board){
                         board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
                     case 4:
-                        board.setFEN("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
-                        debug.perftTest(perftoption, perftoption);
-                        board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
-                    case 5:
                         board.setFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8");
                         debug.perftTest(perftoption, perftoption);
                         board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
-                    case 6:
+                    case 5:
                         board.setFEN("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10");
                         debug.perftTest(perftoption, perftoption);
                         board.setFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
+                    case 6:
+                        break;
                 }
                 break;
 
-            case 2 :
+            case 2:
+                debug.debugEnv();
+                break;
+
+            case 3:
                 return;
 
             default:
@@ -84,6 +85,7 @@ int main() {
     initHash();
 
     //Welcome screen
+    system("clear");
     std::cout << " ______     ______     ______   _____     ______     ______     __  __     ______    \n"
                  "/\\  ___\\   /\\  ___\\   /\\  == \\ /\\  __-.  /\\  ___\\   /\\  == \\   /\\ \\/\\ \\   /\\  ___\\   \n"
                  "\\ \\___  \\  \\ \\ \\____  \\ \\  _-/ \\ \\ \\/\\ \\ \\ \\  __\\   \\ \\  __<   \\ \\ \\_\\ \\  \\ \\ \\__ \\  \n"
@@ -93,7 +95,9 @@ int main() {
                  "" << std::endl << std::endl;
 
     Board board;
-    Debug debugger(board);
+    Evaluation eval(board);
+    Search search(board, eval, 5);
+    Debug debugger(board, search, eval);
     std::cout << "Initial position board initialized..." << std::endl << std::endl;
 
     board.showBoard();

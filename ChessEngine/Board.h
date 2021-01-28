@@ -41,6 +41,16 @@ private:
                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,         INV, INV, INV, INV, INV, INV, INV, INV,
                         BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,         INV, INV, INV, INV, INV, INV, INV, INV, };
 
+    //Useful when checking for checks/pinned pieces
+    BYTE kingsOnly[128] = {EMPTY, EMPTY, EMPTY, EMPTY, KING, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV,
+                           EMPTY, EMPTY, EMPTY, EMPTY, KING, EMPTY, EMPTY, EMPTY,         INV, INV, INV, INV, INV, INV, INV, INV, };
+
     /*
      * Piece list part
      */
@@ -92,6 +102,16 @@ private:
     std::stack<POSITIONBITS> history;
 
     /*
+     * Keeps information about checks, pinned pieces, attacking pieces, etc
+     */
+    bool inCheckW = false;
+    bool inCheckB = false;
+    int pinnedPiecesW[16] = {INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV,};
+    int pinnedPiecesB[16] = {INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV,};
+    int checkingPiecesW[16] = {INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV,};
+    int checkingPiecesB[16] = {INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV, INV,};
+
+    /*
      * Lets Evaluation.h and Search.h access Board class private members
      */
     friend class Evaluation;
@@ -106,7 +126,7 @@ public:
      * Generate all psuedolegal moves/only captures, in the current position
      */
 
-    void gen(){
+    void gen(bool verbose = false){
         moveListIndx = 0;
         //For each piece in each pieceType
         for(int pieceType = 0; pieceType < 6; pieceType++){
@@ -292,14 +312,12 @@ public:
             }
         }
 
-        /*
-        for(int i = 0; i < moveListIndx; i++){
-            std::cout << std::hex << (int)fromSq(moveList[i]) << " -> " << (int)toSq(moveList[i]) << std::dec << " " << moveList[i] << std::endl;
+        if(verbose){
+            for(int i = 0; i < moveListIndx; i++){
+                std::cout << std::hex << (int)fromSq(moveList[i]) << " -> " << (int)toSq(moveList[i]) << std::dec << " " << moveList[i] << std::endl;
+            }
+            std::cout << std::dec << std::endl;
         }
-        std::cout << std::dec << std::endl;
-         */
-
-
     }
 
     //Generates only captures for quiescence search

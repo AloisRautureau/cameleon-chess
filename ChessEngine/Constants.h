@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stack>
 #include <random>
+#include <sstream>
 
 /*
  * Definition of useful types
@@ -222,6 +223,22 @@ void initHash(){
     for(int i = 0; i < 781; i++){
         zobristKeys[i] = twister.operator()();
     }
+}
+
+
+/*
+ * Utility functions
+ */
+std::vector<std::string> split(const std::string& s, char delimiter)
+{
+    std::vector<std::string> substrings;
+    std::string substring;
+    std::istringstream ss(s);
+    while (std::getline(ss, substring, delimiter))
+    {
+        substrings.push_back(substring);
+    }
+    return substrings;
 }
 
 #endif //BAUB_CHESS_CONSTANTS_H

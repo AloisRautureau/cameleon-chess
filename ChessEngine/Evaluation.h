@@ -38,9 +38,9 @@ public:
         //TODO pawn struct eval with zobrist hashes
 
         if(board.sideToMove == WHITE){
-            return (material[BLACK] + pcSq[BLACK]) - (material[WHITE] + pcSq[WHITE]);
+            return (material[WHITE] + pcSq[WHITE]) - (material[BLACK] + pcSq[BLACK]);
         }
-        else return (material[WHITE] + pcSq[WHITE]) - (material[BLACK] + pcSq[BLACK]);
+        else return (material[BLACK] + pcSq[BLACK]) - (material[WHITE] + pcSq[WHITE]);
     }
 };
 
