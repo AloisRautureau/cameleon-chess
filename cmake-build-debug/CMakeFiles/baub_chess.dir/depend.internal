@@ -6,5 +6,6 @@ CMakeFiles/baub_chess.dir/main.cpp.o
  /home/bitterboyy/Documents/baub-chess/ChessEngine/Constants.h
  /home/bitterboyy/Documents/baub-chess/ChessEngine/Debug.h
  /home/bitterboyy/Documents/baub-chess/ChessEngine/Evaluation.h
+ /home/bitterboyy/Documents/baub-chess/ChessEngine/OpeningBookHandler.h
  /home/bitterboyy/Documents/baub-chess/ChessEngine/Search.h
  /home/bitterboyy/Documents/baub-chess/main.cpp

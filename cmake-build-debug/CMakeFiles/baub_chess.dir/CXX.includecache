@@ -34,6 +34,16 @@ Board.h
 Board.h
 /home/bitterboyy/Documents/baub-chess/ChessEngine/Board.h
 
+/home/bitterboyy/Documents/baub-chess/ChessEngine/OpeningBookHandler.h
+iostream
+-
+fstream
+-
+utility
+-
+Constants.h
+/home/bitterboyy/Documents/baub-chess/ChessEngine/Constants.h
+
 /home/bitterboyy/Documents/baub-chess/ChessEngine/Search.h
 Evaluation.h
 /home/bitterboyy/Documents/baub-chess/ChessEngine/Evaluation.h
@@ -47,4 +57,6 @@ ChessEngine/Search.h
 /home/bitterboyy/Documents/baub-chess/ChessEngine/Search.h
 ChessEngine/Debug.h
 /home/bitterboyy/Documents/baub-chess/ChessEngine/Debug.h
+ChessEngine/OpeningBookHandler.h
+/home/bitterboyy/Documents/baub-chess/ChessEngine/OpeningBookHandler.h
 

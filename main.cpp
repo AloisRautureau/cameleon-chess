@@ -2,6 +2,7 @@
 #include "ChessEngine/Board.h"
 #include "ChessEngine/Search.h"
 #include "ChessEngine/Debug.h"
+#include "ChessEngine/OpeningBookHandler.h"
 
 void debugMenu(Debug& debug, Board& board){
     while(true){
@@ -81,6 +82,11 @@ void debugMenu(Debug& debug, Board& board){
 }
 
 int main() {
+    //Test for book handler
+    BookHandler openingBook("openingBook");
+    bookEntry testRead = openingBook.readEntry(0);
+    std::cout << testRead.move << std::endl;
+
     //Always initialize the zobrist keys
     initHash();
 
