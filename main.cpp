@@ -102,7 +102,7 @@ int main() {
 
     Board board;
     Evaluation eval(board);
-    Search search(board, eval, 5);
+    Search search(board, eval, 6);
     Debug debugger(board, search, eval);
     std::cout << "Initial position board initialized..." << std::endl << std::endl;
 

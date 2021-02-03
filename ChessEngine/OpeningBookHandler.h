@@ -45,8 +45,20 @@ class BookHandler{
 private:
     std::string pathToBook;
 
+    //The book handler loads the whole book in memory to ease up management
+    //Sure, it's kinda slow and certinely not optimized, but since book generation will likely be a one time occurence,
+    //execution speed is not a primary concern. Correctness, on the other hand, is.
+    bookEntry openingBook[100000];
+
 public:
-    explicit BookHandler(std::string path): pathToBook(std::move(path)){};
+    explicit BookHandler(std::string path): pathToBook(std::move(path)){
+        int i = 0;
+        std::ifstream book(pathToBook);
+        while(!book.eof()){
+                openingBook[i] = readEntry(i);
+        }
+        book.close();
+    };
 
     //CLI interface to interact with the book, modifying, adding, generating, deleting line, etc etc
     int openingBookWizard(){
@@ -136,41 +148,6 @@ public:
         //delete[] buffer;
     }
 
-    void addLine(std::vector<bookEntry> line){
-        //For each move in the line, add it to the book and set it's predecessor nextMove value to it's index
-        //If the move already exists, no need to change it
-
-        for(int ply = 1; ply < line.size(); ply++){
-            //We search the same move in the first ply
-            int i = 0;
-            while(line[ply].move != readEntry(i).move && readEntry(i).nextSibling != -1){
-                i = readEntry(i).nextSibling;
-            }
-
-            //Two options : either we didn't find the move, or we found it
-            if(readEntry(i).nextSibling == -1){
-                //We didn't find the move, so we add a sibling that ends the line and change the nextSibling value of i
-                std::ifstream book;
-                book.open(pathToBook, std::ios::binary);
-                book.seekg(0, std::ios::end);
-                bookEntry bookMove = readEntry(i);
-                bookMove.nextSibling = book.tellg()/32;
-                writeEntry(book.tellg()/32, line[ply]);
-                writeEntry(i, bookMove);
-            }
-
-            else{
-                //Found the same move, we just have to add a game result to it and move on to the next ply
-                bookEntry bookMove = readEntry(i);
-                bookMove.games += 1;
-                bookMove.wins += line[ply].wins;
-                bookMove.losses += line[ply].losses;
-                bookMove.draws += line[ply].draws;
-                writeEntry(i, bookMove);
-            }
-        }
-
-    }
 };
 
 

@@ -39,7 +39,7 @@ public:
         }
 
         //That's a checkmate or a stalemate
-        //if(moveStackIndx == 0) return 0;
+        if(moveStackIndx == 0) return 0;
 
         for(int move = 0; move < moveStackIndx; move++){
             if(board.makeMove(moveStack[move])){
@@ -67,6 +67,8 @@ public:
         for(int i = 0; i < board.moveListIndx; i++){
             moveStack[i] = board.moveList[i];
         }
+
+        sortMoves(moveStack, moveStackIndx);
 
         //That's a checkmate or a stalemate
         if(moveStackIndx == 0) return 0;
@@ -97,6 +99,8 @@ public:
             moveStack[i] = board.moveList[i];
         }
 
+        sortMoves(moveStack, moveStackIndx);
+
         //That's a checkmate or a stalemate
         if(moveStackIndx == 0) return 0;
 
@@ -111,6 +115,23 @@ public:
         }
         return alpha;
     }
+
+    //Sorts a given movestack, castling is prioritized, then captures come close then lastly quiet moves don't get any sort of bonus
+    void sortMoves(MOVEBITS moveStack[], int moveStackIndex){
+        for(int i = 1; i < moveStackIndex; i++){
+                MOVEBITS key = moveStack[i];
+                if(flag(key) > flag(moveStack[i-1])){
+                        int prec = i-1;
+                        while(prec >= 0 && flag(moveStack[prec]) > flag(key)){
+                                moveStack[prec + 1] = moveStack[prec];
+                                prec--;
+                        }
+                        moveStack[prec+1] = key;
+                }
+        }
+    }
+
+
 };
 
 #endif //BAUB_CHESS_SEARCH_H
