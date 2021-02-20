@@ -4,4 +4,4 @@ project(baub_chess)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(baub_chess main.cpp
-        ChessEngine/Board.h)
+        ChessEngine/bb.cpp ChessEngine/bb.h ChessEngine/board_representation.cpp ChessEngine/board_representation.h)

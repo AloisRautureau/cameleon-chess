@@ -143,6 +143,60 @@ baub_chess/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/build
 .PHONY : baub_chess/fast
 
+ChessEngine/bitboard.o: ChessEngine/bitboard.cpp.o
+
+.PHONY : ChessEngine/bitboard.o
+
+# target to build an object file
+ChessEngine/bitboard.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o
+.PHONY : ChessEngine/bitboard.cpp.o
+
+ChessEngine/bitboard.i: ChessEngine/bitboard.cpp.i
+
+.PHONY : ChessEngine/bitboard.i
+
+# target to preprocess a source file
+ChessEngine/bitboard.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.i
+.PHONY : ChessEngine/bitboard.cpp.i
+
+ChessEngine/bitboard.s: ChessEngine/bitboard.cpp.s
+
+.PHONY : ChessEngine/bitboard.s
+
+# target to generate assembly for a file
+ChessEngine/bitboard.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.s
+.PHONY : ChessEngine/bitboard.cpp.s
+
+ChessEngine/board_representation.o: ChessEngine/board_representation.cpp.o
+
+.PHONY : ChessEngine/board_representation.o
+
+# target to build an object file
+ChessEngine/board_representation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.o
+.PHONY : ChessEngine/board_representation.cpp.o
+
+ChessEngine/board_representation.i: ChessEngine/board_representation.cpp.i
+
+.PHONY : ChessEngine/board_representation.i
+
+# target to preprocess a source file
+ChessEngine/board_representation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.i
+.PHONY : ChessEngine/board_representation.cpp.i
+
+ChessEngine/board_representation.s: ChessEngine/board_representation.cpp.s
+
+.PHONY : ChessEngine/board_representation.s
+
+# target to generate assembly for a file
+ChessEngine/board_representation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.s
+.PHONY : ChessEngine/board_representation.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -179,6 +233,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... baub_chess"
+	@echo "... ChessEngine/bitboard.o"
+	@echo "... ChessEngine/bitboard.i"
+	@echo "... ChessEngine/bitboard.s"
+	@echo "... ChessEngine/board_representation.o"
+	@echo "... ChessEngine/board_representation.i"
+	@echo "... ChessEngine/board_representation.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
