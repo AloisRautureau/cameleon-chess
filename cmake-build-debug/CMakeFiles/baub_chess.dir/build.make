@@ -90,18 +90,18 @@ CMakeFiles/baub_chess.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/baub_chess.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/baub-chess/main.cpp -o CMakeFiles/baub_chess.dir/main.cpp.s
 
-CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o: CMakeFiles/baub_chess.dir/flags.make
-CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o: ../ChessEngine/bitboard.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/baub-chess/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o -c /home/bitterboyy/Documents/baub-chess/ChessEngine/bitboard.cpp
+CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.o: CMakeFiles/baub_chess.dir/flags.make
+CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.o: ../ChessEngine/bb.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/baub-chess/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.o -c /home/bitterboyy/Documents/baub-chess/ChessEngine/bb.cpp
 
-CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/baub-chess/ChessEngine/bitboard.cpp > CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.i
+CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/baub-chess/ChessEngine/bb.cpp > CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.i
 
-CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/baub-chess/ChessEngine/bitboard.cpp -o CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.s
+CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/baub-chess/ChessEngine/bb.cpp -o CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.s
 
 CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.o: CMakeFiles/baub_chess.dir/flags.make
 CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.o: ../ChessEngine/board_representation.cpp
@@ -119,14 +119,14 @@ CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.s: cmake_force
 # Object files for target baub_chess
 baub_chess_OBJECTS = \
 "CMakeFiles/baub_chess.dir/main.cpp.o" \
-"CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o" \
+"CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.o" \
 "CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.o"
 
 # External object files for target baub_chess
 baub_chess_EXTERNAL_OBJECTS =
 
 baub_chess: CMakeFiles/baub_chess.dir/main.cpp.o
-baub_chess: CMakeFiles/baub_chess.dir/ChessEngine/bitboard.cpp.o
+baub_chess: CMakeFiles/baub_chess.dir/ChessEngine/bb.cpp.o
 baub_chess: CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.o
 baub_chess: CMakeFiles/baub_chess.dir/build.make
 baub_chess: CMakeFiles/baub_chess.dir/link.txt

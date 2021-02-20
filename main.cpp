@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ChessEngine/Board.h"
+#include "ChessEngine/bb.h"
 
 
 int main() {
@@ -12,5 +12,7 @@ int main() {
                  "                                                                                     \n"
                  "" << std::endl << std::endl;
 
+    bitboard test = 36;
+    bb::print(test);
     return 0;
 }

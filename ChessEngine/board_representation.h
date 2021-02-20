@@ -21,9 +21,36 @@ private:
     /*
      * We use a 2D array of 2x6, or one array per side with one bitboard per piece type
      * The boards use Little-Endian Rank-File mapping (LERF for short), a fancy way of saying a1 = 0, b1 = 1... and h8 = 63
+     * The rose would look like this :
+     *  noWe         nort         noEa
+                +7    +8    +9
+                    \  |  /
+        west    -1 <-  0 -> +1    east
+                    /  |  \
+                -9    -8    -7
+        soWe         sout         soEa
      */
 
-    bitboard m_pieces[2][6];
+    bitboard m_pieces[2][6] = {
+            //WHITE PIECES
+            {
+                0xff00, //PAWNS
+                0x24, //KNIGHTS
+                0x42, //BISHOPS
+                0x81, //ROOKS
+                0x8,//QUEEN
+                0x10//KING
+            },
+            //BLACK PIECES
+            {
+                0xff000000000000,
+                0x2400000000000000,
+                0x4200000000000000,
+                0x8100000000000000,
+                0x800000000000000,
+                0x1000000000000000,
+            }
+    };
     enum enumSquare {
         a1, b1, c1, d1, e1, f1, g1, h1,
         a2, b2, c2, d2, e2, f2, g2, h2,
@@ -35,9 +62,45 @@ private:
         a8, b8, c8, d8, e8, f8, g8, h8
     };
 
+    //We also use precomputed bitboards representing attack patterns for certain pieces
+
     //Variables used to keep track of the game state
     bool m_sideToMove;
     char m_castlingRights;
+
+public:
+    /*
+     * Generates all possible moves for the current side to move.
+     * It also updates attack tables in the process
+     */
+    void gen(){
+        /*
+         * PAWNS EXPLANATION
+         */
+
+        /*
+         * KNIGHTS EXPLANATIONS
+         *
+         * Preprocessed moves:
+         * preprocess attack patterns, and just AND with your own pieces to check where you are unable to go
+         */
+
+        /*
+         * SLINDING PIECES EXPLANATION
+         *
+         * Ray method:
+         * Preprocess attack ray attacks, and then use an AND on blackPieces bb to get ray blocks
+         * Bitscan the LS1B, and use an AND on rays from current square + possible attacks if f6 is blocker
+         */
+
+        /*
+         * KING EXPLANATION
+         */
+
+        /*
+         * CASTLING EXPLANATIONS
+         */
+    }
 
 };
 
