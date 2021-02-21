@@ -1,6 +1,5 @@
 #include <iostream>
-#include "ChessEngine/bb.h"
-
+#include "ChessEngine/board_representation.h"
 
 int main() {
     system("clear");
@@ -12,7 +11,9 @@ int main() {
                  "                                                                                     \n"
                  "" << std::endl << std::endl;
 
-    bitboard test = 36;
-    bb::print(test);
+    board_representation board;
+
+    board.gen();
+
     return 0;
 }

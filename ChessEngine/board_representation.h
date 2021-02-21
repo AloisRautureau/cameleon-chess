@@ -5,8 +5,8 @@
 #ifndef BAUB_CHESS_BOARD_REPRESENTATION_H
 #define BAUB_CHESS_BOARD_REPRESENTATION_H
 
-#include "bb.h"
-#include <vector>
+#include <forward_list>
+#include <iostream>
 
 /*
  * This class is the representation of a board state.
@@ -16,91 +16,200 @@
  * - tell if a position is checkmate or stalemate
  */
 
+/* bitrange    info
+    *  0 - 5      from
+    *  6 -11       to
+    *  12-15      flags
+    */
+typedef unsigned short movebits;
+
+enum pieceType{
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING,
+    EMPTY,
+    INV
+};
+
+enum pieceColor{
+    WHITE,
+    BLACK,
+};
+
+enum sq{
+    a1=0x00, b1=0x01, c1=0x02, d1=0x03, e1=0x04, f1=0x05, g1=0x06, h1=0x07,
+    a2=0x10, b2=0x11, c2=0x12, d2=0x13, e2=0x14, f2=0x15, g2=0x16, h2=0x17,
+    a3=0x20, b3=0x21, c3=0x22, d3=0x23, e3=0x24, f3=0x25, g3=0x26, h3=0x27,
+    a4=0x30, b4=0x31, c4=0x32, d4=0x33, e4=0x34, f4=0x35, g4=0x36, h4=0x37,
+    a5=0x40, b5=0x41, c5=0x42, d5=0x43, e5=0x44, f5=0x45, g5=0x46, h5=0x47,
+    a6=0x50, b6=0x51, c6=0x52, d6=0x53, e6=0x54, f6=0x55, g6=0x56, h6=0x57,
+    a7=0x60, b7=0x61, c7=0x62, d7=0x63, e7=0x64, f7=0x65, g7=0x66, h7=0x67,
+    a8=0x70, b8=0x71, c8=0x72, d8=0x73, e8=0x74, f8=0x75, g8=0x76, h8=0x77,
+};
+
+enum flag{
+    QUIET = 0,
+    DPAWNPUSH = 1,
+    KCASTLE = 2,
+    QCASTLE = 3,
+    CAP = 4,
+    EPCAP = 5,
+    NPROM = 8,
+    BPROM = 9,
+    RPROM = 10,
+    QPROM = 11,
+    NPROMCAP=12,
+    BPROMCAP=13,
+    RPROMCAP=14,
+    QPROMCAP=15
+};
+
+//Directionnal constants
+enum directions{
+    N = 0x10,
+    S = -0x10,
+    E = 0x01,
+    W = -0x01,
+    NE = 0x11,
+    NW = 0x0F,
+    SE = -0xF,
+    SW = -0x11
+};
+
+enum castlingRights{
+    WKCASTLE = 0b1000,
+    WQCASTLE = 0b0100,
+    BKCASTLE = 0b0010,
+    BQCASTLE = 0b0001
+};
+
+static int file(int square){return square & 7;}
+static int rank(int square){return square >> 4;}
+
 class board_representation {
 private:
     /*
-     * We use a 2D array of 2x6, or one array per side with one bitboard per piece type
+     * We use a comination of two 0x88 boards to keep track of colors, and piece type respectively
      * The boards use Little-Endian Rank-File mapping (LERF for short), a fancy way of saying a1 = 0, b1 = 1... and h8 = 63
      * The rose would look like this :
      *  noWe         nort         noEa
-                +7    +8    +9
+                +15    +16    +17
                     \  |  /
         west    -1 <-  0 -> +1    east
                     /  |  \
-                -9    -8    -7
+                -17    -16    -15
         soWe         sout         soEa
      */
 
-    bitboard m_pieces[2][6] = {
+    char m_piecesBoard[0x88] = {
+            ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK, INV, INV, INV, INV, INV, INV, INV, INV,
+            PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN,          INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN,          INV, INV, INV, INV, INV, INV, INV, INV,
+            ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK, INV, INV, INV, INV, INV, INV, INV, INV,
+    };
+    char m_colorBoard[0x88] = {
+            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,  INV, INV, INV, INV, INV, INV, INV, INV,
+            WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
+            BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,  INV, INV, INV, INV, INV, INV, INV, INV,
+            BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,  INV, INV, INV, INV, INV, INV, INV, INV,
+    };
+
+    /*
+     * As we use table-driven move gen to speed up the process, we'll have to store said tables
+     */
+
+    /*
+     * In order not to traverse the entirety of the board each time we scan it (16*8 times can get redundant quickly)
+     * we keep piece-lists, so that we can just check where each piece is.
+     * They are indexed by [color][pieceType]
+     */
+    std::forward_list<sq> m_pieces[2][6] = {
             //WHITE PIECES
             {
-                0xff00, //PAWNS
-                0x24, //KNIGHTS
-                0x42, //BISHOPS
-                0x81, //ROOKS
-                0x8,//QUEEN
-                0x10//KING
+                //PAWNS
+                {a2, b2, c2, d2, e2, f2, g2, h2,},
+                //KNIGHTS
+                {b1, g1},
+                //BISHOPS
+                {c1, f1},
+                //ROOKS
+                {a1, h1},
+                //QUEEN
+                {d1},
+                //KING
+                {e1},
             },
             //BLACK PIECES
             {
-                0xff000000000000,
-                0x2400000000000000,
-                0x4200000000000000,
-                0x8100000000000000,
-                0x800000000000000,
-                0x1000000000000000,
+                //PAWNS
+                {a7, b7, c7, d7, e7, f7, g7, h7,},
+                //KNIGHTS
+                {b8, g8},
+                //BISHOPS
+                {c8, f8},
+                //ROOKS
+                {a8, h8},
+                //QUEEN
+                {d8},
+                //KING
+                {e8},
             }
     };
-    enum enumSquare {
-        a1, b1, c1, d1, e1, f1, g1, h1,
-        a2, b2, c2, d2, e2, f2, g2, h2,
-        a3, b3, c3, d3, e3, f3, g3, h3,
-        a4, b4, c4, d4, e4, f4, g4, h4,
-        a5, b5, c5, d5, e5, f5, g5, h5,
-        a6, b6, c6, d6, e6, f6, g6, h6,
-        a7, b7, c7, d7, e7, f7, g7, h7,
-        a8, b8, c8, d8, e8, f8, g8, h8
+
+    int pieceMoves[6][8] = {
+            //Pawn moves aren't in here, so we use their space to signify if a piece can slide or not
+            {false, false, true, true, true, false, false, false},
+            //Knights
+            {2*N + W, 2*N + E, 2*S + W, 2*S + E, 2*W + S, 2*W + N, 2*E + S, 2*E + N},
+            //Bishops
+            {NW, NE, SE, SW, 0, 0, 0, 0},
+            //Rooks
+            {E, W, S, N},
+            //Queens
+            {E, W, N, S, NW, SW, NE, SE},
+            //King
+            {E, W, N, S, NW, SW, NE, SE},
     };
 
-    //We also use precomputed bitboards representing attack patterns for certain pieces
-
     //Variables used to keep track of the game state
-    bool m_sideToMove;
-    char m_castlingRights;
+    bool m_sideToMove = WHITE;
+    char m_castlingRights = 0b1111;
+
+    //Move list is a 256 entry array
+    movebits m_moveStack[256] = {0};
+    int m_moveStackIndex = 0;
 
 public:
     /*
-     * Generates all possible moves for the current side to move.
-     * It also updates attack tables in the process
+     * Generates all possible moves for the current side to move
+     * TODO : Use table-driven generation to speed things up
      */
-    void gen(){
-        /*
-         * PAWNS EXPLANATION
-         */
+    void gen();
 
-        /*
-         * KNIGHTS EXPLANATIONS
-         *
-         * Preprocessed moves:
-         * preprocess attack patterns, and just AND with your own pieces to check where you are unable to go
-         */
+    //Checks if the given square is under attack by the given side
+    bool sqAttacked(int sq, bool side);
 
-        /*
-         * SLINDING PIECES EXPLANATION
-         *
-         * Ray method:
-         * Preprocess attack ray attacks, and then use an AND on blackPieces bb to get ray blocks
-         * Bitscan the LS1B, and use an AND on rays from current square + possible attacks if f6 is blocker
-         */
-
-        /*
-         * KING EXPLANATION
-         */
-
-        /*
-         * CASTLING EXPLANATIONS
-         */
+    //Encodes a move on 16bits
+    static movebits encodeMove(sq from, sq to, flag flag){
+        return (flag << 12) + (((to + (to & 7)) >> 1) << 6) + ((from + (from & 7)) >> 1);
     }
+
+    /*
+     * Makes a move, as simple as that!
+     * Careful tho, it doesn't really check whether or not the move is legal. If you tell the make function to move a bishop
+     * from a1 to b1, it will make the move.
+     */
 
 };
 

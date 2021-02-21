@@ -6,13 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/home/bitterboyy/Documents/baub-chess/ChessEngine/bb.h
-iostream
--
+/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.cpp
+board_representation.h
+/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
 
-/home/bitterboyy/Documents/baub-chess/main.cpp
+/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
+forward_list
+-
 iostream
 -
-ChessEngine/bb.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/bb.h
 
