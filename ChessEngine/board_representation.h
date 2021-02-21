@@ -205,11 +205,20 @@ public:
         return (flag << 12) + (((to + (to & 7)) >> 1) << 6) + ((from + (from & 7)) >> 1);
     }
 
+    //Decoding move functions
+    static sq fromSq(movebits move);
+    static sq toSq(movebits move);
+    static flag getFlag(movebits move);
+
     /*
      * Makes a move, as simple as that!
      * Careful tho, it doesn't really check whether or not the move is legal. If you tell the make function to move a bishop
      * from a1 to b1, it will make the move.
      */
+    bool make(movebits move){
+        //First we need to update the state variables
+        if()
+    }
 
 };
 

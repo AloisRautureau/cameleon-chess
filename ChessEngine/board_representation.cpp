@@ -212,3 +212,7 @@ bool board_representation::sqAttacked(int sq, bool side) {
     }
     return false;
 }
+
+sq board_representation::fromSq(movebits move) {
+    return move & 0x
+}
