@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stack>
 class display;
+class debug;
 
 /*
  * This class is the representation of a board state.
@@ -204,6 +205,7 @@ protected:
     int m_moveStackIndex = 0;
 
     friend display;
+    friend debug;
 
 public:
     /*

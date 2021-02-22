@@ -170,6 +170,33 @@ ChessEngine/board_representation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/board_representation.cpp.s
 .PHONY : ChessEngine/board_representation.cpp.s
 
+ChessEngine/debug.o: ChessEngine/debug.cpp.o
+
+.PHONY : ChessEngine/debug.o
+
+# target to build an object file
+ChessEngine/debug.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/debug.cpp.o
+.PHONY : ChessEngine/debug.cpp.o
+
+ChessEngine/debug.i: ChessEngine/debug.cpp.i
+
+.PHONY : ChessEngine/debug.i
+
+# target to preprocess a source file
+ChessEngine/debug.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/debug.cpp.i
+.PHONY : ChessEngine/debug.cpp.i
+
+ChessEngine/debug.s: ChessEngine/debug.cpp.s
+
+.PHONY : ChessEngine/debug.s
+
+# target to generate assembly for a file
+ChessEngine/debug.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/baub_chess.dir/build.make CMakeFiles/baub_chess.dir/ChessEngine/debug.cpp.s
+.PHONY : ChessEngine/debug.cpp.s
+
 ChessEngine/display.o: ChessEngine/display.cpp.o
 
 .PHONY : ChessEngine/display.o
@@ -236,6 +263,9 @@ help:
 	@echo "... ChessEngine/board_representation.o"
 	@echo "... ChessEngine/board_representation.i"
 	@echo "... ChessEngine/board_representation.s"
+	@echo "... ChessEngine/debug.o"
+	@echo "... ChessEngine/debug.i"
+	@echo "... ChessEngine/debug.s"
 	@echo "... ChessEngine/display.o"
 	@echo "... ChessEngine/display.i"
 	@echo "... ChessEngine/display.s"
