@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ChessEngine/board_representation.h"
+#include "ChessEngine/display.h"
 
 int main() {
     system("clear");
@@ -13,7 +14,7 @@ int main() {
 
     board_representation board;
 
-    board.gen();
+    display::showPosition(board);
 
     return 0;
 }

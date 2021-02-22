@@ -8,6 +8,7 @@
 #include <forward_list>
 #include <iostream>
 #include <stack>
+class display;
 
 /*
  * This class is the representation of a board state.
@@ -98,7 +99,7 @@ static int file(int square){return square & 7;}
 static int rank(int square){return square >> 4;}
 
 class board_representation {
-private:
+protected:
     /*
      * We use a comination of two 0x88 boards to keep track of colors, and piece type respectively
      * The boards use Little-Endian Rank-File mapping (LERF for short), a fancy way of saying a1 = 0, b1 = 1... and h8 = 63
@@ -201,6 +202,8 @@ private:
     //Move list is a 256 entry array
     movebits m_moveStack[256] = {0};
     int m_moveStackIndex = 0;
+
+    friend display;
 
 public:
     /*
