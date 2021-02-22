@@ -235,6 +235,10 @@ flag board_representation::getFlag(movebits move) {
 }
 
 bool board_representation::make(movebits move) {
+    //We need to store some info in the takeback stack to allow it
+    takebackInfo info = {move, pieceType(m_piecesBoard[toSq(move)]), m_castlingRights, m_halfclock};
+    m_takebackInfo.push(info);
+
     //Store flag, from and to squares to avoid repeating the calculations
     sq from = fromSq(move), to = toSq(move);
     flag mvFlag = getFlag(move);
@@ -332,6 +336,100 @@ bool board_representation::make(movebits move) {
     }
 
     return true;
+}
+
+void board_representation::takeback() {
+    //We start off by setting back whatever comes naturally, that is ply and sideToMove since those always change the same way
+    m_ply--;
+    m_sideToMove ^= 1;
+
+    /*
+     * After that we'll need :
+     * - The actual move
+     * - The piece that was taken in case of capture
+     */
+    movebits move = m_takebackInfo.top().move;
+    pieceType pieceTaken = m_takebackInfo.top().pieceTaken;
+
+    //Undo any promotion that was done
+    if(getFlag(move) & 0b1000){
+        char targetPiece = QUEEN;
+        switch(getFlag(move) & 0b1011){
+            case NPROM:
+                targetPiece = KNIGHT;
+                break;
+            case BPROM:
+                targetPiece = BISHOP;
+                break;
+            case RPROM:
+                targetPiece = ROOK;
+                break;
+            default:
+                break;
+        }
+        m_pieces[m_sideToMove][targetPiece].remove(toSq(move));
+        m_pieces[m_sideToMove][PAWN].push_front(toSq(move));
+    }
+
+    //Undo any castling move
+    if(getFlag(move) == KCASTLE){
+        sq rookAdress = sq(m_sideToMove ? 0x05 : 0x75);
+        sq arrivalAdress = sq(m_sideToMove ? 0x07 : 0x77);
+        m_piecesBoard[rookAdress] = EMPTY;
+        m_colorBoard[rookAdress] = EMPTY;
+        m_piecesBoard[arrivalAdress] = ROOK;
+        m_colorBoard[arrivalAdress] = m_sideToMove;
+
+        for(sq adress : m_pieces[m_sideToMove][ROOK]){
+            if(adress == rookAdress) adress = arrivalAdress;
+        }
+    }
+    else if(getFlag(move) == QCASTLE){
+        sq rookAdress = sq(m_sideToMove ? 0x03 : 0x73);
+        sq arrivalAdress = sq(m_sideToMove ? 0x00 : 0x70);
+        m_piecesBoard[rookAdress] = EMPTY;
+        m_colorBoard[rookAdress] = EMPTY;
+        m_piecesBoard[arrivalAdress] = ROOK;
+        m_colorBoard[arrivalAdress] = m_sideToMove;
+
+        for(sq adress : m_pieces[m_sideToMove][ROOK]){
+            if(adress == rookAdress) adress = arrivalAdress;
+        }
+    }
+
+    //Undo the actual move
+    m_piecesBoard[fromSq(move)] = m_piecesBoard[toSq(move)];
+    m_colorBoard[fromSq(move)] = m_colorBoard[toSq(move)];
+
+    //Place back the piece if capture, otherwise clean the square
+    if(getFlag(move) & CAP){
+        if(getFlag(move) == EPCAP) {
+            m_pieces[!m_sideToMove][PAWN].push_front(sq(toSq(move) + (m_sideToMove ? -0x10 : 0x10)));
+            m_ep = toSq(move); //Set en passant square
+            m_piecesBoard[sq(toSq(move) + (m_sideToMove ? -0x10 : 0x10))] = PAWN;
+            m_colorBoard[sq(toSq(move) + (m_sideToMove ? -0x10 : 0x10))] = !m_sideToMove;
+        }
+        else {
+            m_pieces[!m_sideToMove][m_piecesBoard[pieceTaken]].push_front(toSq(move));
+            m_piecesBoard[toSq(move)] = pieceTaken;
+            m_colorBoard[toSq(move)] = !m_sideToMove;
+        }
+    }
+
+    //Update the piecelist
+    for(sq pieceAdress : m_pieces[m_sideToMove][m_piecesBoard[fromSq(move)]]){
+        if(pieceAdress == toSq(move)) pieceAdress = fromSq(move);
+    }
+
+    m_piecesBoard[toSq(move)] = EMPTY;
+    m_colorBoard[toSq(move)] = EMPTY;
+
+    //We also must set back the castling rights and halfmove clock
+    m_castlingRights = m_takebackInfo.top().castling;
+    m_halfclock = m_takebackInfo.top().halfmove;
+
+    //finally we can just pop the top of the takeback stack
+    m_takebackInfo.pop();
 }
 
 

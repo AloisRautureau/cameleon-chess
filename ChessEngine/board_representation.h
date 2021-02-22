@@ -7,6 +7,7 @@
 
 #include <forward_list>
 #include <iostream>
+#include <stack>
 
 /*
  * This class is the representation of a board state.
@@ -84,6 +85,13 @@ enum castlingRights{
     WQCASTLE = 0b0100,
     BKCASTLE = 0b0010,
     BQCASTLE = 0b0001
+};
+
+struct takebackInfo{
+    movebits move;
+    pieceType pieceTaken = EMPTY;
+    char castling = 0;
+    int halfmove = 0;
 };
 
 static int file(int square){return square & 7;}
@@ -188,6 +196,7 @@ private:
     int m_halfclock = 0;
     int m_ply = 0;
     sq m_ep = a1;
+    std::stack<takebackInfo> m_takebackInfo;
 
     //Move list is a 256 entry array
     movebits m_moveStack[256] = {0};
@@ -219,6 +228,9 @@ public:
      * from a1 to b1, it will make the move.
      */
     bool make(movebits move);
+
+    //Takes back the last move made
+    void takeback();
 
 };
 
