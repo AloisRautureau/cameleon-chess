@@ -46,4 +46,15 @@ void display::showPosition(const board_representation &board) {
     for(int i = 0; i < 8; i++){
         std::cout << "   " << char('A' + i) << "  ";
     }
+
+    for(int side = 0; side < 2; side++){
+        std::cout << (side == 0 ? "WHITE : " : "BLACK : ") << std::endl;
+        for(int piece = 0; piece < 6; piece++){
+            std::cout << piece << " : ";
+            for(auto adress : board.m_pieces[side][piece]){
+                std::cout << adress << ", ";
+            }
+            std::cout << std::endl;
+        }
+    }
 }

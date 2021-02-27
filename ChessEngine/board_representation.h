@@ -185,7 +185,7 @@ protected:
             //Bishops
             {NW, NE, SE, SW, 0, 0, 0, 0},
             //Rooks
-            {E, W, S, N},
+            {E, W, S, N, 0, 0, 0, 0},
             //Queens
             {E, W, N, S, NW, SW, NE, SE},
             //King

@@ -113,7 +113,7 @@ void board_representation::gen(){
                 //If said obstacle is one of our own pieces or out of the board shenanigans, we can't make the last step
                 //Otherwise, the last step is a capture
                 for(auto stepDirection : m_pieceMoves[pieceType]){
-                    if(stepDirection == 0) break;
+                    if(stepDirection == 0) continue;
 
                     sq currentSquare = adress;
                     bool obstacleFound = false;
@@ -270,9 +270,8 @@ bool board_representation::make(movebits move) {
     m_piecesBoard[to] = m_piecesBoard[from];
     m_colorBoard[to] = m_colorBoard[from];
     //Update the piecelist
-    for(sq pieceAdress : m_pieces[m_sideToMove][m_piecesBoard[to]]){
-        if(pieceAdress == from) pieceAdress = to;
-    }
+    m_pieces[m_sideToMove][m_piecesBoard[to]].remove(from);
+    m_pieces[m_sideToMove][m_piecesBoard[to]].push_front(to);
     //Cleanup
     m_piecesBoard[from] = EMPTY;
     m_colorBoard[from] = EMPTY;
@@ -286,9 +285,8 @@ bool board_representation::make(movebits move) {
         m_piecesBoard[arrivalAdress] = ROOK;
         m_colorBoard[arrivalAdress] = m_sideToMove;
 
-        for(sq adress : m_pieces[m_sideToMove][ROOK]){
-            if(adress == rookAdress) adress = arrivalAdress;
-        }
+        m_pieces[m_sideToMove][ROOK].remove(rookAdress);
+        m_pieces[m_sideToMove][ROOK].push_front(arrivalAdress);
     }
     else if(mvFlag == QCASTLE){
         sq rookAdress = sq(m_sideToMove ? 0x00 : 0x70);
@@ -298,9 +296,8 @@ bool board_representation::make(movebits move) {
         m_piecesBoard[arrivalAdress] = ROOK;
         m_colorBoard[arrivalAdress] = m_sideToMove;
 
-        for(sq adress : m_pieces[m_sideToMove][ROOK]){
-            if(adress == rookAdress) adress = arrivalAdress;
-        }
+        m_pieces[m_sideToMove][ROOK].remove(rookAdress);
+        m_pieces[m_sideToMove][ROOK].push_front(arrivalAdress);
     }
 
     //Remove the to square from the pawn pieceList, and add it to the target piece pieceList
@@ -376,9 +373,8 @@ void board_representation::takeback() {
         m_piecesBoard[arrivalAdress] = ROOK;
         m_colorBoard[arrivalAdress] = m_sideToMove;
 
-        for(sq adress : m_pieces[m_sideToMove][ROOK]){
-            if(adress == rookAdress) adress = arrivalAdress;
-        }
+        m_pieces[m_sideToMove][ROOK].remove(rookAdress);
+        m_pieces[m_sideToMove][ROOK].push_front(arrivalAdress);
     }
     else if(getFlag(move) == QCASTLE){
         sq rookAdress = sq(m_sideToMove ? 0x03 : 0x73);
@@ -388,9 +384,8 @@ void board_representation::takeback() {
         m_piecesBoard[arrivalAdress] = ROOK;
         m_colorBoard[arrivalAdress] = m_sideToMove;
 
-        for(sq adress : m_pieces[m_sideToMove][ROOK]){
-            if(adress == rookAdress) adress = arrivalAdress;
-        }
+        m_pieces[m_sideToMove][ROOK].remove(rookAdress);
+        m_pieces[m_sideToMove][ROOK].push_front(arrivalAdress);
     }
 
     //Undo the actual move
@@ -413,9 +408,8 @@ void board_representation::takeback() {
     }
 
     //Update the piecelist
-    for(sq pieceAdress : m_pieces[m_sideToMove][m_piecesBoard[fromSq(move)]]){
-        if(pieceAdress == toSq(move)) pieceAdress = fromSq(move);
-    }
+    m_pieces[m_sideToMove][m_piecesBoard[fromSq(move)]].remove(toSq(move));
+    m_pieces[m_sideToMove][m_piecesBoard[fromSq(move)]].push_front(fromSq(move));
 
     m_piecesBoard[toSq(move)] = EMPTY;
     m_colorBoard[toSq(move)] = EMPTY;

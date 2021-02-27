@@ -10,8 +10,10 @@
 
 class debug {
 public:
-    static unsigned long long perftRecursive(int depth, board_representation board);
     static void perft(const board_representation &board);
+
+    static unsigned long long int
+    perftRecursive(int depth, board_representation board);
 };
 
 
