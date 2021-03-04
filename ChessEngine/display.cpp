@@ -79,5 +79,19 @@ std::string display::displayMove(movebits move, bool showFlag) {
     return writtenMove;
 }
 
+void display::showPieceList(board_representation &board){
+    for(int i = 0; i < 2; i++){
+        std::cout << (i ? "BLACK " : "WHITE ") << "PIECES : " << std::endl;
+        for(int j = 0; j < 6; j++){
+            std::cout << pieceRepresentations[i][j] << " : ";
+            for(int k = 0; k < board.m_plist[i][j].size(); k++){
+                std::cout << std::hex << board.m_plist[i][j].get(k) << ", " << std::dec;
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+}
+
 
 

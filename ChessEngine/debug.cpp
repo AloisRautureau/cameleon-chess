@@ -22,28 +22,28 @@ unsigned long long debug::perftRecursive(int depth, board_representation board, 
     //We also increment the corresponding node counter
     for(int i = 0; i < stackIndex; i++){
         if(board.make(stack[i])){
-                switch(board_representation::getFlag(stack[i])){
-                    case CAP:
-                        *caps += 1;
-                        break;
-                    case EPCAP:
-                        *ep += 1;
-                        break;
-                    case KCASTLE:
-                    case QCASTLE:
-                        *castles += 1;
-                        break;
-                    case NPROM:
-                    case BPROM:
-                    case RPROM:
-                    case QPROM:
-                    case NPROMCAP:
-                    case BPROMCAP:
-                    case RPROMCAP:
-                    case QPROMCAP:
-                        *prom += 1;
-                        break;
-                    default: break;
+            switch(board_representation::getFlag(stack[i])){
+                case CAP:
+                    *caps += 1;
+                    break;
+                case EPCAP:
+                    *ep += 1;
+                    break;
+                case KCASTLE:
+                case QCASTLE:
+                    *castles += 1;
+                    break;
+                case NPROM:
+                case BPROM:
+                case RPROM:
+                case QPROM:
+                case NPROMCAP:
+                case BPROMCAP:
+                case RPROMCAP:
+                case QPROMCAP:
+                    *prom += 1;
+                    break;
+                default: break;
                 }
             nodes += perftRecursive(depth-1, board, caps, ep, castles, prom, check, mate);
             board.takeback();
@@ -101,6 +101,7 @@ void debug::perftDivide(board_representation &board){
     int mate = 0;
 
     for(int depth = 1; depth < 8; depth++){
+        unsigned long long totalNodes = 0;
         std::cout << "Nodes searched at depth " << depth << std::endl << std::endl;
         //We need to make each first move, then count nodes from here
         movebits stack[256];
@@ -117,34 +118,11 @@ void debug::perftDivide(board_representation &board){
             board.make(stack[i]);
             unsigned long long nodes;
             nodes = perftRecursive(depth-1, board, &caps, &ep, &castles, &prom, &check, &mate);
+            totalNodes += nodes;
             std::cout << display::displayMove(stack[i]) << "   " << nodes << std::endl;
             board.takeback();
         }
+        std::cout << "Total at depth " << depth << " : " << totalNodes;
         std::cout << std::endl << std::endl;
     }
-}
-
-void debug::reallyDumbPerfomranceTest(board_representation &board) {
-    //Just a way to check where the optimization should go
-    //It is insanely dumb, don't do
-    auto start = std::chrono::high_resolution_clock::now(); //Get starting time
-
-    for(int i = 0; i < 100000000; i++){
-        board.gen();
-    };
-
-    auto end = std::chrono::high_resolution_clock::now(); //Get ending time
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "It takes " << duration.count()*0.000001 << " seconds to make 1 million generations" << std::endl;
-
-    start = std::chrono::high_resolution_clock::now(); //Get starting time
-
-    for(int i = 0; i < 100000000; i++){
-        board.make(board_representation::encodeMove(0x10, 0x30, DPAWNPUSH));
-        board.takeback();
-    };
-
-    end = std::chrono::high_resolution_clock::now(); //Get ending time
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "It takes " << duration.count()*0.000001 << " seconds to make and unmake 1 million moves" << std::endl;
 }

@@ -123,49 +123,33 @@ void board_representation::gen(){
 }
 
 bool board_representation::sqAttacked(int square, bool side) {
-    for(int pieceType = 0; pieceType < 6; pieceType++){
-        for(int index = 0; index < m_plist[side][pieceType].size(); index++){
-            int adress = m_plist[side][pieceType].get(index);
-            bool possible = false;
-            int attackArrayIndex = square - adress + 128;
-            int attackArrayVal = m_attackArray[attackArrayIndex];
-            if(attackArrayVal == attNONE) continue;
-            switch(pieceType){
-                case PAWN:
-                    possible = attackArrayVal == (m_side ? attKQBbP : attKQBwP);
-                    break;
-                case KNIGHT:
-                    possible = attackArrayVal == attN;
-                    break;
-                case BISHOP:
-                    possible = attackArrayVal <= 5 && attackArrayVal >= 3;
-                    break;
-                case ROOK:
-                    possible = attackArrayVal == 1 || attackArrayVal == 2;
-                    break;
-                case QUEEN:
-                    possible = attackArrayVal != 0 && attackArrayVal != 6;
-                    break;
-                case KING:
-                    possible = attackArrayVal == 1 || attackArrayVal == 3 || attackArrayVal == 5;
-                    break;
-                default:
-                    break;
-            }
+    //Check for pawns first, since we don't really need to iterate those
+    for(int piece = 0; piece < 6; piece++){
+        int listSize = m_plist[side][piece].size();
+        for(int index = 0; index < listSize; index++){
+            int adress = m_plist[side][piece].get(index);
 
-            if(possible){
-                int stepDirection = m_deltaArray[attackArrayIndex];
-                int currentSquare = adress;
-                while(true){
-                    currentSquare += stepDirection;
-                    if((currentSquare & 0x88)) break;
-                    else if(m_pieces[currentSquare] != EMPTY){
-                        if(currentSquare == square) return true;
-                        break;
-                    }
-                    else{
-                        if(currentSquare == square) return true;
-                        if(!m_directions[0][pieceType]) break;
+            if(piece == PAWN){
+                if(!(adress + (side ? SW : NW) & 0x88) && adress + (side ? SW : NW) == square) return true;
+                if(!(adress + (side ? SE : NE) & 0x88) && adress + (side ? SE : NE) == square) return true;
+            }
+            else{
+                int currentSquare = inv;
+                for(auto stepDirection : m_directions[piece]){
+                    if(stepDirection == 0) continue;
+                    currentSquare = adress;
+                    while(true){
+                        currentSquare += stepDirection;
+                        if(m_color[currentSquare] == m_side
+                           || (currentSquare & 0x88)) break;
+                        else if(m_color[currentSquare] == !m_side && m_pieces[currentSquare] != EMPTY){
+                            if(currentSquare == square) return true;
+                            break;
+                        }
+                        else{
+                            if(currentSquare == square) return true;
+                            if(!m_directions[0][piece]) break;
+                        }
                     }
                 }
             }
@@ -174,8 +158,65 @@ bool board_representation::sqAttacked(int square, bool side) {
     return false;
 }
 
+bool board_representation::sqAttackedMK2(int square, bool side) {
+    int adress;
+    int listSize;
+    int delta;
+    int attack;
+    for(int piece = 0; piece < 6; piece++){
+        listSize = m_plist[side][piece].size();
+        for(int index = 0; index < listSize; index++){
+            adress = m_plist[side][piece].get(index);
+            if(piece == PAWN){
+                if(!(adress + (side ? SW : NW) & 0x88) && adress + (side ? SW : NW) == square) return true;
+                if(!(adress + (side ? SE : NE) & 0x88) && adress + (side ? SE : NE) == square) return true;
+            }
+            else{
+                attack = m_attackArray[square - adress + 128];
+                switch (piece) {
+                    case KNIGHT:
+                        if(attack == attN) return true;
+                        break;
+                    case BISHOP:
+                        if(attack == attKQBbP || attack == attKQBwP || attack == attQB){
+                            delta = m_deltaArray[square - adress + 128];
+                            for(int currSquare = adress + delta; !(currSquare & 0x88); currSquare += delta){
+                                if(currSquare == square) return true;
+                                if(m_pieces[currSquare] != EMPTY) break;
+                            }
+                        }
+                        break;
+                    case ROOK:
+                        if(attack == attKQR || attack == attQR){
+                            delta = m_deltaArray[square - adress + 128];
+                            for(int currSquare = adress + delta; !(currSquare & 0x88); currSquare += delta){
+                                if(currSquare == square) return true;
+                                if(m_pieces[currSquare] != EMPTY) break;
+                            }
+                        }
+                        break;
+                    case QUEEN:
+                        if(attack != attNONE && attack != attN){
+                            delta = m_deltaArray[square - adress + 128];
+                            for(int currSquare = adress + delta; !(currSquare & 0x88); currSquare += delta){
+                                if(currSquare == square) return true;
+                                if(m_pieces[currSquare] != EMPTY) break;
+                            }
+                        }
+                        break;
+                    case KING:
+                        if(attack == attKQR || attack == attKQBwP || attack == attKQBbP) return true;
+                        break;
+                    default: break;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 bool board_representation::inCheck(bool side) {
-    return sqAttacked(m_plist[side][KING].get(0), !side);
+    return sqAttackedMK2(m_plist[side][KING].get(0), !side);
 }
 
 movebits board_representation::encodeMove(int from, int to, char flag) {
@@ -504,6 +545,12 @@ void board_representation::setFEN(std::string fen) {
                     break;
             }
             file++;
+        }
+    }
+    //Copy the new pieceLists in place of the old ones
+    for(int i = 0; i < 2; i++){
+        for(int j = 0; j < 6; j++){
+            m_plist[i][j] = plist[i][j];
         }
     }
 

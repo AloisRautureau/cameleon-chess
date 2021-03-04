@@ -28,6 +28,8 @@ public:
     static int squareToIndex(std::string square);
 
     static std::string displayMove(movebits move, bool showFlag = false);
+
+    static void showPieceList(board_representation &board);
 };
 
 
