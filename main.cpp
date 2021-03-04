@@ -19,6 +19,7 @@ int main() {
 
     display::showPosition(board);
 
+    //debug::reallyDumbPerfomranceTest(board);
     debug::perft(board);
 
     return 0;

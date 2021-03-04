@@ -123,3 +123,28 @@ void debug::perftDivide(board_representation &board){
         std::cout << std::endl << std::endl;
     }
 }
+
+void debug::reallyDumbPerfomranceTest(board_representation &board) {
+    //Just a way to check where the optimization should go
+    //It is insanely dumb, don't do
+    auto start = std::chrono::high_resolution_clock::now(); //Get starting time
+
+    for(int i = 0; i < 100000000; i++){
+        board.gen();
+    };
+
+    auto end = std::chrono::high_resolution_clock::now(); //Get ending time
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "It takes " << duration.count()*0.000001 << " seconds to make 1 million generations" << std::endl;
+
+    start = std::chrono::high_resolution_clock::now(); //Get starting time
+
+    for(int i = 0; i < 100000000; i++){
+        board.make(board_representation::encodeMove(a2, a4, DPAWNPUSH));
+        board.takeback();
+    };
+
+    end = std::chrono::high_resolution_clock::now(); //Get ending time
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "It takes " << duration.count()*0.000001 << " seconds to make and unmake 1 million moves" << std::endl;
+}

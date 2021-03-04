@@ -47,7 +47,8 @@ void display::showPosition(const board_representation &board) {
         std::cout << "   " << char('A' + i) << "  ";
     }
 
-    std::cout << std::endl << std::endl << "En passant square : " << std::hex << board.m_ep << std::dec << std::endl;
+    std::cout << std::endl << std::endl << "Move " << board.m_ply << " (" << board.m_halfclock << " moves since last capture or pawn move)" << std::endl;
+    std::cout << "En passant square : " << indexToSquare(board.m_ep) << std::endl;
     std::cout << "Castling rights : " << (board.m_castling & WKCASTLE ? "K" : "")
     << (board.m_castling & WQCASTLE ? "Q" : "")
     << (board.m_castling & BKCASTLE ? "k" : "")
@@ -55,12 +56,12 @@ void display::showPosition(const board_representation &board) {
 }
 
 std::string display::indexToSquare(sq index) {
-    if(index == inv) return "INV";
+    if(index == inv) return "-";
     return std::string{char('a' + file(index)), char('1' + rank(index))};
 }
 
 sq display::squareToIndex(std::string square) {
-    if(square == "INV") return inv;
+    if(square == "-") return inv;
     return sq(square[0] - 'a' + square[1] - '0');
 }
 

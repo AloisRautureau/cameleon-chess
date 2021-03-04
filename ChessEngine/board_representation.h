@@ -105,35 +105,39 @@ class pieceList {
 private:
     sq indices[10]{inv}; //There can be a maximum of 10 of the same pieces (if all pawns promote to said pieceType
     int board[0x88]{EMPTY}; //This let's us search a piece with O(1) efficiency
-    int size{0};
+    int m_size{0};
 
 public:
     pieceList(std::vector<sq> basePieces){
         for(sq index : basePieces){
-            board[index] = size;
-            indices[size++] = index;
+            board[index] = m_size;
+            indices[m_size++] = index;
         }
     }
 
     void add(sq adress){
-        if(size < 10){
-            board[adress] = size;
-            indices[size++] = adress;
+        if(m_size < 10){
+            board[adress] = m_size;
+            indices[m_size++] = adress;
         }
     }
 
     void remove(sq adress){
-        size--;
+        m_size--;
         int index = board[adress];
-        indices[index] = indices[size];
+        indices[index] = indices[m_size];
         board[indices[index]] = index;
-        indices[size] = inv;
+        indices[m_size] = inv;
         board[adress] = EMPTY;
     }
 
     sq get(int index){
-        if(index < size) return indices[index];
+        if(index < m_size) return indices[index];
         return inv;
+    }
+
+    int size(){
+        return m_size;
     }
 };
 
@@ -211,8 +215,8 @@ protected:
     bool m_side = WHITE;
     char m_castling = 0b1111;
     int m_halfclock = 0;
-    int m_ply = 0;
-    sq m_ep = a1;
+    int m_ply = 1;
+    sq m_ep = inv;
     std::stack<takebackInfo> m_takebackInfo;
 
     //Move list is a 256 entry array
