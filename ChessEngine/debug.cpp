@@ -140,7 +140,7 @@ void debug::reallyDumbPerfomranceTest(board_representation &board) {
     start = std::chrono::high_resolution_clock::now(); //Get starting time
 
     for(int i = 0; i < 100000000; i++){
-        board.make(board_representation::encodeMove(a2, a4, DPAWNPUSH));
+        board.make(board_representation::encodeMove(0x10, 0x30, DPAWNPUSH));
         board.takeback();
     };
 

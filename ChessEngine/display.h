@@ -23,9 +23,9 @@ public:
     //Displays the current position in the console
     static void showPosition(const board_representation &board);
 
-    static std::string indexToSquare(sq index);
+    static std::string indexToSquare(int index);
 
-    static sq squareToIndex(std::string square);
+    static int squareToIndex(std::string square);
 
     static std::string displayMove(movebits move, bool showFlag = false);
 };

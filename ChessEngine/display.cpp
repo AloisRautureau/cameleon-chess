@@ -5,12 +5,12 @@
 #include "display.h"
 
 void display::showPosition(const board_representation &board) {
-    sq square;
+    int square;
     std::cout << std::endl << (board.m_side == WHITE ? "White " : "Black ") << "to move!" << std::endl << std::endl;
     std::cout << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
-            square = sq((7-i) * 0x10 + j);
+            square = (7-i) * 0x10 + j;
 
             switch(board.m_pieces[square]){
                 case PAWN:
@@ -55,14 +55,14 @@ void display::showPosition(const board_representation &board) {
     << (board.m_castling & BQCASTLE ? "q" : "") << std::endl << std::endl;
 }
 
-std::string display::indexToSquare(sq index) {
+std::string display::indexToSquare(int index) {
     if(index == inv) return "-";
     return std::string{char('a' + file(index)), char('1' + rank(index))};
 }
 
-sq display::squareToIndex(std::string square) {
+int display::squareToIndex(std::string square) {
     if(square == "-") return inv;
-    return sq(square[0] - 'a' + square[1] - '0');
+    return square[0] - 'a' + square[1] - '0';
 }
 
 std::string display::displayMove(movebits move, bool showFlag) {

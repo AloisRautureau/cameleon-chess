@@ -26,50 +26,34 @@ class debug;
     */
 typedef unsigned short movebits;
 
-enum pieceType{
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING,
-    EMPTY,
-    INV
-};
+static const char PAWN = 0;
+static const char KNIGHT = 1;
+static const char BISHOP = 2;
+static const char ROOK = 3;
+static const char QUEEN = 4;
+static const char KING = 5;
+static const char EMPTY = 6;
+static const char INV = 7;
 
-enum pieceColor{
-    WHITE,
-    BLACK,
-};
+static const bool WHITE = 0;
+static const bool BLACK = 1;
 
-enum sq{
-    a1=0x00, b1=0x01, c1=0x02, d1=0x03, e1=0x04, f1=0x05, g1=0x06, h1=0x07,
-    a2=0x10, b2=0x11, c2=0x12, d2=0x13, e2=0x14, f2=0x15, g2=0x16, h2=0x17,
-    a3=0x20, b3=0x21, c3=0x22, d3=0x23, e3=0x24, f3=0x25, g3=0x26, h3=0x27,
-    a4=0x30, b4=0x31, c4=0x32, d4=0x33, e4=0x34, f4=0x35, g4=0x36, h4=0x37,
-    a5=0x40, b5=0x41, c5=0x42, d5=0x43, e5=0x44, f5=0x45, g5=0x46, h5=0x47,
-    a6=0x50, b6=0x51, c6=0x52, d6=0x53, e6=0x54, f6=0x55, g6=0x56, h6=0x57,
-    a7=0x60, b7=0x61, c7=0x62, d7=0x63, e7=0x64, f7=0x65, g7=0x66, h7=0x67,
-    a8=0x70, b8=0x71, c8=0x72, d8=0x73, e8=0x74, f8=0x75, g8=0x76, h8=0x77,
-    inv = 0x88
-};
+static const int inv = 0x88;
 
-enum flag{
-    QUIET = 0b0000,
-    DPAWNPUSH = 0b0001,
-    KCASTLE = 0b0010,
-    QCASTLE = 0b0011,
-    CAP = 0b0100,
-    EPCAP = 0b0101,
-    NPROM = 0b1000,
-    BPROM = 0b1001,
-    RPROM = 0b1010,
-    QPROM = 0b1011,
-    NPROMCAP=0b1100,
-    BPROMCAP=0b1101,
-    RPROMCAP=0b1110,
-    QPROMCAP=0b1111,
-};
+static const char QUIET = 0b0000;
+static const char DPAWNPUSH = 0b0001;
+static const char KCASTLE = 0b0010;
+static const char QCASTLE = 0b0011;
+static const char CAP = 0b0100;
+static const char EPCAP = 0b0101;
+static const char NPROM = 0b1000;
+static const char BPROM = 0b1001;
+static const char RPROM = 0b1010;
+static const char QPROM = 0b1011;
+static const char NPROMCAP=0b1100;
+static const char BPROMCAP=0b1101;
+static const char RPROMCAP=0b1110;
+static const char QPROMCAP=0b1111;
 
 //Directionnal constants
 enum directions{
@@ -83,19 +67,17 @@ enum directions{
     SW = -0x11
 };
 
-enum castlingRights{
-    WKCASTLE = 0b1000,
-    WQCASTLE = 0b0100,
-    BKCASTLE = 0b0010,
-    BQCASTLE = 0b0001
-};
+static const char WKCASTLE = 0b1000;
+static const char WQCASTLE = 0b0100;
+static const char BKCASTLE = 0b0010;
+static const char BQCASTLE = 0b0001;
 
 struct takebackInfo{
-    movebits move;
-    pieceType pieceTaken = EMPTY;
+    movebits move{};
+    char pieceTaken = EMPTY;
     char castling = 0;
     int halfmove = 0;
-    sq ep = inv;
+    int ep = inv;
 };
 
 static int file(int square){return square & 7;}
@@ -103,26 +85,26 @@ static int rank(int square){return square >> 4;}
 
 class pieceList {
 private:
-    sq indices[10]{inv}; //There can be a maximum of 10 of the same pieces (if all pawns promote to said pieceType
+    int indices[10]{inv}; //There can be a maximum of 10 of the same pieces (if all pawns promote to said pieceType
     int board[0x88]{EMPTY}; //This let's us search a piece with O(1) efficiency
     int m_size{0};
 
 public:
-    pieceList(std::vector<sq> basePieces){
-        for(sq index : basePieces){
+    pieceList(std::vector<int> basePieces){
+        for(int index : basePieces){
             board[index] = m_size;
             indices[m_size++] = index;
         }
     }
 
-    void add(sq adress){
+    void add(int adress){
         if(m_size < 10){
             board[adress] = m_size;
             indices[m_size++] = adress;
         }
     }
 
-    void remove(sq adress){
+    void remove(int adress){
         m_size--;
         int index = board[adress];
         indices[index] = indices[m_size];
@@ -131,7 +113,7 @@ public:
         board[adress] = EMPTY;
     }
 
-    sq get(int index){
+    int get(int index){
         if(index < m_size) return indices[index];
         return inv;
     }
@@ -194,29 +176,72 @@ protected:
 
     pieceList m_plist[2][6] = {
             { //WHITE PIECELISTS
-                pieceList({a2, b2, c2, d2, e2, f2, g2, h2}),
-                pieceList({b1, g1}),
-                pieceList({c1, f1}),
-                pieceList({a1, h1}),
-                pieceList({d1}),
-                pieceList({e1}),
+                pieceList({0x10, 0X11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17}),
+                pieceList({0x01, 0x06}),
+                pieceList({0x02, 0x05}),
+                pieceList({0x00, 0x07}),
+                pieceList({0x03}),
+                pieceList({0x04}),
             },
             { //BLACK PIECELISTS
-                pieceList({a7, b7, c7, d7, e7, f7, g7, h7}),
-                pieceList({b8, g8}),
-                pieceList({c8, f8}),
-                pieceList({a8, h8}),
-                pieceList({d8}),
-                pieceList({e8}),
+                    pieceList({0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67}),
+                    pieceList({0x71, 0x76}),
+                    pieceList({0x72, 0x75}),
+                    pieceList({0x70, 0x77}),
+                    pieceList({0x73}),
+                    pieceList({0x74}),
             }
     };
+
+    //This is the attack array, taken from Mediocre Chess's blogpost about attacked squares
+    //Thanks btw, really helped me understand the concept
+    enum attacks{
+        attNONE = 0,
+        attKQR = 1,
+        attQR = 2,
+        attKQBwP = 3,
+        attKQBbP = 4,
+        attQB = 5,
+        attN = 6
+    };
+
+    int m_attackArray[257] =
+            {0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,2,0,0,0,     //0-19
+             0,0,0,5,0,0,5,0,0,0,0,0,2,0,0,0,0,0,5,0,     //20-39
+             0,0,0,5,0,0,0,0,2,0,0,0,0,5,0,0,0,0,0,0,     //40-59
+             5,0,0,0,2,0,0,0,5,0,0,0,0,0,0,0,0,5,0,0,     //60-79
+             2,0,0,5,0,0,0,0,0,0,0,0,0,0,5,6,2,6,5,0,     //80-99
+             0,0,0,0,0,0,0,0,0,0,6,4,1,4,6,0,0,0,0,0,     //100-119
+             0,2,2,2,2,2,2,1,0,1,2,2,2,2,2,2,0,0,0,0,     //120-139
+             0,0,6,3,1,3,6,0,0,0,0,0,0,0,0,0,0,0,5,6,     //140-159
+             2,6,5,0,0,0,0,0,0,0,0,0,0,5,0,0,2,0,0,5,     //160-179
+             0,0,0,0,0,0,0,0,5,0,0,0,2,0,0,0,5,0,0,0,     //180-199
+             0,0,0,5,0,0,0,0,2,0,0,0,0,5,0,0,0,0,5,0,     //200-219
+             0,0,0,0,2,0,0,0,0,0,5,0,0,5,0,0,0,0,0,0,     //220-239
+             2,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0         }; //240-256
+
+    //Same thing, except this stores the delta value to get to each square
+    int m_deltaArray[257] =
+             {0,0,0,0,0,0,0,0,0,-17,0,0,0,0,0,0,-16,0,0,0,     //0-19
+              0,0,0,-15,0,0,-17,0,0,0,0,0,-16,0,0,0,0,0,-15,0,     //20-39
+              0,0,0,-17,0,0,0,0,-16,0,0,0,0,-15,0,0,0,0,0,0,     //40-59
+              -17,0,0,0,-16,0,0,0,-15,0,0,0,0,0,0,0,0,-17,0,0,     //60-79
+              -16,0,0,-15,0,0,0,0,0,0,0,0,0,0,-17,-10,-16,-6,-15,0,     //80-99
+              0,0,0,0,0,0,0,0,0,0,-18,-17,-16,-15,-14,0,0,0,0,0,     //100-119
+              0,-1,-1,-1,-1,-1,-1,-1,0,1,1,1,1,1,1,1,0,0,0,0,     //120-139
+              0,0,14,15,16,17,18,0,0,0,0,0,0,0,0,0,0,0,15,6,     //140-159
+              16,10,17,0,0,0,0,0,0,0,0,0,0,15,0,0,16,0,0,17,     //160-179
+              0,0,0,0,0,0,0,0,15,0,0,0,16,0,0,0,17,0,0,0,     //180-199
+              0,0,0,15,0,0,0,0,16,0,0,0,0,17,0,0,0,0,15,0,     //200-219
+              0,0,0,0,16,0,0,0,0,0,17,0,0,15,0,0,0,0,0,0,     //220-239
+              16,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0         }; //240-256
 
     //Variables used to keep track of the game state
     bool m_side = WHITE;
     char m_castling = 0b1111;
     int m_halfclock = 0;
     int m_ply = 1;
-    sq m_ep = inv;
+    int m_ep = inv;
     std::stack<takebackInfo> m_takebackInfo;
 
     //Move list is a 256 entry array
@@ -240,12 +265,12 @@ public:
     bool inCheck(bool side);
 
     //Encodes a move on 16bits
-    static movebits encodeMove(sq from, sq to, flag flag);
+    static movebits encodeMove(int from, int to, char flag);
 
     //Decoding move functions
-    static sq fromSq(movebits move);
-    static sq toSq(movebits move);
-    static flag getFlag(movebits move);
+    static int fromSq(movebits move);
+    static int toSq(movebits move);
+    static char getFlag(movebits move);
 
     /*
      * Makes a move, as simple as that!
