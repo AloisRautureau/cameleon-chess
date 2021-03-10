@@ -62,8 +62,9 @@ std::string display::indexToSquare(int index) {
 
 int display::squareToIndex(std::string square) {
     if(square == "-") return inv;
-    return square[0] - 'a' + square[1] - '0';
+    return (square[0] - 'a') + (square[1] - '1')*0x10 ;
 }
+
 
 std::string display::displayMove(movebits move, bool showFlag) {
     std::string writtenMove{};

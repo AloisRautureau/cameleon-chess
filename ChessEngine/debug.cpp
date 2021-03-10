@@ -21,7 +21,7 @@ unsigned long long debug::perftRecursive(int depth, board_representation board, 
     //For each move, make the move, then unmake it
     //We also increment the corresponding node counter
     for(int i = 0; i < stackIndex; i++){
-        if(board.make(stack[i])){
+        board.make(stack[i]);
             switch(board_representation::getFlag(stack[i])){
                 case CAP:
                     *caps += 1;
@@ -48,7 +48,6 @@ unsigned long long debug::perftRecursive(int depth, board_representation board, 
             nodes += perftRecursive(depth-1, board, caps, ep, castles, prom, check, mate);
             board.takeback();
         }
-    }
     return nodes;
 }
 

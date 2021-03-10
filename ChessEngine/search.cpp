@@ -52,13 +52,12 @@ int search::searchNode(int alpha, int beta, int depthLeft, board_representation 
     movebits currentMove{0};
     for(int move = 0; move < moveStackIndex; move++){
         currentMove = moveStack[move];
-        if(board.make(currentMove)){
+            board.make(currentMove);
             int score = -searchNode(-beta, -alpha, depthLeft-1, board);
             board.takeback();
 
             if(score >= beta) return beta;
             if(score > alpha) alpha = score;
-        }
     }
     return alpha;
 }

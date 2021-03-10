@@ -14,39 +14,11 @@ stack
 vector
 -
 
-/home/bitterboyy/Documents/baub-chess/ChessEngine/debug.h
-board_representation.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
+/home/bitterboyy/Documents/baub-chess/ChessEngine/display.cpp
 display.h
 /home/bitterboyy/Documents/baub-chess/ChessEngine/display.h
-chrono
--
 
 /home/bitterboyy/Documents/baub-chess/ChessEngine/display.h
 board_representation.h
 /home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
-
-/home/bitterboyy/Documents/baub-chess/ChessEngine/evaluation.h
-board_representation.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
-
-/home/bitterboyy/Documents/baub-chess/ChessEngine/search.h
-board_representation.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
-evaluation.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/evaluation.h
-
-/home/bitterboyy/Documents/baub-chess/main.cpp
-iostream
--
-ChessEngine/board_representation.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h
-ChessEngine/display.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/display.h
-ChessEngine/debug.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/debug.h
-ChessEngine/evaluation.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/evaluation.h
-ChessEngine/search.h
-/home/bitterboyy/Documents/baub-chess/ChessEngine/search.h
 

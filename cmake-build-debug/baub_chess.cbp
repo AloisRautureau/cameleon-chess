@@ -88,6 +88,12 @@
 		<Unit filename="/home/bitterboyy/Documents/baub-chess/ChessEngine/board_representation.h">
 			<Option target="baub_chess"/>
 		</Unit>
+		<Unit filename="/home/bitterboyy/Documents/baub-chess/ChessEngine/cli.cpp">
+			<Option target="baub_chess"/>
+		</Unit>
+		<Unit filename="/home/bitterboyy/Documents/baub-chess/ChessEngine/cli.h">
+			<Option target="baub_chess"/>
+		</Unit>
 		<Unit filename="/home/bitterboyy/Documents/baub-chess/ChessEngine/debug.cpp">
 			<Option target="baub_chess"/>
 		</Unit>

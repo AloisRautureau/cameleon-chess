@@ -12,6 +12,7 @@ class display;
 class debug;
 class evaluation;
 class search;
+class cli;
 
 /*
  * This class is the representation of a board state.
@@ -254,6 +255,7 @@ protected:
     friend debug;
     friend evaluation;
     friend search;
+    friend cli;
 
 public:
     /*
@@ -264,9 +266,14 @@ public:
     //Generates only captures/checking moves, useful during quiescence search
     void geNoisy();
 
+    //Adds a move to the stack after checking whether or not it was legal
+    void addToStack(movebits move);
+
     //Checks if the given square is under attack by the given side
     bool sqAttacked(int sq, bool side);
     bool inCheck(bool side);
+    bool checkmate();
+    bool stalemate();
 
     //Encodes a move on 16bits
     static movebits encodeMove(int from, int to, char flag);
@@ -281,7 +288,7 @@ public:
      * Careful tho, it doesn't really check whether or not the move is legal. If you tell the make function to move a bishop
      * from a1 to b1, it will make the move.
      */
-    bool make(movebits move);
+    void make(movebits move);
 
     //Takes back the last move made
     void takeback();
