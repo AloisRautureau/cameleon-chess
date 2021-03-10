@@ -10,6 +10,7 @@
 #include <vector>
 class display;
 class debug;
+class evaluation;
 
 /*
  * This class is the representation of a board state.
@@ -250,6 +251,7 @@ protected:
 
     friend display;
     friend debug;
+    friend evaluation;
 
 public:
     /*

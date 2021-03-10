@@ -26,7 +26,7 @@ int main() {
         };
 
 
-    debug::perftSuite(board, perftFEN);
+    debug::perft(board);
 
     return 0;
 }
