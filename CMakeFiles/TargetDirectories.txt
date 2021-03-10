@@ -1,3 +1,0 @@
-/home/bitterboyy/Documents/baub-chess/CMakeFiles/rebuild_cache.dir
-/home/bitterboyy/Documents/baub-chess/CMakeFiles/edit_cache.dir
-/home/bitterboyy/Documents/baub-chess/CMakeFiles/baub_chess.dir
