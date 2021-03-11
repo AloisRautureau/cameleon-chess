@@ -22,13 +22,14 @@ movebits search::bestMove(board_representation &board, int depth) {
     movebits currentMove{0};
     for(int move = 0; move < moveStackIndex; move++){
         currentMove = moveStack[move];
-        board.make(currentMove);
-        int score = searchNode(-9999, 9999, depth, board);
-        board.takeback();
+        if(board.make(currentMove)){
+            int score = searchNode(-9999, 9999, depth, board);
+            board.takeback();
 
-        if(score > bestScore){
-            bestMove = currentMove;
-            bestScore = score;
+            if(score > bestScore){
+                bestMove = currentMove;
+                bestScore = score;
+            }
         }
     }
     return bestMove;
@@ -52,12 +53,13 @@ int search::searchNode(int alpha, int beta, int depthLeft, board_representation 
     movebits currentMove{0};
     for(int move = 0; move < moveStackIndex; move++){
         currentMove = moveStack[move];
-            board.make(currentMove);
+        if(board.make(currentMove)){
             int score = -searchNode(-beta, -alpha, depthLeft-1, board);
             board.takeback();
 
             if(score >= beta) return beta;
             if(score > alpha) alpha = score;
+        }
     }
     return alpha;
 }

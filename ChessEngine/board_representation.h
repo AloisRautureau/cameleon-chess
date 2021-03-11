@@ -264,7 +264,7 @@ public:
      */
     void gen();
     //Generates only captures/checking moves, useful during quiescence search
-    void geNoisy();
+    void genNoisy();
 
     //Adds a move to the stack after checking whether or not it was legal
     void addToStack(movebits move);
@@ -288,7 +288,7 @@ public:
      * Careful tho, it doesn't really check whether or not the move is legal. If you tell the make function to move a bishop
      * from a1 to b1, it will make the move.
      */
-    void make(movebits move);
+    bool make(movebits move);
 
     //Takes back the last move made
     void takeback();

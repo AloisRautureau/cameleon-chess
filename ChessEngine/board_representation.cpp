@@ -120,6 +120,11 @@ void board_representation::gen(){
     }
 }
 
+void board_representation::genNoisy() {
+
+}
+
+
 bool board_representation::sqAttacked(int square, bool side) {
     //Check for pawns first, since we don't really need to iterate those
     for(int piece = 0; piece < 6; piece++){
@@ -230,16 +235,21 @@ char board_representation::getFlag(movebits move) {
     return (move >> 12) & 0x000F;
 }
 
-void board_representation::make(movebits move) {
-    //We need to store some info in the takeback stack to allow it
-    takebackInfo info = {move, m_pieces[toSq(move)], m_castling, m_halfclock, m_ep};
-    m_takebackInfo.push(info);
-
+bool board_representation::make(movebits move) {
     //Store flag, from and to squares to avoid repeating the calculations
     int from = fromSq(move), to = toSq(move);
     char mvFlag = getFlag(move);
     char pieceMoving = m_pieces[from];
     char pieceTaken = m_pieces[to];
+
+    //We need to store some info in the takeback stack to allow it
+    takebackInfo info;
+    info.move = move;
+    info.pieceTaken = pieceTaken;
+    info.halfmove = m_halfclock;
+    info.ep = m_ep;
+    info.castling = m_castling;
+    m_takebackInfo.push(info);
 
     //First we update state variables
     if(pieceMoving == KING){
@@ -333,6 +343,13 @@ void board_representation::make(movebits move) {
 
     //Now that we're finished we can change the side to move
     m_side ^= 1;
+
+    if(inCheck(!m_side)){
+        takeback();
+        return false;
+    }
+
+    return true;
 }
 
 void board_representation::takeback() {
@@ -589,9 +606,6 @@ bool board_representation::stalemate() {
 }
 
 void board_representation::addToStack(movebits move) {
-    make(move);
-    if(!inCheck(!m_side)) m_moveStack[m_moveStackIndex++] = move;
-    takeback();
+    m_moveStack[m_moveStackIndex++] = move;
 }
-
 
