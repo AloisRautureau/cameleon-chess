@@ -1,4 +1,7 @@
-![alt text](https://github.com/AloisRautureau/chameleon-chess/blob/master/camaelon-icon.png?raw=true)
+<p align="center">
+  <img src="https://github.com/AloisRautureau/chameleon-chess/blob/master/camaelon-icon.png?raw=true" alt='The Chameleon logo'/>
+</p>
+
 
 # chameleon-chess
 
