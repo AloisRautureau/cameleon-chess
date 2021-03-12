@@ -13,12 +13,7 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
     //If no movelist is given, we generate all possible moves
     if(list.empty()){
         //Generate moves
-        board.gen();
-        //Store all the generated moves
-        for(int i = 0; i < board.m_moveStackIndex; i++){
-            moveStack[i] = board.m_moveStack[i];
-            moveStackIndex++;
-        }
+        board.gen(moveStack, moveStackIndex);
     }
     else{
         for(int i = 0; i < list.size(); i++){
@@ -52,15 +47,11 @@ int search::searchNode(int alpha, int beta, int depthLeft) {
     if(!depthLeft) {
         return quiescence(alpha, beta);
     }
-    //Otherwise, generate moves and search them
-    board.gen();
     //Store all the generated moves
     movebits moveStack[256]{0};
     int moveStackIndex{0};
-    for(int i = 0; i < board.m_moveStackIndex; i++){
-        moveStack[i] = board.m_moveStack[i];
-        moveStackIndex++;
-    }
+    //Otherwise, generate moves and search them
+    board.gen(moveStack, moveStackIndex);
 
     movebits currentMove{0};
     for(int move = 0; move < moveStackIndex; move++){
@@ -92,14 +83,11 @@ int search::quiescence(int alpha, int beta) {
         alpha = stand_pat;
     }
 
-    board.genNoisy();
+
     //Store all the generated moves
     movebits moveStack[256]{0};
     int moveStackIndex{0};
-    for(int i = 0; i < board.m_moveStackIndex; i++){
-        moveStack[i] = board.m_moveStack[i];
-        moveStackIndex++;
-    }
+    board.genNoisy(moveStack, moveStackIndex);
 
     movebits currentMove{0};
     for(int move = 0; move < moveStackIndex; move++){

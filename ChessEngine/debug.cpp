@@ -5,18 +5,11 @@
 #include "debug.h"
 
 unsigned long long debug::perftRecursive(int depth, board_representation board, int * caps, int* ep, int* castles, int* prom, int* check, int* mate) {
+    if (depth == 0) return 1;
     movebits stack[256];
     int stackIndex = 0;
     unsigned long long nodes = 0;
-
-    board.gen();
-
-    if (depth == 0) return 1;
-
-    for (int i = 0; i < board.m_moveStackIndex; i++) {
-        stack[stackIndex] = board.m_moveStack[i];
-        stackIndex++;
-    }
+    board.gen(stack, stackIndex);
 
     //For each move, make the move, then unmake it
     //We also increment the corresponding node counter
@@ -107,11 +100,7 @@ void debug::perftDivide(board_representation &board){
         //We need to make each first move, then count nodes from here
         movebits stack[256];
         int stackIndex = 0;
-        board.gen();
-        for(int i = 0; i < board.m_moveStackIndex; i++){
-            stack[stackIndex] = board.m_moveStack[i];
-            stackIndex++;
-        }
+        board.gen(stack, stackIndex);
 
         std::cout << "  MOVE     NODES" << std::endl;
         std::cout << "  ----     -----" << std::endl;

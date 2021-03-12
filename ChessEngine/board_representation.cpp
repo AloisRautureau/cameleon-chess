@@ -4,7 +4,7 @@
 
 #include "board_representation.h"
 
-void board_representation::gen(){
+void board_representation::gen(movebits stack[], int &stackIndx){
     m_moveStackIndex = 0;
     int adress;
     int ranka;
@@ -21,41 +21,41 @@ void board_representation::gen(){
                 */
                 if(m_pieces[adress + (m_side ? S : N)] == EMPTY){
                     if(m_pieces[adress + (2*(m_side ? S : N))] == EMPTY && ranka == (m_side ? 6 : 1)){ //Double push is available
-                        addToStack(encodeMove(adress, adress+(2*(m_side ? S : N)), DPAWNPUSH));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(2*(m_side ? S : N)), DPAWNPUSH));
                     }
                     if(ranka == (m_side ? 1 : 6)){ //That would be a promotion
                         for(char i = 0; i < 4; i++){
-                            addToStack(encodeMove(adress, adress+(m_side ? S : N), NPROM+i));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? S : N), NPROM+i));
                         }
                     }
                     else{
-                        addToStack(encodeMove(adress, adress+(m_side ? S : N), QUIET));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? S : N), QUIET));
                     }
                 }
                 if((m_color[adress + (m_side ? SW : NW)] == !m_side || adress + (m_side ? SW : NW) == m_ep) && !(adress+(m_side ? SW : NW) & 0x88)){ //Capture to the north west
                     if(ranka == (m_side ? 1 : 6)){ //promo capture case
                         for(char i = 0; i < 4; i++){
-                            addToStack(encodeMove(adress, adress+(m_side ? SW : NW), NPROMCAP+i));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SW : NW), NPROMCAP+i));
                         }
                     }
                     else if(adress + (m_side ? SW : NW) == m_ep){
-                        addToStack(encodeMove(adress, adress+(m_side ? SW : NW), EPCAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SW : NW), EPCAP));
                     }
                     else if(m_color[adress + (m_side ? SW : NW)] == !m_side) {
-                        addToStack(encodeMove(adress, adress + (m_side ? SW : NW), CAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress + (m_side ? SW : NW), CAP));
                     }
                 }
                 if((m_color[adress + (m_side ? SE : NE)] == !m_side || adress + (m_side ? SE : NE) == m_ep) && !(adress+(m_side ? SE : NE) & 0x88)){ //Capture to the north east
                     if(ranka == (m_side ? 1 : 6)){ //promo capture case
                         for(char i = 0; i < 4; i++){
-                            addToStack(encodeMove(adress, adress+(m_side ? SE : NE), NPROMCAP+i));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SE : NE), NPROMCAP+i));
                         }
                     }
                     else if(adress + (m_side ? SE : NE) == m_ep){
-                        addToStack(encodeMove(adress, adress+(m_side ? SE : NE), EPCAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SE : NE), EPCAP));
                     }
                     else if(m_color[adress + (m_side ? SE : NE)] == !m_side){
-                        addToStack(encodeMove(adress, adress+(m_side ? SE : NE), CAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SE : NE), CAP));
                     }
                 }
             }
@@ -74,11 +74,11 @@ void board_representation::gen(){
                         if(m_color[currentSquare] == m_side
                            || (currentSquare & 0x88)) break;
                         else if(m_color[currentSquare] == !m_side && m_pieces[currentSquare] != EMPTY){
-                            addToStack(encodeMove(adress, currentSquare, CAP));
+                            addToStack(stack, stackIndx, encodeMove(adress, currentSquare, CAP));
                             break;
                         }
                         else{
-                            addToStack(encodeMove(adress, currentSquare, QUIET));
+                            addToStack(stack, stackIndx, encodeMove(adress, currentSquare, QUIET));
                             if(!m_directions[0][piece]) break;
                         }
                     }
@@ -98,29 +98,29 @@ void board_representation::gen(){
         if(m_castling & WKCASTLE
            && m_pieces[0x05] == EMPTY && m_pieces[0x06] == EMPTY
            && !sqAttackedMK2(0x05, BLACK) && !sqAttackedMK2(0x06, BLACK) && !inCheck(WHITE)){
-            addToStack(encodeMove(0x04, 0x06, KCASTLE));
+            addToStack(stack, stackIndx, encodeMove(0x04, 0x06, KCASTLE));
         }
         if(m_castling & WQCASTLE
            && m_pieces[0x03] == EMPTY && m_pieces[0x02] == EMPTY && m_pieces[0x01] == EMPTY
            && !sqAttackedMK2(0x03, BLACK) && !sqAttackedMK2(0x02, BLACK) && !sqAttackedMK2(0x01, BLACK) && !inCheck(WHITE)){
-            addToStack(encodeMove(0x04, 0x02, QCASTLE));
+            addToStack(stack, stackIndx, encodeMove(0x04, 0x02, QCASTLE));
         }
     }
     else {
         if (m_castling & BKCASTLE
             && m_pieces[0x75] == EMPTY && m_pieces[0x76] == EMPTY
             && !sqAttackedMK2(0x75, WHITE) && !sqAttackedMK2(0x76, WHITE) && !inCheck(BLACK)) {
-            addToStack(encodeMove(0x74, 0x76, KCASTLE));
+            addToStack(stack, stackIndx, encodeMove(0x74, 0x76, KCASTLE));
         }
         if (m_castling & BQCASTLE
             && m_pieces[0x73] == EMPTY && m_pieces[0x72] == EMPTY && m_pieces[0x71] == EMPTY
             && !sqAttackedMK2(0x73, WHITE) && !sqAttackedMK2(0x72, WHITE) && !sqAttackedMK2(0x71, WHITE) && !inCheck(BLACK)) {
-            addToStack(encodeMove(0x74, 0x72, QCASTLE));
+            addToStack(stack, stackIndx, encodeMove(0x74, 0x72, QCASTLE));
         }
     }
 }
 
-void board_representation::genNoisy() {
+void board_representation::genNoisy(movebits stack[], int &stackIndx) {
     //We can use a neat tactic when generating checks, which is :
     //- treating the opposite king as a queen, and generate an array with 4 values:
     //- either the king can go there by moving diagonnaly (1)
@@ -170,44 +170,44 @@ void board_representation::genNoisy() {
                 if(m_pieces[adress + (m_side ? S : N)] == EMPTY){
                     if(m_pieces[adress + (2*(m_side ? S : N))] == EMPTY && rankp == (m_side ? 6 : 1)){ //Double push is available
                         if(adress+(2*(m_side ? S : N))+NW == enemyKing || adress+(2*(m_side ? S : N))+NE == enemyKing){
-                            addToStack(encodeMove(adress, adress+(2*(m_side ? S : N)), DPAWNPUSH));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(2*(m_side ? S : N)), DPAWNPUSH));
                         }
                     }
                     if(rankp == (m_side ? 1 : 6)){ //That would be a promotion
                         for(char i = 0; i < 4; i++){
-                            addToStack(encodeMove(adress, adress+(m_side ? S : N), NPROM+i));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? S : N), NPROM+i));
                         }
                     }
                     else{
                         if(adress+(m_side ? S : N)+NW == enemyKing || adress+(m_side ? S : N)+NE == enemyKing){
-                            addToStack(encodeMove(adress, adress+(m_side ? S : N), QUIET));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? S : N), QUIET));
                         }
                     }
                 }
                 if((m_color[adress + (m_side ? SW : NW)] == !m_side || adress + (m_side ? SW : NW) == m_ep) && !(adress+(m_side ? SW : NW) & 0x88)){ //Capture to the north west
                     if(rankp == (m_side ? 1 : 6)){ //promo capture case
                         for(char i = 0; i < 4; i++){
-                            addToStack(encodeMove(adress, adress+(m_side ? SW : NW), NPROMCAP+i));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SW : NW), NPROMCAP+i));
                         }
                     }
                     else if(adress + (m_side ? SW : NW) == m_ep){
-                        addToStack(encodeMove(adress, adress+(m_side ? SW : NW), EPCAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SW : NW), EPCAP));
                     }
                     else if(m_color[adress + (m_side ? SW : NW)] == !m_side) {
-                        addToStack(encodeMove(adress, adress + (m_side ? SW : NW), CAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress + (m_side ? SW : NW), CAP));
                     }
                 }
                 if((m_color[adress + (m_side ? SE : NE)] == !m_side || adress + (m_side ? SE : NE) == m_ep) && !(adress+(m_side ? SE : NE) & 0x88)){ //Capture to the north east
                     if(rankp == (m_side ? 1 : 6)){ //promo capture case
                         for(char i = 0; i < 4; i++){
-                            addToStack(encodeMove(adress, adress+(m_side ? SE : NE), NPROMCAP+i));
+                            addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SE : NE), NPROMCAP+i));
                         }
                     }
                     else if(adress + (m_side ? SE : NE) == m_ep){
-                        addToStack(encodeMove(adress, adress+(m_side ? SE : NE), EPCAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SE : NE), EPCAP));
                     }
                     else if(m_color[adress + (m_side ? SE : NE)] == !m_side){
-                        addToStack(encodeMove(adress, adress+(m_side ? SE : NE), CAP));
+                        addToStack(stack, stackIndx, encodeMove(adress, adress+(m_side ? SE : NE), CAP));
                     }
                 }
             }
@@ -225,12 +225,12 @@ void board_representation::genNoisy() {
                         if(m_color[currentSquare] == m_side
                            || (currentSquare & 0x88)) break;
                         else if(m_color[currentSquare] == !m_side && m_pieces[currentSquare] != EMPTY){
-                            addToStack(encodeMove(adress, currentSquare, CAP));
+                            addToStack(stack, stackIndx, encodeMove(adress, currentSquare, CAP));
                             break;
                         }
                         else{
                             //Case where the move would be a check
-                            if(possibleChecksArray[currentSquare] == squareValue) addToStack(encodeMove(adress, currentSquare, QUIET));
+                            if(possibleChecksArray[currentSquare] == squareValue) addToStack(stack, stackIndx, encodeMove(adress, currentSquare, QUIET));
                             if(!m_directions[0][piece]) break;
                         }
                     }
@@ -684,7 +684,7 @@ bool board_representation::stalemate() {
     return !m_moveStackIndex;
 }
 
-void board_representation::addToStack(movebits move) {
-    m_moveStack[m_moveStackIndex++] = move;
+void board_representation::addToStack(movebits stack[], int &stackIndx, movebits move) {
+    stack[stackIndx++] = move;
 }
 

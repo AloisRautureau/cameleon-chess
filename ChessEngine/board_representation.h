@@ -262,14 +262,14 @@ public:
      * Generates all possible moves for the current side to move
      * TODO : Use table-driven generation to speed things up
      */
-    void gen();
+    void gen(movebits stack[], int &stackIndx);
     //Generates only captures/checking moves, useful during quiescence search
-    void genNoisy();
+    void genNoisy(movebits stack[], int &stackIndx);
     //Generates only moves that get the king out of check
-    void genCheckEvasion();
+    void genCheckEvasion(movebits stack[], int &stackIndx);
 
     //Adds a move to the stack after checking whether or not it was legal
-    void addToStack(movebits move);
+    void addToStack(movebits stack[], int &stackIndx, movebits move);
 
     //Checks if the given square is under attack by the given side
     bool inCheck(bool side);
