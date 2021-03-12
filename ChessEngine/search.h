@@ -7,6 +7,8 @@
 
 #include "board_representation.h"
 #include "evaluation.h"
+#include <chrono>
+
 /*
  * The search function will feature alpha-beta search inside of a negamax framework as a starting point
  * Quiescence is also obligatory for a decently playing program

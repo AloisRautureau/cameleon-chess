@@ -23,22 +23,65 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
     }
 
     //TODO : limit to a given number of nodes
-    //TODO : add time control, iterative deepening, etc
 
 
     movebits currentMove{0};
-    for(int move = 0; move < moveStackIndex; move++){
-        currentMove = moveStack[move];
-        if(board.make(currentMove)){
-            int score = searchNode(-9999, 9999, depth);
-            board.takeback();
+    //Iterative deepening
+    if(maxTime){
+        clock_t startTime = clock();
+        for(int searchDepth = 1;; searchDepth++){
+            std::cout << "Got to depth" << searchDepth << std::endl;
+            for(int move = 0; move < moveStackIndex; move++){
+                currentMove = moveStack[move];
+                if(board.make(currentMove)){
+                    int score = searchNode(-9999, 9999, searchDepth);
+                    board.takeback();
 
-            if(score > bestScore){
-                bestMove = currentMove;
-                bestScore = score;
+                    if(score > bestScore){
+                        bestMove = currentMove;
+                        bestScore = score;
+                    }
+                }
+                if((clock() - startTime)/CLOCKS_PER_SEC >= maxTime) break;
+            }
+            if((clock() - startTime)/CLOCKS_PER_SEC >= maxTime) break;
+        }
+    }
+
+    //Infinite search
+    else if(infinite){
+        for(int searchDepth = 1;; searchDepth++){
+            for(int move = 0; move < moveStackIndex; move++){
+                currentMove = moveStack[move];
+                if(board.make(currentMove)){
+                    int score = searchNode(-9999, 9999, depth);
+                    board.takeback();
+
+                    if(score > bestScore){
+                        bestMove = currentMove;
+                        bestScore = score;
+                    }
+                }
             }
         }
     }
+
+    else{
+        for(int move = 0; move < moveStackIndex; move++){
+            currentMove = moveStack[move];
+            if(board.make(currentMove)){
+                int score = searchNode(-9999, 9999, depth);
+                board.takeback();
+
+                if(score > bestScore){
+                    bestMove = currentMove;
+                    bestScore = score;
+                }
+            }
+        }
+    }
+
+
     return bestMove;
 }
 
