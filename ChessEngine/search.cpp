@@ -7,8 +7,11 @@
 movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int maxTime, bool infinite) {
     movebits bestMove{0};
     int bestScore{-9999};
+    int alpha = -9999;
+    int beta = 9999;
     movebits moveStack[256]{0};
     int moveStackIndex{0};
+    int aspirationWindow = 25;
 
     //If no movelist is given, we generate all possible moves
     if(list.empty()){
@@ -34,7 +37,13 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
             for(int move = 0; move < moveStackIndex; move++){
                 currentMove = moveStack[move];
                 if(board.make(currentMove)){
-                    int score = searchNode(-9999, 9999, searchDepth);
+                    int score = searchNode(alpha, beta, searchDepth);
+                    if(score <= alpha || score >= beta){
+                        alpha = -9999;
+                        beta = 9999;
+                        aspirationWindow *= 10;
+                        score = searchNode(alpha, beta, depth);
+                    };
                     board.takeback();
 
                     if(score > bestScore){
@@ -45,6 +54,8 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
                 if((clock() - startTime)/CLOCKS_PER_SEC >= maxTime) break;
             }
             if((clock() - startTime)/CLOCKS_PER_SEC >= maxTime) break;
+            alpha = bestScore - aspirationWindow;
+            beta = bestScore + aspirationWindow;
         }
     }
 
@@ -54,7 +65,13 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
             for(int move = 0; move < moveStackIndex; move++){
                 currentMove = moveStack[move];
                 if(board.make(currentMove)){
-                    int score = searchNode(-9999, 9999, depth);
+                    int score = searchNode(alpha, beta, depth);
+                    if(score <= alpha || score >= beta){
+                        alpha = -9999;
+                        beta = 9999;
+                        aspirationWindow *= 10;
+                        score = searchNode(alpha, beta, depth);
+                    }
                     board.takeback();
 
                     if(score > bestScore){
@@ -63,14 +80,17 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
                     }
                 }
             }
+            alpha = bestScore - aspirationWindow;
+            beta = bestScore + aspirationWindow;
         }
     }
 
     else{
+        //We can't integrate an aspiration window here since we search for one depth only
         for(int move = 0; move < moveStackIndex; move++){
             currentMove = moveStack[move];
             if(board.make(currentMove)){
-                int score = searchNode(-9999, 9999, depth);
+                int score = searchNode(alpha, beta, depth);
                 board.takeback();
 
                 if(score > bestScore){
