@@ -66,6 +66,9 @@ public:
 
     //Resets any info we have on the ongoing game to start fresh
     void newGame();
+
+    //Returns the time to make the move depending on increment and time left
+    int timeManagement(int timeleft, int increment);
 };
 
 

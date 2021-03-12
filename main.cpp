@@ -21,12 +21,5 @@ int main() {
 
     display::showPosition(board);
 
-    search.bestMove(0, {}, 0, 10);
-
-    display::showPV(search);
-
-    display::showPosition(board);
-
-
     return 0;
 }

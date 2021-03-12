@@ -13,7 +13,7 @@ class display;
 class debug;
 class evaluation;
 class search;
-class cli;
+class engineUCI;
 
 /*
  * This class is the representation of a board state.
@@ -248,6 +248,12 @@ protected:
     int m_ep = inv;
     std::stack<takebackInfo> m_takebackInfo;
 
+    //Time control variables
+    int m_wtime = -1;
+    int m_btime = -1;
+    int m_winc = -1;
+    int m_binc = -1;
+
     //Move list is a 256 entry array
     movebits m_moveStack[256] = {0};
     int m_moveStackIndex = 0;
@@ -266,7 +272,7 @@ protected:
     friend debug;
     friend evaluation;
     friend search;
-    friend cli;
+    friend engineUCI;
 
 public:
     //We use the constructor as a place to initialize zobrist keys notably
@@ -274,7 +280,6 @@ public:
 
     /*
      * Generates all possible moves for the current side to move
-     * TODO : Use table-driven generation to speed things up
      */
     void gen(movebits stack[], int &stackIndx);
     //Generates only captures/checking moves, useful during quiescence search

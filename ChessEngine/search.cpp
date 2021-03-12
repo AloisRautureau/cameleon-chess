@@ -5,6 +5,8 @@
 #include "search.h"
 
 movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int maxTime, bool infinite) {
+
+    std::string uciResponse;
     movebits bestMove{0};
     int bestScore{-9999};
     int alpha = -9999;
@@ -25,37 +27,22 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
         }
     }
 
-    //TODO : limit to a given number of nodes
-
-
+    clock_t startTime = clock();
     movebits currentMove{0};
     //Iterative deepening
-    if(maxTime){
-        clock_t startTime = clock();
-        for(int searchDepth = 1;; searchDepth++){
-            std::cout << "Got to depth" << searchDepth << std::endl;
-            for(int move = 0; move < moveStackIndex; move++){
-                currentMove = moveStack[move];
-                if(board.make(currentMove)){
-                    int score = searchNode(alpha, beta, searchDepth);
-                    if(score <= alpha || score >= beta){
-                        alpha = -9999;
-                        beta = 9999;
-                        aspirationWindow *= 10;
-                        score = searchNode(alpha, beta, depth);
-                    };
-                    board.takeback();
+    if(depth){
+        //We can't integrate an aspiration window here since we search for one depth only
+        for(int move = 0; move < moveStackIndex; move++){
+            currentMove = moveStack[move];
+            if(board.make(currentMove)){
+                int score = searchNode(alpha, beta, depth);
+                board.takeback();
 
-                    if(score > bestScore){
-                        bestMove = currentMove;
-                        bestScore = score;
-                    }
+                if(score > bestScore){
+                    bestMove = currentMove;
+                    bestScore = score;
                 }
-                if((clock() - startTime)/CLOCKS_PER_SEC >= maxTime) break;
             }
-            if((clock() - startTime)/CLOCKS_PER_SEC >= maxTime) break;
-            alpha = bestScore - aspirationWindow;
-            beta = bestScore + aspirationWindow;
         }
     }
 
@@ -83,25 +70,39 @@ movebits search::bestMove(int depth, std::vector<movebits> list, int nodes, int 
             alpha = bestScore - aspirationWindow;
             beta = bestScore + aspirationWindow;
         }
+
     }
 
     else{
-        //We can't integrate an aspiration window here since we search for one depth only
-        for(int move = 0; move < moveStackIndex; move++){
-            currentMove = moveStack[move];
-            if(board.make(currentMove)){
-                int score = searchNode(alpha, beta, depth);
-                board.takeback();
+        if(!maxTime) maxTime = timeManagement(board.m_side ? board.m_btime : board.m_wtime, board.m_side ? board.m_binc : board.m_winc);
+        for(int searchDepth = 1;; searchDepth++){
+            for(int move = 0; move < moveStackIndex; move++){
+                currentMove = moveStack[move];
+                if(board.make(currentMove)){
+                    int score = searchNode(alpha, beta, searchDepth);
+                    if(score <= alpha || score >= beta){
+                        alpha = -9999;
+                        beta = 9999;
+                        aspirationWindow *= 10;
+                        score = searchNode(alpha, beta, depth);
+                    };
+                    board.takeback();
 
-                if(score > bestScore){
-                    bestMove = currentMove;
-                    bestScore = score;
+                    if(score > bestScore){
+                        bestMove = currentMove;
+                        bestScore = score;
+                    }
                 }
+                if(((clock() - startTime)/CLOCKS_PER_SEC)*1000 >= maxTime) break;
             }
+            if(((clock() - startTime)/CLOCKS_PER_SEC)*1000 >= maxTime) break;
+            alpha = bestScore - aspirationWindow;
+            beta = bestScore + aspirationWindow;
         }
     }
 
     collectPV();
+
     return bestMove;
 }
 
@@ -198,4 +199,27 @@ void search::collectPV() {
     for(int i = 0; i < m_pv.lenght; i++){
         board.takeback();
     }
+}
+
+void search::newGame() {
+    m_ttable.hash = {};
+    m_ttable.response = {};
+    m_ttable.depth = {};
+    m_ttable.score = {};
+    m_ttable.flag = {};
+}
+
+int search::timeManagement(int timeleft, int increment) {
+    //Spend max 5% of remaining time on the move
+    float timeToMove = timeleft/25 + (increment/2);
+
+    if(timeToMove >= timeleft){
+        timeToMove = timeleft - 500;
+    }
+
+    if(timeToMove < 0){
+        return 100;
+    }
+
+    return timeToMove;
 }

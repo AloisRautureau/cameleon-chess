@@ -1,7 +1,7 @@
 /.idea/
-/cmake-build-debug/
-/cmake-build-release/
-/cmake-build-releasepi/
+/build-debug/
+/build-release/
+/build-pi/
 .gitmodules
 nano.save
 

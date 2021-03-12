@@ -276,6 +276,10 @@ void board_representation::genNoisy(movebits stack[], int &stackIndx) {
     }
 }
 
+void board_representation::genCheckEvasion(movebits *stack, int &stackIndx) {
+}
+
+
 bool board_representation::sqAttackedMK2(int square, bool side) {
     int adress;
     int listSize;
@@ -769,5 +773,4 @@ bool board_representation::stalemate() {
 void board_representation::addToStack(movebits stack[], int &stackIndx, movebits move) {
     stack[stackIndx++] = move;
 }
-
 
