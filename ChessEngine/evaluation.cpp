@@ -160,7 +160,7 @@ void Chameleon::Evaluation::init() {
     }
 }
 
-int Chameleon::Evaluation::eval(board_representation &board) {
+int Chameleon::Evaluation::eval(position &board) {
     //The idea between tappered evaluation is to interpolate endgame and midgame evalution depending on the pieces
     //present on the board (they determine gamephase sort of)
     int midgameEval[2]{0};
@@ -168,7 +168,7 @@ int Chameleon::Evaluation::eval(board_representation &board) {
     int gamephase = 0;
 
     //Evaluate each piece in an endgame and midgame situation
-    int sq{0};
+    int sq;
     for(int side = WHITE; side < 2; side++){
         for(int pieceType = PAWN; pieceType < 6; pieceType++){
             for(int index = 0; index < board.m_plist[side][pieceType].size(); index++){

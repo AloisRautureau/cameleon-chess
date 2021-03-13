@@ -1,53 +1,40 @@
 //
-// Created by bitterboyy on 3/10/21.
+// Created by bitterboyy on 3/13/21.
 //
 
-#ifndef BAUB_CHESS_SEARCH_H
-#define BAUB_CHESS_SEARCH_H
+#ifndef CHAMELEON_SEARCH_H
+#define CHAMELEON_SEARCH_H
 
-#include "board_representation.h"
-#include "evaluation.h"
+#include "position.h"
 #include <chrono>
+#include "evaluation.h"
+#include "display.h"
 
-/*
- * The search function will feature alpha-beta search inside of a negamax framework as a starting point
- * Quiescence is also obligatory for a decently playing program
- * Later on transposition tables will be added
- */
-namespace Chameleon {
-    namespace Search {
-        unsigned long long getTableIndex(unsigned long long hash);
+namespace Chameleon{
+    namespace Search{
+        //Searches the root node of a position with a few options:
+        //- maxdepth sets a maximum depth after which the search must not go any further
+        //- maxTime sets a maximum search time, after which the search stops and returns the best move found
+        //- moveList sets a given subset of moves that should be searched, ignoring any other moves that may have been generated
+        //- maxNodes sets a number of nodes after which the search must stop
+        //- infinite is a flag that, when set, make the search ignore any of the above set values
+        movebits bestMove(position &position, int maxdepth = 0, int maxTime = 0, const std::vector<movebits> &moveList = {}, unsigned long long maxNodes = 0, bool infinite = false);
 
-        void storeTransposition(unsigned long long hash, int depth, int score, char flag, movebits response);
+        //Searches nodes recursively, called from bestMove. It returns a score
+        int searchNode(position &position, int alpha, int beta, int depthLeft, unsigned long long &maxNodes);
 
-        void init(board_representation boardToSearch);
+        //Quiescence ensures that we end up in a position where we're not gonna lose our queen next move,
+        //it helps reduce the horizon effect
+        int quiescence(position &position, int alpha, int beta);
 
-        //Generates every move, then calls itself for each move.
-        //At depthLeft = 0, it returns the quiescence evalutation of the current position
-        int searchNode(int alpha, int beta, int depthLeft);
 
-        //Searches for a quiet position to minimize the impact of the event horizon
-        int quiescence(int alpha, int beta);
+        //### TRANSPOSITION TABLE ###
+        //A transposition table is used to keep info about notable positions in memory
+        //This way, if we end up searching said position again, we already know the best move, saving the search!
+        class ttable{
 
-        //Calls searchNode recursively for every move generated in the root position, then compares the scores and
-        //returns the highest scoring move
-        movebits bestMove(int depth, std::vector<movebits> list = {}, int nodes = 0, int maxTime = 0, bool infinite = false);
-
-        //Searches a mate in x moves
-        movebits searchMate(int depth);
-
-        //Collects the principal variation from the hash table after a search
-        void collectPV();
-        std::vector<movebits> getPV();
-
-        //Resets any info we have on the ongoing game to start fresh
-        void newGame();
-
-        //Returns the time to make the move depending on increment and time left
-        int timeManagement(int timeleft, int increment);
-    };
-
+        };
+    }
 }
 
-
-#endif //BAUB_CHESS_SEARCH_H
+#endif //CHAMELEON_SEARCH_H

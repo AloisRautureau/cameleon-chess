@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ChessEngine/board_representation.h"
+#include "ChessEngine/position.h"
 #include "ChessEngine/display.h"
 #include "ChessEngine/debug.h"
 #include "ChessEngine/evaluation.h"
@@ -10,13 +10,14 @@ using namespace Chameleon;
 int main() {
     system("clear");
 
-    board_representation board;
+    position pos;
 
-    display::showPosition(board);
+    display::showPosition(pos);
     Evaluation::init();
-    Debug::perft(board);
 
+    movebits best = Search::bestMove(pos, 18, 10000, {}, 0, false);
 
+    std::cout << display::displayMove(best) << std::endl;
 
     return 0;
 }

@@ -35,8 +35,8 @@ static const char KING = 5;
 static const char EMPTY = 6;
 static const char INV = 7;
 
-static const bool WHITE = 0;
-static const bool BLACK = 1;
+static const bool WHITE = false;
+static const bool BLACK = true;
 
 static const int inv = 0x88;
 
@@ -67,6 +67,21 @@ enum directions{
     SW = -0x11
 };
 
+static int m_pieceDelta[6][8] = {
+        //Pawn moves aren't in here, so we use their space to signify if a piece can slide or not
+        {false, false, true, true, true, false, false, false},
+        //Knights
+        {2*N + W, 2*N + E, 2*S + W, 2*S + E, 2*W + S, 2*W + N, 2*E + S, 2*E + N},
+        //Bishops
+        {NW, NE, SE, SW, 0, 0, 0, 0},
+        //Rooks
+        {E, W, S, N, 0, 0, 0, 0},
+        //Queens
+        {E, W, N, S, NW, SW, NE, SE},
+        //King
+        {E, W, N, S, NW, SW, NE, SE},
+};
+
 static const char WKCASTLE = 0b1000;
 static const char WQCASTLE = 0b0100;
 static const char BKCASTLE = 0b0010;
@@ -90,7 +105,7 @@ private:
     int m_size{0};
 
 public:
-    pieceList(std::vector<int> basePieces){
+    explicit pieceList(const std::vector<int>& basePieces){
         for(int index : basePieces){
             board[index] = m_size;
             indices[m_size++] = index;
@@ -118,12 +133,12 @@ public:
         return inv;
     }
 
-    int size(){
+    int size() const{
         return m_size;
     }
 };
 
-class board_representation {
+class position {
 public:
     /*
      * We use a comination of two 0x88 boards to keep track of colors, and piece type respectively
@@ -157,21 +172,6 @@ public:
             EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,  INV, INV, INV, INV, INV, INV, INV, INV,
             BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,  INV, INV, INV, INV, INV, INV, INV, INV,
             BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK, BLACK,  INV, INV, INV, INV, INV, INV, INV, INV,
-    };
-
-    int m_directions[6][8] = {
-            //Pawn moves aren't in here, so we use their space to signify if a piece can slide or not
-            {false, false, true, true, true, false, false, false},
-            //Knights
-            {2*N + W, 2*N + E, 2*S + W, 2*S + E, 2*W + S, 2*W + N, 2*E + S, 2*E + N},
-            //Bishops
-            {NW, NE, SE, SW, 0, 0, 0, 0},
-            //Rooks
-            {E, W, S, N, 0, 0, 0, 0},
-            //Queens
-            {E, W, N, S, NW, SW, NE, SE},
-            //King
-            {E, W, N, S, NW, SW, NE, SE},
     };
 
     pieceList m_plist[2][6] = {
@@ -247,19 +247,15 @@ public:
     //Time control variables
     int m_wtime = -1;
     int m_btime = -1;
-    int m_winc = -1;
-    int m_binc = -1;
-
-    //Move list is a 256 entry array
-    movebits m_moveStack[256] = {0};
-    int m_moveStackIndex = 0;
+    int m_winc = 0;
+    int m_binc = 0;
 
     //Thats used for zobrist hashing of the position
     //Keys
-    unsigned long long piecesKey[2][6][120];
-    unsigned long long whiteCastlingKeys[4];
-    unsigned long long blackCastlingKeys[4];
-    unsigned long long epKeys[120];
+    unsigned long long piecesKey[2][6][120]{};
+    unsigned long long whiteCastlingKeys[4]{};
+    unsigned long long blackCastlingKeys[4]{};
+    unsigned long long epKeys[120]{};
     unsigned long long sideKey;
 
     unsigned long long positionHash{0};
@@ -267,7 +263,7 @@ public:
     friend display;
 
     //We use the constructor as a place to initialize zobrist keys notably
-    board_representation();
+    position();
 
     /*
      * Generates all possible moves for the current side to move
@@ -279,7 +275,7 @@ public:
     void genCheckEvasion(movebits stack[], int &stackIndx);
 
     //Adds a move to the stack after checking whether or not it was legal
-    void addToStack(movebits stack[], int &stackIndx, movebits move);
+    static void addToStack(movebits stack[], int &stackIndx, movebits move);
 
     //Checks if the given square is under attack by the given side
     bool inCheck(bool side);

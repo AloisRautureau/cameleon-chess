@@ -4,11 +4,9 @@
 
 #include "display.h"
 
-using namespace Chameleon;
-
-void display::showPosition(const board_representation &board) {
+void display::showPosition(const position &board) {
     int square;
-    std::cout << std::endl << (board.m_side == WHITE ? "White " : "Black ") << "to move!" << std::endl << std::endl;
+    std::cout << std::endl << (!board.m_side ? "White " : "Black ") << "to move!" << std::endl << std::endl;
     std::cout << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
@@ -70,20 +68,14 @@ int display::squareToIndex(std::string square) {
 }
 
 
-std::string display::displayMove(movebits move, bool showFlag) {
+std::string display::displayMove(movebits move) {
     std::string writtenMove{};
-    writtenMove += indexToSquare(board_representation::fromSq(move));
-    writtenMove += indexToSquare(board_representation::toSq(move));
-
-    if(showFlag){
-        writtenMove += " : ";
-        writtenMove += flagRep[board_representation::getFlag(move)];
-    }
-
+    writtenMove += indexToSquare(position::fromSq(move));
+    writtenMove += indexToSquare(position::toSq(move));
     return writtenMove;
 }
 
-void display::showPieceList(board_representation &board){
+void display::showPieceList(position &board){
     for(int i = 0; i < 2; i++){
         std::cout << (i ? "BLACK " : "WHITE ") << "PIECES : " << std::endl;
         for(int j = 0; j < 6; j++){
@@ -96,15 +88,5 @@ void display::showPieceList(board_representation &board){
         std::cout << std::endl;
     }
 }
-
-void display::showPV() {
-    std::cout << "Principal variation : ";
-    std::vector<movebits> pv = Search::getPV();
-    for(int i = 0; i < pv.size(); i++) {
-        std::cout << displayMove(pv[i]) << " ";
-    }
-    std::cout << std::endl;
-}
-
 
 

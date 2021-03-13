@@ -4,7 +4,7 @@
 
 #include "debug.h"
 
-unsigned long long Chameleon::Debug::perftRecursive(int depth, board_representation board, int* caps, int* ep, int* castles, int* prom, int* check, int* mate) {
+unsigned long long Chameleon::Debug::perftRecursive(int depth, position board, int* caps, int* ep, int* castles, int* prom, int* check, int* mate) {
     if (depth == 0) return 1;
     movebits stack[256];
     int stackIndex = 0;
@@ -15,7 +15,7 @@ unsigned long long Chameleon::Debug::perftRecursive(int depth, board_representat
     //We also increment the corresponding node counter
     for (int i = 0; i < stackIndex; i++) {
         if (board.make(stack[i])) {
-            switch (board_representation::getFlag(stack[i])) {
+            switch (position::getFlag(stack[i])) {
                 case CAP:
                     *caps += 1;
                     break;
@@ -41,12 +41,12 @@ unsigned long long Chameleon::Debug::perftRecursive(int depth, board_representat
             }
             nodes += perftRecursive(depth - 1, board, caps, ep, castles, prom, check, mate);
             board.takeback();
-        };
+        }
     }
     return nodes;
 }
 
-void Chameleon::Debug::perft(const board_representation &board) {
+void Chameleon::Debug::perft(const position &board) {
     //Initialize counting variables
     int ep = 0;
     int caps = 0;
@@ -85,7 +85,7 @@ void Chameleon::Debug::perft(const board_representation &board) {
     }
 }
 
-void Chameleon::Debug::perftDivide(board_representation &board){
+void Chameleon::Debug::perftDivide(position &board){
     //Initialize counting variables
     int ep = 0;
     int caps = 0;
@@ -117,7 +117,7 @@ void Chameleon::Debug::perftDivide(board_representation &board){
     }
 }
 
-void Chameleon::Debug::perftSuite(board_representation &board, const std::vector<std::string>& fenStack) {
+void Chameleon::Debug::perftSuite(position &board, const std::vector<std::string>& fenStack) {
     int counter = 0;
     for (const std::string &fen : fenStack) {
         board.setFEN(fen);

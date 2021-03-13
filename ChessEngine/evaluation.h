@@ -10,14 +10,14 @@
  * The goal will be to implement more complex evaluation schemes as time goes on
  */
 
-#include "board_representation.h"
+#include "position.h"
 
 namespace Chameleon {
     namespace Evaluation {
         void init();
 
         //Simply returns the given board's evaluation (positive => sideToMove is winning
-        int eval(board_representation &board);
+        int eval(position &board);
     }
 }
 
