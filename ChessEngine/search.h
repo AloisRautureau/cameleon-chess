@@ -27,6 +27,9 @@ namespace Chameleon{
         //it helps reduce the horizon effect
         int quiescence(position &position, int alpha, int beta);
 
+        //This function returns the time to allocate to a search given the time left and increment for side to move
+        int manageTime(position &position);
+
 
         //### TRANSPOSITION TABLE ###
         //A transposition table is used to keep info about notable positions in memory

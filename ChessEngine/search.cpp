@@ -43,6 +43,11 @@ namespace Chameleon{
             //Same with nodes
             if(!maxNodes || infinite) maxNodes = 0xFFFFFFFFFFFFFFFF;
 
+            //In the case infinite wasn't set and we have time constraints, use manageTime to allocate search time
+            maxTime = manageTime(position);
+
+            std::cout << "Launched a search with " << maxTime << " ms allocated to it" << std::endl;
+
             //Keep track of the start time of the search
             auto start = std::chrono::high_resolution_clock::now();
             //We can start the actual search now, going through each move in the stack
@@ -53,7 +58,6 @@ namespace Chameleon{
                     currentMove = mvStack[i];
                     if(position.make(currentMove)){
                         maxNodes--;
-                        std::cout << "info currmove " << display::displayMove(currentMove) << " currmovenumber " << i << std::endl;
                         currentScore = -searchNode(position, -beta, -alpha, depth - 1, maxNodes);
 
                         //The bad side of aspiration windows: to make sure we don't miss stuff, if the score is too far
@@ -84,7 +88,7 @@ namespace Chameleon{
 
                 nodesSearched = (0xFFFFFFFFFFFFFFFF-maxNodes);
                 timeSpent = (int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
-                std::cout << "info depth " << depth << " nodes " << 0xFFFFFFFFFFFFFFFF - maxNodes << " nps " << (int)(nodesSearched/(timeSpent*0.001)+1) << std::endl;
+                std::cout << "info depth " << depth << " nodes " << nodesSearched << " nps " << abs((int)(nodesSearched/(timeSpent*0.001)+1)) << std::endl;
                 if(maxTime && !infinite && timeSpent >= maxTime) break;
                 if(maxNodes && !infinite && nodesSearched >= maxNodes) break;
             }
@@ -166,6 +170,25 @@ namespace Chameleon{
                 }
             }
             return alpha;
+        }
+
+        int manageTime(position &pos) {
+            int timeLeft = (pos.m_side ? pos.m_btime : pos.m_wtime);
+            int increment = (pos.m_side ? pos.m_binc : pos.m_winc);
+            //Case where we don't consider time
+            if((pos.m_side ? pos.m_btime : pos.m_wtime) == -1) return 0;
+
+            //Normally, we allocate 2.5% of time left to the search + half the increment
+            int moveTime = timeLeft/50 + increment/2;
+            //In case the increment puts us above the time left, don't consider it
+            if(moveTime > timeLeft){
+                moveTime -= increment/2;
+            }
+            //In the rare cases where we get a time of 0, return 10 ms to at least get a move
+            if(moveTime <= 0){
+                return 10;
+            }
+            return moveTime;
         }
 
     }

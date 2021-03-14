@@ -10,13 +10,20 @@
  * The goal will be to implement more complex evaluation schemes as time goes on
  */
 
+/* List of features :
+ * [*] Material balance
+ * [*] Piece-Square tables
+ * [*] Tappered eval
+ * [ ] Pawn structure
+ */
+
 #include "position.h"
 
 namespace Chameleon {
     namespace Evaluation {
         void init();
 
-        //Simply returns the given board's evaluation (positive => sideToMove is winning
+        //Simply returns the given board's evaluation (positive => sideToMove is winning)
         int eval(position &board);
     }
 }
