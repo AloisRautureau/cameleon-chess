@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <thread>
 #include "search.h"
 
 namespace Chameleon{
@@ -22,6 +23,7 @@ namespace Chameleon{
         std::vector<std::string> split(const std::string& s, char delimiter);
         std::string move_to_str(movebits move);
         movebits str_to_move(std::string move);
+        std::string sq_to_str(int index);
 
         //Two functions made to either get or send info
         void uciListen(position &pos);
@@ -32,7 +34,8 @@ namespace Chameleon{
         void setoption(std::vector<std::string> args);
         void ucinewgame(std::vector<std::string> args);
         void setpos(position &pos, std::vector<std::string> args);
-        void go(position &pos, std::vector<std::string> args);
+        bool go(position &pos, std::vector<std::string> args);
+        void showPosition(position &pos);
     }
 }
 

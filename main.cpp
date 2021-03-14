@@ -1,9 +1,7 @@
 #include <iostream>
 #include "ChessEngine/position.h"
 #include "ChessEngine/display.h"
-#include "ChessEngine/debug.h"
 #include "ChessEngine/evaluation.h"
-#include "ChessEngine/search.h"
 #include "ChessEngine/uci.h"
 
 using namespace Chameleon;

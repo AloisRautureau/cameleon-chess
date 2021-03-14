@@ -6,12 +6,19 @@
 
 namespace Chameleon{
     namespace Search{
-        movebits bestMove(position &position, int maxdepth, int maxTime, const std::vector<movebits>& moveList, unsigned long long maxNodes, bool infinite){
+        //Keep track of the start time of the search
+        auto start = std::chrono::high_resolution_clock::now();
+
+        movebits bestMove(position &position, int maxdepth, int maxTime, const std::vector<movebits>& moveList, long long maxNodes, bool infinite){
             //Variables keeping track of the best move found and its score
+            //the way it works is that a move currently tested goes into iterationBest if it's score is the best of the current iteration
+            //That way, if we do not finish up a search because of time constraints, we don't end up with what could be a really bad move
             movebits bestMove;
+            movebits iterationBest;
             movebits currentMove;
             int currentScore;
-            int bestScore{-99999};
+            int iterationScore{-99999};
+            int bestScore;
 
             //That part is used to implement the aspiration window
             //The idea is that after a first search, we consider that the results of the next one won't be too far off
@@ -44,12 +51,10 @@ namespace Chameleon{
             if(!maxNodes || infinite) maxNodes = 0xFFFFFFFFFFFFFFFF;
 
             //In the case infinite wasn't set and we have time constraints, use manageTime to allocate search time
-            maxTime = manageTime(position);
-
-            std::cout << "Launched a search with " << maxTime << " ms allocated to it" << std::endl;
+            if(!maxTime && !infinite) maxTime = manageTime(position);
 
             //Keep track of the start time of the search
-            auto start = std::chrono::high_resolution_clock::now();
+            start = std::chrono::high_resolution_clock::now();
             //We can start the actual search now, going through each move in the stack
             //then comparing them with the bestMove that was found unti we hit a stop condition
             //We will do that while incrementing the depth to go to (iterative deepening)
@@ -58,7 +63,7 @@ namespace Chameleon{
                     currentMove = mvStack[i];
                     if(position.make(currentMove)){
                         maxNodes--;
-                        currentScore = -searchNode(position, -beta, -alpha, depth - 1, maxNodes);
+                        currentScore = -searchNode(position, -beta, -alpha, depth - 1, maxNodes, maxTime);
 
                         //The bad side of aspiration windows: to make sure we don't miss stuff, if the score is too far
                         //we need to recalculate, because our window isn't good
@@ -67,14 +72,14 @@ namespace Chameleon{
                             alpha = -99999;
                             beta = 99999;
                             aspirationWindow *= 10;
-                            currentScore = -searchNode(position, -beta, -alpha, depth - 1, maxNodes);
+                            currentScore = -searchNode(position, -beta, -alpha, depth - 1, maxNodes, maxTime);
                         }
                         position.takeback();
 
                         //If the best score is less than what we got, we got ourselvs a new best move!
-                        if(currentScore > bestScore){
-                            bestScore = currentScore;
-                            bestMove = currentMove;
+                        if(currentScore > iterationScore){
+                            iterationScore = currentScore;
+                            iterationBest = currentMove;
                         }
                     }
                     nodesSearched = (0xFFFFFFFFFFFFFFFF-maxNodes);
@@ -83,24 +88,34 @@ namespace Chameleon{
                     if(maxNodes && !infinite && nodesSearched >= maxNodes) break;
                 }
                 //Modify alpha and beta
-                alpha = bestScore + aspirationWindow;
-                beta = bestScore - aspirationWindow;
+                alpha = iterationScore + aspirationWindow;
+                beta = iterationScore - aspirationWindow;
 
                 nodesSearched = (0xFFFFFFFFFFFFFFFF-maxNodes);
                 timeSpent = (int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count();
-                std::cout << "info depth " << depth << " nodes " << nodesSearched << " nps " << abs((int)(nodesSearched/(timeSpent*0.001)+1)) << std::endl;
+                std::cout << "info depth " << depth << " score cp " << iterationScore << " nodes " << nodesSearched << " nps " << abs((int)(nodesSearched/(timeSpent*0.001)+1)) << std::endl;
                 if(maxTime && !infinite && timeSpent >= maxTime) break;
                 if(maxNodes && !infinite && nodesSearched >= maxNodes) break;
+
+                //If we get there, the search has reached an end, so we can keep the move it produced
+                bestMove = iterationBest;
+                bestScore = iterationScore;
             }
+
             return bestMove;
         }
 
-        int searchNode(position &position, int alpha, int beta, int depthLeft, unsigned long long &maxNodes) {
+        int searchNode(position &position, int alpha, int beta, int depthLeft, long long &maxNodes, int maxTime) {
             maxNodes--;
             //We just hit a stop condition
             if(!depthLeft || !maxNodes){
                 //Call quiescence to reduce horizon effect
-                return quiescence(position, alpha, beta);
+                return quiescence(position, alpha, beta, maxTime);
+            }
+
+            //We're out of time
+            if((int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() >= maxTime){
+                return 0;
             }
 
             //Generate and store moves
@@ -112,12 +127,12 @@ namespace Chameleon{
             int score;
             for(int i = 0; i < mvStackIndx; i++){
                 if(position.make(mvStack[i])){
-                    score = -searchNode(position, -copyBeta, -alpha, depthLeft - 1, maxNodes);
+                    score = -searchNode(position, -copyBeta, -alpha, depthLeft - 1, maxNodes, maxTime);
 
                     //That's part of negascout implementation, it adds up to alpha-beta by using a window
                     //Basically, it increases the chances of a cutoff, but we need to re search if a score is out of the window
                     if(score > alpha && score < beta && i){
-                        score = -searchNode(position, -beta, -alpha, depthLeft - 1, maxNodes);
+                        score = -searchNode(position, -beta, -alpha, depthLeft - 1, maxNodes, maxTime);
                     }
                     position.takeback();
 
@@ -131,12 +146,11 @@ namespace Chameleon{
 
                     beta = alpha + 1; //We change the window for negascout
                 }
-
             }
             return alpha;
         }
 
-        int quiescence(position &position, int alpha, int beta) {
+        int quiescence(position &position, int alpha, int beta, int maxTime) {
             int stand_pat = Evaluation::eval(position);
             if(stand_pat >= beta){
                 return stand_pat;
@@ -148,6 +162,11 @@ namespace Chameleon{
                 alpha = stand_pat;
             }
 
+            //We're out of time
+            if((int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() >= maxTime){
+                return 0;
+            }
+
             int score;
 
             //Generate and store noisy moves only as those are the ones interesting to us
@@ -157,7 +176,7 @@ namespace Chameleon{
 
             for(int i = 0; i < mvStackIndx; i++){
                 if(position.make(mvStack[i])){
-                    score = -quiescence(position, -beta, -alpha);
+                    score = -quiescence(position, -beta, -alpha, maxTime);
                     position.takeback();
 
                     //Then it's just normal alpha beta stuff

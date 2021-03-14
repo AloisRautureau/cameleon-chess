@@ -131,6 +131,11 @@ namespace Chameleon{
             return position::encodeMove(from, to, flag);
         }
 
+        std::string sq_to_str(int index){
+            if(index == inv) return "-";
+            return std::string{char('a' + file(index)), char('1' + rank(index))};
+        }
+
         void uciListen(position &pos) {
             std::string input;
             std::getline(std::cin, input);
@@ -145,10 +150,13 @@ namespace Chameleon{
             if(command == "setoption") setoption(args); //Sets engine options, although it doesn't have any for now
             if(command == "ucinewgame") ucinewgame(args); //Clears anything related to the current game (ttable notably)
             if(command == "position") setpos(pos, args); //Sets the board position to a given fen string
-            if(command == "go") go(pos, args); //Fires up a search from the current position with some given options
+            if(command == "go") go(pos, args);  //Fires up a search from the current position with some given options
             if(command == "stop") 0; //Stops any ongoing search
             if(command == "ponderhit") 0;
             if(command == "quit") exit(0);
+            
+            //Those are commands implemented for using Chameleon in a pure CLI environnement, although this is not recommended
+            if(command == "show") showPosition(pos);
 
             //Call the function as soon as the previous command has been handled
             uciListen(pos);
@@ -175,15 +183,24 @@ namespace Chameleon{
         }
 
         void setpos(position &pos, std::vector<std::string> args){
-            pos.setFEN(args[0] == "startpos" ? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" : args[0]);
+            std::string givenFEN;
+            int argindx = 0;
+            if(args[0] == "startpos") givenFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            else {
+                givenFEN += args[0];
+                for(argindx = 1; argindx < args.size() && args[argindx] != "moves"; argindx++){
+                    givenFEN += " " + args[argindx];
+                }
+            }
+            pos.setFEN(givenFEN);
 
             //Play the moves indicated if any
-            for(int move = 2; move < args.size(); move++){
+            for(int move = argindx; move < args.size(); move++){
                 pos.make(str_to_move(pos, args[move]));
             }
         }
 
-        void go(position &pos, std::vector<std::string> args){
+        bool go(position &pos, std::vector<std::string> args){
             std::cout << "Called go with args ";
             for(auto arg : args){
                 std::cout << arg << " ";
@@ -231,6 +248,60 @@ namespace Chameleon{
             //We just need to return the final chosen move
             std::string bestMove = move_to_str(Search::bestMove(pos, searchdepth, searchtime, searchmovelist, searchnodes, searchinf));
             uciSend("bestmove " + bestMove);
+            return true;
+        }
+
+        void showPosition(position &pos) {
+            int square;
+            std::cout << std::endl << (!pos.m_side ? "White " : "Black ") << "to move!" << std::endl << std::endl;
+            std::cout << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    square = (7-i) * 0x10 + j;
+
+                    switch(pos.m_pieces[square]){
+                        case PAWN:
+                            std::cout << (pos.m_color[square] == WHITE ? "|  P  " : "|  p  ");
+                            break;
+                        case KNIGHT:
+                            std::cout << (pos.m_color[square] == WHITE ? "|  N  " : "|  n  ");
+                            break;
+                        case BISHOP:
+                            std::cout << (pos.m_color[square] == WHITE ? "|  B  " : "|  b  ");
+                            break;
+                        case ROOK:
+                            std::cout << (pos.m_color[square] == WHITE ? "|  R  " : "|  r  ");
+                            break;
+                        case QUEEN:
+                            std::cout << (pos.m_color[square] == WHITE ? "|  Q  " : "|  q  ");
+                            break;
+                        case KING:
+                            std::cout << (pos.m_color[square] == WHITE ? "|  K  " : "|  k  ");
+                            break;
+                        case EMPTY:
+                            std::cout << "|     ";
+                            break;
+                    }
+
+
+                    //End of rank, print the rank and return
+                    if(file(square) == 7) std::cout << "|  " << rank(square)+1 << std::endl << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
+                }
+            }
+
+            //We end up by printing the file names
+            for(int i = 0; i < 8; i++){
+                std::cout << "   " << char('A' + i) << "  ";
+            }
+
+            std::cout << std::endl << std::endl << "Move " << pos.m_ply << " (" << pos.m_halfclock << " moves since last capture or pawn move)" << std::endl;
+            std::cout << "En passant square : " << sq_to_str(pos.m_ep) << std::endl;
+            std::cout << "Castling rights : " << (pos.m_castling & WKCASTLE ? "K" : "")
+                      << (pos.m_castling & WQCASTLE ? "Q" : "")
+                      << (pos.m_castling & BKCASTLE ? "k" : "")
+                      << (pos.m_castling & BQCASTLE ? "q" : "") << std::endl << std::endl;
+
+            std::cout << "Position hash : " << pos.positionHash << std::endl << std::endl;
         }
     }
 }
