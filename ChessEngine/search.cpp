@@ -122,28 +122,19 @@ namespace Chameleon{
             int mvStackIndx{0};
             position.gen(mvStack, mvStackIndx);
 
-            int copyBeta = beta;
             int score;
             for(int i = 0; i < mvStackIndx; i++){
                 position.make(mvStack[i]);
-                score = -searchNode(position, -copyBeta, -alpha, depthLeft - 1, maxNodes, maxTime);
-
-                //That's part of negascout implementation, it adds up to alpha-beta by using a window
-                //Basically, it increases the chances of a cutoff, but we need to re search if a score is out of the window
-                if(score > alpha && score < beta && i){
-                    score = -searchNode(position, -beta, -alpha, depthLeft - 1, maxNodes, maxTime);
-                }
+                score = -searchNode(position, -beta, -alpha, depthLeft - 1, maxNodes, maxTime);
                 position.takeback();
 
                 //Then it's just normal alpha beta stuff
-                if(alpha < score){
+                if(score >= beta){
+                    return beta;
+                }
+                if(score > alpha){
                     alpha = score;
                 }
-                if(alpha >= beta){
-                    return alpha;
-                }
-
-                beta = alpha + 1; //We change the window for negascout
             }
             return alpha;
         }
