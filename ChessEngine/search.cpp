@@ -54,14 +54,14 @@ namespace Chameleon{
                 for(int i = 0; i < mvStackIndx; i++){
                     currentMove = mvStack[i];
                     position.make(currentMove);
-                    currentScore = -searchNode(position, -beta, -alpha, depth - 1, 0, depth==7);
+                    currentScore = -searchNode(position, -beta, -alpha, depth - 1, 0);
                     //The bad side of aspiration windows: to make sure we don't miss stuff, if the score is too far
                     //we need to recalculate, because our window isn't good
                     if(currentScore <= alpha || currentScore >= beta){
                         //Reset alpha and beta
                         alpha -= aspirationWindow;
                         beta += aspirationWindow;
-                        currentScore = -searchNode(position, -beta, -alpha, depth - 1, 0,depth==7);
+                        currentScore = -searchNode(position, -beta, -alpha, depth - 1, 0);
                     }
                     position.takeback();
 
@@ -90,9 +90,8 @@ namespace Chameleon{
             return bestMove;
         }
 
-        int searchNode(position &position, int alpha, int beta, int depthLeft, int nullmoves, bool aled) {
+        int searchNode(position &position, int alpha, int beta, int depthLeft, int nullmoves) {
             //We just hit a stop condition
-            if(aled) display::showPosition(position);
             if(depthLeft <= 0){
                 //Call quiescence to reduce horizon effect
                 return Evaluation::eval(position);
@@ -113,7 +112,7 @@ namespace Chameleon{
                 if(!position.check){
                     nullmoves++;
                     position.m_side ^= 1; //Change side only
-                    score = -searchNode(position, -beta, -beta+1, depthLeft - 3, nullmoves, aled);
+                    score = -searchNode(position, -beta, -beta+1, depthLeft - 3, nullmoves);
                     position.m_side ^= 1;
                     if(score >= beta) return beta;
                 }
@@ -121,7 +120,7 @@ namespace Chameleon{
 
             for(int i = 0; i < mvStackIndx; i++){
                 position.make(mvStack[i]);
-                score = -searchNode(position, -beta, -alpha, depthLeft - 1, nullmoves, aled);
+                score = -searchNode(position, -beta, -alpha, depthLeft - 1, nullmoves);
                 position.takeback();
                 if(score >= beta){
                     return beta;
