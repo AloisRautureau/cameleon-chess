@@ -9,7 +9,6 @@
 #include <stack>
 #include <vector>
 #include <random>
-class display;
 
 /*
  * This class is the representation of a board state.
@@ -93,6 +92,7 @@ struct takebackInfo{
     char castling = 0;
     int halfmove = 0;
     int ep = inv;
+    bool check = false;
 };
 
 static int file(int square){return square & 7;}
@@ -244,7 +244,7 @@ public:
     int m_ep = inv;
     std::stack<takebackInfo> m_takebackInfo;
     bool check = false;
-    int checkmate = -1;
+
 
     //Time control variables
     int m_wtime = -1;
@@ -261,8 +261,6 @@ public:
     unsigned long long sideKey;
 
     unsigned long long positionHash{0};
-
-    friend display;
 
     //We use the constructor as a place to initialize zobrist keys notably
     position();
@@ -313,6 +311,8 @@ public:
 
     //Sets up the current board position to match the given FEN notation
     void setFEN(std::string fen);
+
+    void showPosition();
 };
 
 

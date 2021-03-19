@@ -12,12 +12,12 @@
 
 namespace Chameleon{
     namespace Debug {
-        void perft(const position &board);
+        void perft(const position &board, int depth);
 
         unsigned long long int
         perftRecursive(int depth, position board);
 
-        void perftDivide(position &board);
+        void perftDivide(position &board, int depth);
     }
 }
 

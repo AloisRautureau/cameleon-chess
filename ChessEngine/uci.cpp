@@ -157,13 +157,13 @@ namespace Chameleon{
             
             //Those are commands implemented for using Chameleon in a pure CLI environnement, although this is not recommended
             if(command == "show") showPosition(pos);
-            if(command == "perft") Debug::perft(pos);
-            if(command == "divide") Debug::perftDivide(pos);
+            if(command == "perft") Debug::perft(pos, std::stoi(args[0]));
+            if(command == "divide") Debug::perftDivide(pos, std::stoi(args[0]));
             if(command == "showmoves") {
                 movebits stack[256]{0};
                 int index{0};
                 pos.gen(stack, index);
-                std::cout << index << " legal moves : " << std::endl;
+                std::cout << index << " moves : " << std::endl;
                 for(int i = 0; i < index; i++){
                     std::cout << move_to_str(stack[i]) << std::endl;
                 }
@@ -257,7 +257,7 @@ namespace Chameleon{
 
             //Once we have set every option, launch the search, which handles sending info about itself
             //We just need to return the final chosen move
-            std::string bestMove = move_to_str(Search::bestMove(pos, searchdepth, searchtime, searchmovelist, searchnodes, searchinf));
+            std::string bestMove = move_to_str(Search::bestMove(pos, searchdepth, searchtime, searchmovelist, searchinf));
             uciSend("bestmove " + bestMove);
             return true;
         }

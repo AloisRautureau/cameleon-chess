@@ -13,6 +13,7 @@ int main() {
     position pos;
     display::showPosition(pos);
 
+
     Evaluation::init();
     UCI::uciListen(pos);
 

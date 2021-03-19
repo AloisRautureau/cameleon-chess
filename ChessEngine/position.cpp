@@ -48,9 +48,9 @@ void position::gen(movebits stack[], int &stackIndx) {
     }
 
     stackIndx = 0;
-    int adress;
-    int ranka;
-    int availableDelta;
+    int adress{inv};
+    int ranka{inv};
+    int availableDelta{0};
     for(int piece = 0; piece < 6; piece++){
         for(int index = 0; index < m_plist[m_side][piece].size(); index++){
             adress = m_plist[m_side][piece].get(index);
@@ -82,7 +82,7 @@ void position::gen(movebits stack[], int &stackIndx) {
                         if(adress + NW == m_ep){
                             if(isLegalEp(adress, adress+NW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+NW, EPCAP));
                         }
-                        if(ranka == 6){
+                        else if(ranka == 6){
                             for(char i = 0; i < 4; i++){
                                 addToStack(stack, stackIndx, encodeMove(adress, adress+NW, (char)(NPROMCAP+i)));
                             }
@@ -96,7 +96,7 @@ void position::gen(movebits stack[], int &stackIndx) {
                         if(adress + NE == m_ep){
                             if(isLegalEp(adress, adress+NE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+NE, EPCAP));
                         }
-                        if(ranka == 6){
+                        else if(ranka == 6){
                             for(char i = 0; i < 4; i++){
                                 addToStack(stack, stackIndx, encodeMove(adress, adress+NE, (char)(NPROMCAP+i)));
                             }
@@ -125,7 +125,7 @@ void position::gen(movebits stack[], int &stackIndx) {
                         if(adress + SW == m_ep){
                             if(isLegalEp(adress, adress+SW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+SW, EPCAP));
                         }
-                        if(ranka == 1){
+                        else if(ranka == 1){
                             for(char i = 0; i < 4; i++){
                                 addToStack(stack, stackIndx, encodeMove(adress, adress+SW, (char)(NPROMCAP+i)));
                             }
@@ -134,12 +134,11 @@ void position::gen(movebits stack[], int &stackIndx) {
                             addToStack(stack, stackIndx, encodeMove(adress, adress + SW, CAP));
                         }
                     }
-
                     if(!(adress + SE & 0x88) && (m_color[adress + SE] == !m_side || adress + SE == m_ep) && (!availableDelta || abs(availableDelta) == abs(SE))){
                         if(adress + SE == m_ep){
                             if(isLegalEp(adress, adress+SE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+SE, EPCAP));
                         }
-                        if(ranka == 1){
+                        else if(ranka == 1){
                             for(char i = 0; i < 4; i++){
                                 addToStack(stack, stackIndx, encodeMove(adress, adress+SE, (char)(NPROMCAP+i)));
                             }
@@ -714,14 +713,15 @@ int position::isPinned(int square) {
     //- we find a sliding enemy piece, then check if is has access to our delta
 
     //Finds the ray from our king to the given square
-    int kingSquare = m_plist[m_color[square]][KING].get(0);
+    if(m_color[square] == EMPTY || (m_plist[m_side][KING].get(0) & 0x88) || (square & 0x88)) return 0; //There is no piece here to be pinned
+    int kingSquare = m_plist[m_side][KING].get(0);
     int attack = m_attackArray[square - kingSquare + 128];
     int delta{0};
     int potentiallyPinned = false;
     if(attack != attNONE && attack != attN){ //Checks if the attack table says a queen could attack the square from our king's square
         delta = m_deltaArray[square - kingSquare + 128]; //Here's the delta of the attack
         for(int currSquare = kingSquare + delta; !(currSquare & 0x88); currSquare += delta){ //Follow it until we find our piece
-            if(currSquare == square) {
+            if(currSquare == square && m_color[currSquare] == m_side) {
                 //Found our piece, and it can be accessed by the king
                 //We now need to continue following the ray, until we find a sliding enemy piece or a friendly one
                 potentiallyPinned = true;
@@ -750,7 +750,6 @@ int position::isPinned(int square) {
                             default: return 0; //No pin if it's not one of those 3 pieces
                         }
                     }
-                    return 0;
                 }
                 return 0; //No pin
             }
@@ -869,27 +868,10 @@ void position::make(movebits move) {
     info.halfmove = m_halfclock;
     info.ep = m_ep;
     info.castling = m_castling;
+    info.check = check;
     m_takebackInfo.push(info);
 
     //First we update state variables
-    if(pieceMoving == KING){
-        positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
-        m_castling &= !m_side ? 0b0011 : 0b1100;
-        positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
-    }
-    if(pieceMoving == ROOK){
-        if(file(from) == 7){
-            positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
-            m_castling &= !m_side ? 0b0111 : 0b1101;
-            positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
-        }
-        else if(file(from) == 0){
-            positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
-            m_castling &= !m_side ? 0b1011 : 0b1110;
-            positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
-        }
-    }
-
     if(!(mvFlag & CAP || pieceMoving == PAWN)) m_halfclock++;
     else m_halfclock = 0;
 
@@ -919,12 +901,12 @@ void position::make(movebits move) {
     m_plist[m_side][pieceMoving].remove(from);
     m_plist[m_side][pieceMoving].add(to);
     if(mvFlag & 0b0100){
-        //We can now take care of special flags, like castling and promotions
         if(mvFlag == EPCAP){
-            m_pieces[to + (m_side ? N : S)] = EMPTY;
-            m_color[to + (m_side ? N : S)] = EMPTY;
-            positionHash ^= piecesKey[!m_side][PAWN][to + (m_side ? N : S)];
-            m_plist[!m_side][PAWN].remove(to + (m_side ? N : S));
+            int epSquare = to + (m_side ? N : S);
+            m_pieces[epSquare] = EMPTY;
+            m_color[epSquare] = EMPTY;
+            positionHash ^= piecesKey[!m_side][PAWN][epSquare];
+            m_plist[!m_side][PAWN].remove(epSquare);
         }
         else{
             positionHash ^= piecesKey[!m_side][pieceTaken][to];
@@ -932,13 +914,14 @@ void position::make(movebits move) {
         }
     }
 
+    //Taking care of special flags
     if(mvFlag == KCASTLE) {
         int rookAdress = !m_side ? 0x07 : 0x77;
         int arrivalAdress = to - 1;
+        m_pieces[arrivalAdress] = ROOK;
+        m_color[arrivalAdress] = m_color[rookAdress];
         m_pieces[rookAdress] = EMPTY;
         m_color[rookAdress] = EMPTY;
-        m_pieces[arrivalAdress] = ROOK;
-        m_color[arrivalAdress] = (char)m_side;
 
         positionHash ^= piecesKey[m_side][ROOK][rookAdress];
         positionHash ^= piecesKey[m_side][ROOK][arrivalAdress];
@@ -948,15 +931,43 @@ void position::make(movebits move) {
     else if(mvFlag == QCASTLE){
         int rookAdress = !m_side ? 0x00 : 0x70;
         int arrivalAdress = to + 1;
+        m_pieces[arrivalAdress] = ROOK;
+        m_color[arrivalAdress] = m_color[rookAdress];
         m_pieces[rookAdress] = EMPTY;
         m_color[rookAdress] = EMPTY;
-        m_pieces[arrivalAdress] = ROOK;
-        m_color[arrivalAdress] = (char)m_side;
 
         positionHash ^= piecesKey[m_side][ROOK][rookAdress];
         positionHash ^= piecesKey[m_side][ROOK][arrivalAdress];
         m_plist[m_side][ROOK].remove(rookAdress);
         m_plist[m_side][ROOK].add(arrivalAdress);
+    }
+
+    if(pieceMoving == KING){
+        positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
+        m_castling &= !m_side ? 0b0011 : 0b1100;
+        positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
+    }
+    if(pieceMoving == ROOK || pieceTaken == ROOK){
+        if(from == 0x77 || to == 0x77){
+            positionHash ^= blackCastlingKeys[(m_castling & 0b0011)];
+            m_castling &= 0b1101;
+            positionHash ^= blackCastlingKeys[(m_castling & 0b0011)];
+        }
+        else if(from == 0x07 || to == 0x07){
+            positionHash ^= whiteCastlingKeys[(m_castling >> 2)];
+            m_castling &= 0b0111;
+            positionHash ^= whiteCastlingKeys[(m_castling >> 2)];
+        }
+        else if(from == 0x70 || to == 0x70){
+            positionHash ^= blackCastlingKeys[(m_castling & 0b0011)];
+            m_castling &= 0b1110;
+            positionHash ^= blackCastlingKeys[(m_castling & 0b0011)];
+        }
+        else if(from == 0x00 || to == 0x00){
+            positionHash ^= whiteCastlingKeys[(m_castling >> 2)];
+            m_castling &= 0b1011;
+            positionHash ^= whiteCastlingKeys[(m_castling >> 2)];
+        }
     }
 
     //Remove the to square from the pawn pieceList, and add it to the target piece pieceList
@@ -989,6 +1000,7 @@ void position::make(movebits move) {
     m_side ^= 1;
     positionHash ^= sideKey;
 
+    //Verifiy if the move that was made checks the now side to move
     check = inCheck(m_side);
 }
 
@@ -1028,7 +1040,7 @@ void position::takeback() {
         }
 
         m_pieces[to] = PAWN;
-        movedPiece = m_pieces[to];
+        movedPiece = PAWN;
 
         positionHash ^= piecesKey[m_side][targetPiece][to];
         positionHash ^= piecesKey[m_side][PAWN][to];
@@ -1065,15 +1077,16 @@ void position::takeback() {
         m_plist[m_side][ROOK].add(arrivalAdress);
     }
 
-    //Update position hash BEFORE unmaking the move
-    m_pieces[to] = EMPTY;
-    m_color[to] = EMPTY;
+    //Undo the actual move
+    m_pieces[from] = m_pieces[to];
+    m_color[from] = m_color[to];
     if(mvFlag & 0b0100){
         if(mvFlag == EPCAP){
-            m_pieces[to + (m_side ? N : S)] = PAWN;
-            m_color[to + (m_side ? N : S)] = (char)!m_side;
-            positionHash ^= piecesKey[!m_side][PAWN][to + (m_side ? N : S)];
-            m_plist[!m_side][PAWN].add(to + (m_side ? N : S));
+            int epSquare = to + (m_side ? N : S);
+            m_pieces[epSquare] = PAWN;
+            m_color[epSquare] = (char)!m_side;
+            positionHash ^= piecesKey[!m_side][PAWN][epSquare];
+            m_plist[!m_side][PAWN].add(epSquare);
         }
         else{
             m_pieces[to] = pieceTaken;
@@ -1082,17 +1095,16 @@ void position::takeback() {
             m_plist[!m_side][pieceTaken].add(to);
         }
     }
-
-
-    //Undo the actual move
-    m_pieces[from] = movedPiece;
-    m_color[from] = (char)m_side;
+    else{
+        m_pieces[to] = EMPTY;
+        m_color[to] = EMPTY;
+    }
 
     m_plist[m_side][movedPiece].remove(to);
     m_plist[m_side][movedPiece].add(from);
 
-    positionHash ^= piecesKey[m_side][movedPiece][to];
-    positionHash ^= piecesKey[m_side][movedPiece][from];
+    positionHash ^= piecesKey[m_side][m_pieces[from]][to];
+    positionHash ^= piecesKey[m_side][m_pieces[from]][from];
     //We also must set back the castling rights and halfmove clock
     if(m_ep != inv) positionHash ^= epKeys[m_ep];
     m_ep = m_takebackInfo.top().ep;
@@ -1103,11 +1115,10 @@ void position::takeback() {
     positionHash ^= m_side ? blackCastlingKeys[(m_castling & 0b0011)] : whiteCastlingKeys[m_castling >> 2];
 
     m_halfclock = m_takebackInfo.top().halfmove;
+    check = m_takebackInfo.top().check;
 
     //finally we can just pop the top of the takeback stack
     m_takebackInfo.pop();
-
-    check = inCheck(m_side);
 }
 
 void position::setFEN(std::string fen) {
@@ -1257,8 +1268,9 @@ void position::setFEN(std::string fen) {
 
     if(variableData[2][0] == '-') m_ep = inv;
     else{
-        m_ep = variableData[2][0] - 'a' + variableData[2][1] - '0';
+        m_ep = variableData[2][0] - 'a' + (variableData[2][1] - '1')*0x10;
     }
+    std::cout << std::hex << m_ep << std::dec << std::endl;
 
     m_halfclock = std::stoi(variableData[3]);
 
@@ -1269,6 +1281,59 @@ void position::setFEN(std::string fen) {
 }
 
 void position::addToStack(movebits stack[], int &stackIndx, movebits move) {
+    if(fromSq(move) > 0x77 || toSq(move) > 0x77) return; //Little sanity check in case a bad move slipped through
     stack[stackIndx++] = move;
+}
+
+void position::showPosition() {
+    int square;
+    std::cout << std::endl << (!m_side ? "White " : "Black ") << "to move!" << std::endl << std::endl;
+    std::cout << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            square = (7-i) * 0x10 + j;
+
+            switch(m_pieces[square]){
+                case PAWN:
+                    std::cout << (m_color[square] == WHITE ? "|  P  " : "|  p  ");
+                    break;
+                case KNIGHT:
+                    std::cout << (m_color[square] == WHITE ? "|  N  " : "|  n  ");
+                    break;
+                case BISHOP:
+                    std::cout << (m_color[square] == WHITE ? "|  B  " : "|  b  ");
+                    break;
+                case ROOK:
+                    std::cout << (m_color[square] == WHITE ? "|  R  " : "|  r  ");
+                    break;
+                case QUEEN:
+                    std::cout << (m_color[square] == WHITE ? "|  Q  " : "|  q  ");
+                    break;
+                case KING:
+                    std::cout << (m_color[square] == WHITE ? "|  K  " : "|  k  ");
+                    break;
+                case EMPTY:
+                    std::cout << "|     ";
+                    break;
+            }
+
+
+            //End of rank, print the rank and return
+            if(file(square) == 7) std::cout << "|  " << rank(square)+1 << std::endl << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
+        }
+    }
+
+    //We end up by printing the file names
+    for(int i = 0; i < 8; i++){
+        std::cout << "   " << char('A' + i) << "  ";
+    }
+
+    std::cout << std::endl << std::endl << "Move " << m_ply << " (" << m_halfclock << " moves since last capture or pawn move)" << std::endl;
+    std::cout << "Castling rights : " << (m_castling & WKCASTLE ? "K" : "")
+              << (m_castling & WQCASTLE ? "Q" : "")
+              << (m_castling & BKCASTLE ? "k" : "")
+              << (m_castling & BQCASTLE ? "q" : "") << std::endl << std::endl;
+
+    std::cout << "Position hash : " << positionHash << std::endl << std::endl;
 }
 
