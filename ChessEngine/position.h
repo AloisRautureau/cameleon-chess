@@ -95,6 +95,12 @@ struct takebackInfo{
     bool check = false;
 };
 
+struct movestack{
+    movebits moves[256]; //Stores the moves themselves
+    int sortValue[256]; //Sorts the values used for ordering moves
+    int size{0};
+};
+
 static int file(int square){return square & 7;}
 static int rank(int square){return square >> 4;}
 
@@ -268,11 +274,11 @@ public:
     /*
      * Generates all possible moves for the current side to move
      */
-    void gen(movebits stack[], int &stackIndx);
+    void gen(movestack &stack);
     //Generates only captures/checking moves, useful during quiescence search
-    void genNoisy(movebits stack[], int &stackIndx);
+    void genNoisy(movestack &stack);
     //Generates only moves that get the king out of check
-    void checkEvasion(movebits stack[], int &stackIndx);
+    void checkEvasion(movestack &stack);
 
     //Returns the pin delta ray if the piece on the given square is pinned, 0 if it isn't or no piece
     int isPinned(int square);
@@ -282,7 +288,9 @@ public:
     bool isLegalEp(int from, int to, bool side);
 
     //Adds a move to the stack after checking whether or not it was legal
-    static void addToStack(movebits stack[], int &stackIndx, movebits move);
+    static void addToStack(movestack &stack, movebits move);
+    //Simply sorts the stack so that "good" moves go first
+    static void sortStack(movestack & stack);
 
     //Checks if the given square is under attack by the given side
     bool inCheck(bool side);

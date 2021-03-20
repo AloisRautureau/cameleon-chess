@@ -5,17 +5,16 @@
 #include "debug.h"
 
 unsigned long long Chameleon::Debug::perftRecursive(int depth, position board) {
-    movebits stack[256];
-    int stackIndex = 0;
+    movestack stack;
     unsigned long long nodes = 0;
-    board.gen(stack, stackIndex);
-    if(depth == 1) return stackIndex;
+    board.gen(stack);
+    if(depth == 1) return stack.size;
     if(depth == 0) return 1;
 
     //For each move, make the move, then unmake it
     //We also increment the corresponding node counter
-    for (int i = 0; i < stackIndex; i++) {
-        board.make(stack[i]);
+    for (int i = 0; i < stack.size; i++) {
+        board.make(stack.moves[i]);
         nodes += perftRecursive(depth - 1, board);
         board.takeback();
     }
@@ -43,18 +42,17 @@ void Chameleon::Debug::perftDivide(position &board, int depth){
     unsigned long long totalNodes = 0;
     std::cout << "Nodes searched at depth " << depth << std::endl << std::endl;
     //We need to make each first move, then count nodes from here
-    movebits stack[256];
-    int stackIndex = 0;
-    board.gen(stack, stackIndex);
+    movestack stack;
+    board.gen(stack);
 
     std::cout << "MOVE   NODES" << std::endl;
     std::cout << "----   -----" << std::endl;
-    for(int i = 0; i < stackIndex; i++){
-        board.make(stack[i]);
+    for(int i = 0; i < stack.size; i++){
+        board.make(stack.moves[i]);
         unsigned long long nodes;
         nodes = perftRecursive(depth, board);
         totalNodes += nodes;
-        std::cout << display::displayMove(stack[i]) << "   " << nodes << std::endl;
+        std::cout << display::displayMove(stack.moves[i]) << "   " << nodes << std::endl;
         board.takeback();
     }
     std::cout << "Total at depth " << depth << " : " << totalNodes;

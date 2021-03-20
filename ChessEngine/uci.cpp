@@ -160,12 +160,11 @@ namespace Chameleon{
             if(command == "perft") Debug::perft(pos, std::stoi(args[0]));
             if(command == "divide") Debug::perftDivide(pos, std::stoi(args[0]));
             if(command == "showmoves") {
-                movebits stack[256]{0};
-                int index{0};
-                pos.gen(stack, index);
-                std::cout << index << " moves : " << std::endl;
-                for(int i = 0; i < index; i++){
-                    std::cout << move_to_str(stack[i]) << std::endl;
+                movestack stack;
+                pos.gen(stack);
+                std::cout << stack.size << " moves : " << std::endl;
+                for(int i = 0; i < stack.size; i++){
+                    std::cout << move_to_str(stack.moves[i]) << std::endl;
                 }
             }
 

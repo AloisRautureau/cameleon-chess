@@ -40,14 +40,13 @@ position::position() {
     if(m_side) positionHash ^= sideKey;
 }
 
-void position::gen(movebits stack[], int &stackIndx) {
+void position::gen(movestack &stack) {
     //If we're in check, we must use the checkEvasion move generator as it is specifically optimized for this
     if(check){
-        checkEvasion(stack, stackIndx);
+        checkEvasion(stack);
         return;
     }
 
-    stackIndx = 0;
     int adress{inv};
     int ranka{inv};
     int availableDelta{0};
@@ -66,85 +65,85 @@ void position::gen(movebits stack[], int &stackIndx) {
                 if(!m_side){
                     if(m_pieces[adress + N] == EMPTY && (!availableDelta || abs(availableDelta) == abs(N))){
                         if(m_pieces[adress + 2*N] == EMPTY && ranka == 1){ //Double pawn push
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + 2*N, DPAWNPUSH));
+                            addToStack(stack, encodeMove(adress, adress + 2*N, DPAWNPUSH));
                         }
                         if(ranka == 6){ //Promotion
                             for(char i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+N, (char)(NPROM+i)));
+                                addToStack(stack, encodeMove(adress, adress+N, (char)(NPROM+i)));
                             }
                         }
                         else{
-                            addToStack(stack, stackIndx, encodeMove(adress, adress+N, QUIET));
+                            addToStack(stack, encodeMove(adress, adress+N, QUIET));
                         }
                     }
 
                     if(!(adress + NW & 0x88) && (m_color[adress + NW] == !m_side || adress + NW == m_ep) && (!availableDelta || abs(availableDelta) == abs(NW))){
                         if(adress + NW == m_ep){
-                            if(isLegalEp(adress, adress+NW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+NW, EPCAP));
+                            if(isLegalEp(adress, adress+NW, m_side)) addToStack(stack, encodeMove(adress, adress+NW, EPCAP));
                         }
                         else if(ranka == 6){
                             for(char i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+NW, (char)(NPROMCAP+i)));
+                                addToStack(stack, encodeMove(adress, adress+NW, (char)(NPROMCAP+i)));
                             }
                         }
                         else if(m_pieces[adress + NW] != EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + NW, CAP));
+                            addToStack(stack, encodeMove(adress, adress + NW, CAP));
                         }
                     }
 
                     if(!(adress + NE & 0x88) && (m_color[adress + NE] == !m_side || adress + NE == m_ep) && (!availableDelta || abs(availableDelta) == abs(NE))){
                         if(adress + NE == m_ep){
-                            if(isLegalEp(adress, adress+NE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+NE, EPCAP));
+                            if(isLegalEp(adress, adress+NE, m_side)) addToStack(stack, encodeMove(adress, adress+NE, EPCAP));
                         }
                         else if(ranka == 6){
                             for(char i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+NE, (char)(NPROMCAP+i)));
+                                addToStack(stack, encodeMove(adress, adress+NE, (char)(NPROMCAP+i)));
                             }
                         }
                         else if(m_pieces[adress + NE] != EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + NE, CAP));
+                            addToStack(stack, encodeMove(adress, adress + NE, CAP));
                         }
                     }
                 }
                 else{
                     if(m_pieces[adress + S] == EMPTY && (!availableDelta || abs(availableDelta) == abs(S))){
                         if(m_pieces[adress + 2*S] == EMPTY && ranka == 6){ //Double pawn push
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + 2*S, DPAWNPUSH));
+                            addToStack(stack, encodeMove(adress, adress + 2*S, DPAWNPUSH));
                         }
                         if(ranka == 1){ //Promotion
                             for(char i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+S, (char)(NPROM+i)));
+                                addToStack(stack, encodeMove(adress, adress+S, (char)(NPROM+i)));
                             }
                         }
                         else{
-                            addToStack(stack, stackIndx, encodeMove(adress, adress+S, QUIET));
+                            addToStack(stack, encodeMove(adress, adress+S, QUIET));
                         }
                     }
 
                     if(!(adress + SW & 0x88) && (m_color[adress + SW] == !m_side || adress + SW == m_ep) && (!availableDelta || abs(availableDelta) == abs(SW))){
                         if(adress + SW == m_ep){
-                            if(isLegalEp(adress, adress+SW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+SW, EPCAP));
+                            if(isLegalEp(adress, adress+SW, m_side)) addToStack(stack, encodeMove(adress, adress+SW, EPCAP));
                         }
                         else if(ranka == 1){
                             for(char i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+SW, (char)(NPROMCAP+i)));
+                                addToStack(stack, encodeMove(adress, adress+SW, (char)(NPROMCAP+i)));
                             }
                         }
                         else if(m_pieces[adress + SW] != EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + SW, CAP));
+                            addToStack(stack, encodeMove(adress, adress + SW, CAP));
                         }
                     }
                     if(!(adress + SE & 0x88) && (m_color[adress + SE] == !m_side || adress + SE == m_ep) && (!availableDelta || abs(availableDelta) == abs(SE))){
                         if(adress + SE == m_ep){
-                            if(isLegalEp(adress, adress+SE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+SE, EPCAP));
+                            if(isLegalEp(adress, adress+SE, m_side)) addToStack(stack, encodeMove(adress, adress+SE, EPCAP));
                         }
                         else if(ranka == 1){
                             for(char i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+SE, (char)(NPROMCAP+i)));
+                                addToStack(stack, encodeMove(adress, adress+SE, (char)(NPROMCAP+i)));
                             }
                         }
                         else if(m_pieces[adress + SE] != EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + SE, CAP));
+                            addToStack(stack, encodeMove(adress, adress + SE, CAP));
                         }
                     }
                 }
@@ -155,10 +154,10 @@ void position::gen(movebits stack[], int &stackIndx) {
                 for(auto delta : m_pieceDelta[KING]){
                     if(!(adress + delta & 0x88) && m_color[adress + delta] != m_side && !sqAttackedMK2(adress + delta, !m_side, true)){
                         if(m_pieces[adress + delta] == EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + delta, QUIET));
+                            addToStack(stack, encodeMove(adress, adress + delta, QUIET));
                         }
                         else{
-                            addToStack(stack, stackIndx, encodeMove(adress, adress + delta, CAP));
+                            addToStack(stack, encodeMove(adress, adress + delta, CAP));
                         }
                     }
                 }
@@ -178,11 +177,11 @@ void position::gen(movebits stack[], int &stackIndx) {
                         if(m_color[currentSquare] == m_side
                            || (currentSquare & 0x88)) break;
                         else if(m_color[currentSquare] == !m_side && m_pieces[currentSquare] != EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, currentSquare, CAP));
+                            addToStack(stack, encodeMove(adress, currentSquare, CAP));
                             break;
                         }
                         else{
-                            addToStack(stack, stackIndx, encodeMove(adress, currentSquare, QUIET));
+                            addToStack(stack, encodeMove(adress, currentSquare, QUIET));
                             if(!m_pieceDelta[0][piece]) break;
                         }
                     }
@@ -202,31 +201,31 @@ void position::gen(movebits stack[], int &stackIndx) {
         if(m_castling & WKCASTLE
            && m_pieces[0x05] == EMPTY && m_pieces[0x06] == EMPTY
            && !sqAttackedMK2(0x05, BLACK) && !sqAttackedMK2(0x06, BLACK)){
-            addToStack(stack, stackIndx, encodeMove(0x04, 0x06, KCASTLE));
+            addToStack(stack, encodeMove(0x04, 0x06, KCASTLE));
         }
         if(m_castling & WQCASTLE
            && m_pieces[0x03] == EMPTY && m_pieces[0x02] == EMPTY && m_pieces[0x01] == EMPTY
            && !sqAttackedMK2(0x03, BLACK) && !sqAttackedMK2(0x02, BLACK)){
-            addToStack(stack, stackIndx, encodeMove(0x04, 0x02, QCASTLE));
+            addToStack(stack, encodeMove(0x04, 0x02, QCASTLE));
         }
     }
     else {
         if (m_castling & BKCASTLE
             && m_pieces[0x75] == EMPTY && m_pieces[0x76] == EMPTY
             && !sqAttackedMK2(0x75, WHITE) && !sqAttackedMK2(0x76, WHITE)) {
-            addToStack(stack, stackIndx, encodeMove(0x74, 0x76, KCASTLE));
+            addToStack(stack, encodeMove(0x74, 0x76, KCASTLE));
         }
         if (m_castling & BQCASTLE
             && m_pieces[0x73] == EMPTY && m_pieces[0x72] == EMPTY && m_pieces[0x71] == EMPTY
             && !sqAttackedMK2(0x73, WHITE) && !sqAttackedMK2(0x72, WHITE)) {
-            addToStack(stack, stackIndx, encodeMove(0x74, 0x72, QCASTLE));
+            addToStack(stack, encodeMove(0x74, 0x72, QCASTLE));
         }
     }
 }
 
-void position::genNoisy(movebits stack[], int &stackIndx) {
+void position::genNoisy(movestack &stack) {
     if(check){
-        checkEvasion(stack, stackIndx);
+        checkEvasion(stack);
         return;
     }
 
@@ -236,7 +235,6 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
     //- or by moving in a line (2)
     //- or by moving as a knight (3)
     //- or not at all (0)
-    stackIndx = 0;
     int possibleChecksArray[0x88]{0};
     int enemyKing = m_plist[!m_side][KING].get(0);
     int currentSquare;
@@ -283,11 +281,11 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
                         if(!pinDelta || abs(pinDelta) == abs(NW)) {
                             if(rankp == 6) {
                                 for(int i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, adress+NW, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, adress+NW, (char)(NPROMCAP+i)));
                                 }
                             }
                             else{
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+NW, CAP));
+                                addToStack(stack, encodeMove(adress, adress+NW, CAP));
                             }
                         }
                     }
@@ -295,35 +293,35 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
                         if(!pinDelta || abs(pinDelta) == abs(NE)) {
                             if(rankp == 6) {
                                 for(int i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, adress+NE, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, adress+NE, (char)(NPROMCAP+i)));
                                 }
                             }
                             else{
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+NE, CAP));
+                                addToStack(stack, encodeMove(adress, adress+NE, CAP));
                             }
                         }
                     }
                     if(adress + NW == m_ep){
                         if(isLegalEp(adress, adress+NW, m_side) && (!pinDelta || abs(pinDelta) == abs(NW))) {
-                            addToStack(stack, stackIndx, encodeMove(adress, adress+NW, EPCAP));
+                            addToStack(stack, encodeMove(adress, adress+NW, EPCAP));
                         }
                     }
                     if(adress + NE == m_ep){
                         if(isLegalEp(adress, adress+NE, m_side) && (!pinDelta || abs(pinDelta) == abs(NE))) {
-                            addToStack(stack, stackIndx, encodeMove(adress, adress+NE, EPCAP));
+                            addToStack(stack, encodeMove(adress, adress+NE, EPCAP));
                         }
                     }
 
                     if(rankp == 1 && (adress + 2*N + NW == enemyKing || adress + 2*N + NE == enemyKing) && (!pinDelta || abs(pinDelta) == abs(N))){
-                        if(m_pieces[adress+N] == EMPTY && m_pieces[adress+2*N]) addToStack(stack, stackIndx, encodeMove(adress, adress + 2*N, DPAWNPUSH));
+                        if(m_pieces[adress+N] == EMPTY && m_pieces[adress+2*N]) addToStack(stack, encodeMove(adress, adress + 2*N, DPAWNPUSH));
                     }
                     if((adress + N + NW == enemyKing || adress + N + NE == enemyKing) && (!pinDelta || abs(pinDelta) == abs(N)) && m_pieces[adress+N] == EMPTY){
                         if(rankp == 6){
                             for(int i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress + N, (char)(NPROM+i)));
+                                addToStack(stack, encodeMove(adress, adress + N, (char)(NPROM+i)));
                             }
                         }
-                        else addToStack(stack, stackIndx, encodeMove(adress, adress + N, QUIET));
+                        else addToStack(stack, encodeMove(adress, adress + N, QUIET));
                     }
                 }
                 else{
@@ -331,11 +329,11 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
                         if(!pinDelta || abs(pinDelta) == abs(SW)) {
                             if(rankp == 1) {
                                 for(int i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, adress+SW, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, adress+SW, (char)(NPROMCAP+i)));
                                 }
                             }
                             else{
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+SW, CAP));
+                                addToStack(stack, encodeMove(adress, adress+SW, CAP));
                             }
                         }
                     }
@@ -343,35 +341,35 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
                         if(!pinDelta || abs(pinDelta) == abs(SE)) {
                             if(rankp == 1) {
                                 for(int i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, adress+SE, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, adress+SE, (char)(NPROMCAP+i)));
                                 }
                             }
                             else{
-                                addToStack(stack, stackIndx, encodeMove(adress, adress+SE, CAP));
+                                addToStack(stack, encodeMove(adress, adress+SE, CAP));
                             }
                         }
                     }
                     if(adress + SW == m_ep){
                         if(isLegalEp(adress, adress+SW, m_side) && (!pinDelta || abs(pinDelta) == abs(SW))) {
-                            addToStack(stack, stackIndx, encodeMove(adress, adress+SW, EPCAP));
+                            addToStack(stack, encodeMove(adress, adress+SW, EPCAP));
                         }
                     }
                     if(adress + SE == m_ep){
                         if(isLegalEp(adress, adress+SE, m_side) && (!pinDelta || abs(pinDelta) == abs(SE))) {
-                            addToStack(stack, stackIndx, encodeMove(adress, adress+SE, EPCAP));
+                            addToStack(stack, encodeMove(adress, adress+SE, EPCAP));
                         }
                     }
 
                     if(rankp == 6 && (adress + 2*S + SW == enemyKing || adress + 2*S + SE == enemyKing) && (!pinDelta || abs(pinDelta) == abs(S))){
-                        if(m_pieces[adress+S] == EMPTY && m_pieces[adress+2*S] == EMPTY) addToStack(stack, stackIndx, encodeMove(adress, adress + 2*S, DPAWNPUSH));
+                        if(m_pieces[adress+S] == EMPTY && m_pieces[adress+2*S] == EMPTY) addToStack(stack, encodeMove(adress, adress + 2*S, DPAWNPUSH));
                     }
                     if((adress + S + SW == enemyKing || adress + S + SE == enemyKing) && (!pinDelta || abs(pinDelta) == abs(S)) && m_pieces[adress + S] == EMPTY){
                         if(rankp == 1){
                             for(int i = 0; i < 4; i++){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress + S, (char)(NPROM+i)));
+                                addToStack(stack, encodeMove(adress, adress + S, (char)(NPROM+i)));
                             }
                         }
-                        else addToStack(stack, stackIndx, encodeMove(adress, adress + S, QUIET));
+                        else addToStack(stack, encodeMove(adress, adress + S, QUIET));
                     }
                 }
             }
@@ -389,12 +387,12 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
                         if(m_color[currentSquare] == m_side
                            || (currentSquare & 0x88)) break;
                         else if(m_color[currentSquare] == !m_side && m_pieces[currentSquare] != EMPTY){
-                            addToStack(stack, stackIndx, encodeMove(adress, currentSquare, CAP));
+                            addToStack(stack, encodeMove(adress, currentSquare, CAP));
                             break;
                         }
                         else{
                             //Case where the move would be a check
-                            if(possibleChecksArray[currentSquare] == squareValue) addToStack(stack, stackIndx, encodeMove(adress, currentSquare, QUIET));
+                            if(possibleChecksArray[currentSquare] == squareValue) addToStack(stack, encodeMove(adress, currentSquare, QUIET));
                             if(!m_pieceDelta[0][piece]) break;
                         }
                     }
@@ -404,17 +402,17 @@ void position::genNoisy(movebits stack[], int &stackIndx) {
     }
 }
 
-void position::checkEvasion(movebits *stack, int &stackIndx) {
+void position::checkEvasion(movestack &stack) {
     //Generate king moves first
     int kingSquare = m_plist[m_side][KING].get(0);
 
     for(auto delta : m_pieceDelta[KING]){
         if(!(kingSquare + delta & 0x88) && m_color[kingSquare + delta] != m_side && !sqAttackedMK2(kingSquare + delta, !m_side, true)){
             if(m_pieces[kingSquare + delta] == EMPTY){
-                addToStack(stack, stackIndx, encodeMove(kingSquare, kingSquare + delta, QUIET));
+                addToStack(stack, encodeMove(kingSquare, kingSquare + delta, QUIET));
             }
             else{
-                addToStack(stack, stackIndx, encodeMove(kingSquare, kingSquare + delta, CAP));
+                addToStack(stack, encodeMove(kingSquare, kingSquare + delta, CAP));
             }
         }
     }
@@ -515,29 +513,29 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                         if(!(adress + NW & 0x88) && (adress + NW == attackerSq || (adress + NW == m_ep && attackerSq == m_ep + S))
                         && (!availableDelta || abs(availableDelta) == abs(NW))){
                             if(adress + NW == m_ep && attackerSq == m_ep + S){
-                                if(isLegalEp(adress, adress + NW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, m_ep, EPCAP));
+                                if(isLegalEp(adress, adress + NW, m_side)) addToStack(stack, encodeMove(adress, m_ep, EPCAP));
                             }
                             if(ranka == 6){
                                 for(char i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
                                 }
                             }
                             else if(attackerSq == adress + NW){
-                                addToStack(stack, stackIndx, encodeMove(adress, attackerSq, CAP));
+                                addToStack(stack, encodeMove(adress, attackerSq, CAP));
                             }
                         }
                         if(!(adress + NE & 0x88) && (adress + NE == attackerSq || (adress + NE == m_ep && attackerSq == m_ep + S))
                            && (!availableDelta || abs(availableDelta) == abs(NE))){
                             if(adress + NE == m_ep && attackerSq == m_ep + S){
-                                if(isLegalEp(adress, adress + NE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, m_ep, EPCAP));
+                                if(isLegalEp(adress, adress + NE, m_side)) addToStack(stack, encodeMove(adress, m_ep, EPCAP));
                             }
                             if(ranka == 6){
                                 for(char i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
                                 }
                             }
                             else if(attackerSq == adress + NE){
-                                addToStack(stack, stackIndx, encodeMove(adress, attackerSq, CAP));
+                                addToStack(stack, encodeMove(adress, attackerSq, CAP));
                             }
                         }
                     }
@@ -545,29 +543,29 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                         if(!(adress + SW & 0x88) && (adress + SW == attackerSq || (adress + SW == m_ep && attackerSq == m_ep + S))
                            && (!availableDelta || abs(availableDelta) == abs(SW))){
                             if(adress + SW == m_ep && attackerSq == m_ep + S){
-                                if(isLegalEp(adress, adress + SW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, m_ep, EPCAP));
+                                if(isLegalEp(adress, adress + SW, m_side)) addToStack(stack, encodeMove(adress, m_ep, EPCAP));
                             }
                             if(ranka == 1){
                                 for(char i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
                                 }
                             }
                             else if(attackerSq == adress + SW){
-                                addToStack(stack, stackIndx, encodeMove(adress, attackerSq, CAP));
+                                addToStack(stack, encodeMove(adress, attackerSq, CAP));
                             }
                         }
                         if(!(adress + SE & 0x88) && (adress + SE == attackerSq || (adress + SE == m_ep && attackerSq == m_ep + S))
                            && (!availableDelta || abs(availableDelta) == abs(SE))){
                             if(adress + SE == m_ep && attackerSq == m_ep + S){
-                                if(isLegalEp(adress, adress + SE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, m_ep, EPCAP));
+                                if(isLegalEp(adress, adress + SE, m_side)) addToStack(stack, encodeMove(adress, m_ep, EPCAP));
                             }
                             if(ranka == 1){
                                 for(char i = 0; i < 4; i++){
-                                    addToStack(stack, stackIndx, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
+                                    addToStack(stack, encodeMove(adress, attackerSq, (char)(NPROMCAP+i)));
                                 }
                             }
                             else if(attackerSq == adress + SE){
-                                addToStack(stack, stackIndx, encodeMove(adress, attackerSq, CAP));
+                                addToStack(stack, encodeMove(adress, attackerSq, CAP));
                             }
                         }
                     }
@@ -582,7 +580,7 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                             if(m_color[currentSquare] == m_side
                                || (currentSquare & 0x88)) break;
                             else if(currentSquare == attackerSq){
-                                addToStack(stack, stackIndx, encodeMove(adress, currentSquare, CAP));
+                                addToStack(stack, encodeMove(adress, currentSquare, CAP));
                                 break;
                             }
                             else if(m_pieces[currentSquare] != EMPTY) break;
@@ -613,21 +611,21 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                         if(m_pieces[adress + N] == EMPTY && (!availableDelta || abs(availableDelta) == abs(N))){
                             if(m_pieces[adress + 2*N] == EMPTY && ranka == 1){ //Double pawn push
                                 for(auto i : ray){
-                                    if(i == adress + 2*N) addToStack(stack, stackIndx, encodeMove(adress, adress + 2*N, DPAWNPUSH));
+                                    if(i == adress + 2*N) addToStack(stack, encodeMove(adress, adress + 2*N, DPAWNPUSH));
                                 }
                             }
                             if(ranka == 6){ //Promotion
                                 for(auto i : ray){
                                     if(i == adress + N){
                                         for(char j = 0; j < 4; j++){
-                                            addToStack(stack, stackIndx, encodeMove(adress, adress+N, (char)(NPROM+i)));
+                                            addToStack(stack, encodeMove(adress, adress+N, (char)(NPROM+i)));
                                         }
                                     }
                                 }
                             }
                             else{
                                 for(auto i : ray){
-                                    if(i == adress + N) addToStack(stack, stackIndx, encodeMove(adress, adress + N, QUIET));
+                                    if(i == adress + N) addToStack(stack, encodeMove(adress, adress + N, QUIET));
                                 }
                             }
                         }
@@ -636,19 +634,19 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                             if(adress + NW == m_ep){
                                 for(auto i : ray) {
                                     if (i == m_ep) {
-                                        if(isLegalEp(adress, adress+NW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+NW, EPCAP));
+                                        if(isLegalEp(adress, adress+NW, m_side)) addToStack(stack, encodeMove(adress, adress+NW, EPCAP));
                                     }
                                 }
                             }
                             if(ranka == 6){
                                 if(attackerSq == adress + NW){
                                     for(char j = 0; j < 4; j++){
-                                        addToStack(stack, stackIndx, encodeMove(adress, adress+NW, (char)(NPROMCAP+j)));
+                                        addToStack(stack, encodeMove(adress, adress+NW, (char)(NPROMCAP+j)));
                                     }
                                 }
                             }
                             else if(adress + NW == attackerSq){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress + NW, CAP));
+                                addToStack(stack, encodeMove(adress, adress + NW, CAP));
                             }
                         }
 
@@ -656,19 +654,19 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                             if(adress + NE == m_ep){
                                 for(auto i : ray) {
                                     if (i == m_ep) {
-                                        if(isLegalEp(adress, adress+NE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+NE, EPCAP));
+                                        if(isLegalEp(adress, adress+NE, m_side)) addToStack(stack, encodeMove(adress, adress+NE, EPCAP));
                                     }
                                 }
                             }
                             if(ranka == 6){
                                 if(attackerSq == adress + NE){
                                     for(char j = 0; j < 4; j++){
-                                        addToStack(stack, stackIndx, encodeMove(adress, adress+NE, (char)(NPROMCAP+j)));
+                                        addToStack(stack, encodeMove(adress, adress+NE, (char)(NPROMCAP+j)));
                                     }
                                 }
                             }
                             else if(adress + NE == attackerSq){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress + NE, CAP));
+                                addToStack(stack, encodeMove(adress, adress + NE, CAP));
                             }
                         }
                     }
@@ -676,21 +674,21 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                         if(m_pieces[adress + S] == EMPTY && (!availableDelta || abs(availableDelta) == abs(S))){
                             if(m_pieces[adress + 2*S] == EMPTY && ranka == 6){ //Double pawn push
                                 for(auto i : ray){
-                                    if(i == adress + 2*S) addToStack(stack, stackIndx, encodeMove(adress, adress + 2*S, DPAWNPUSH));
+                                    if(i == adress + 2*S) addToStack(stack, encodeMove(adress, adress + 2*S, DPAWNPUSH));
                                 }
                             }
                             if(ranka == 1){ //Promotion
                                 for(auto i : ray){
                                     if(i == adress + S){
                                         for(char j = 0; j < 4; j++){
-                                            addToStack(stack, stackIndx, encodeMove(adress, adress+S, (char)(NPROM+i)));
+                                            addToStack(stack, encodeMove(adress, adress+S, (char)(NPROM+i)));
                                         }
                                     }
                                 }
                             }
                             else{
                                 for(auto i : ray){
-                                    if(i == adress + S) addToStack(stack, stackIndx, encodeMove(adress, adress + S, QUIET));
+                                    if(i == adress + S) addToStack(stack, encodeMove(adress, adress + S, QUIET));
                                 }
                             }
                         }
@@ -699,19 +697,19 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                             if(adress + SW == m_ep){
                                 for(auto i : ray) {
                                     if (i == m_ep) {
-                                        if(isLegalEp(adress, adress+SW, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+SW, EPCAP));
+                                        if(isLegalEp(adress, adress+SW, m_side)) addToStack(stack, encodeMove(adress, adress+SW, EPCAP));
                                     }
                                 }
                             }
                             if(ranka == 1){
                                 if(attackerSq == adress + SW){
                                     for(char j = 0; j < 4; j++){
-                                        addToStack(stack, stackIndx, encodeMove(adress, adress+SW, (char)(NPROMCAP+j)));
+                                        addToStack(stack, encodeMove(adress, adress+SW, (char)(NPROMCAP+j)));
                                     }
                                 }
                             }
                             else if(adress + SW == attackerSq){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress + SW, CAP));
+                                addToStack(stack, encodeMove(adress, adress + SW, CAP));
                             }
                         }
 
@@ -719,19 +717,19 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                             if(adress + SE == m_ep){
                                 for(auto i : ray) {
                                     if (i == m_ep) {
-                                        if(isLegalEp(adress, adress+SE, m_side)) addToStack(stack, stackIndx, encodeMove(adress, adress+SE, EPCAP));
+                                        if(isLegalEp(adress, adress+SE, m_side)) addToStack(stack, encodeMove(adress, adress+SE, EPCAP));
                                     }
                                 }
                             }
                             if(ranka == 1){
                                 if(attackerSq == adress + SE){
                                     for(char j = 0; j < 4; j++){
-                                        addToStack(stack, stackIndx, encodeMove(adress, adress+SE, (char)(NPROMCAP+j)));
+                                        addToStack(stack, encodeMove(adress, adress+SE, (char)(NPROMCAP+j)));
                                     }
                                 }
                             }
                             else if(adress + SE == attackerSq){
-                                addToStack(stack, stackIndx, encodeMove(adress, adress + SE, CAP));
+                                addToStack(stack, encodeMove(adress, adress + SE, CAP));
                             }
                         }
                     }
@@ -747,13 +745,13 @@ void position::checkEvasion(movebits *stack, int &stackIndx) {
                             if(m_color[currentSquare] == m_side
                                || (currentSquare & 0x88)) break;
                             else if(m_pieces[currentSquare] != EMPTY){
-                                if(currentSquare == attackerSq) addToStack(stack, stackIndx, encodeMove(adress, currentSquare, CAP));
+                                if(currentSquare == attackerSq) addToStack(stack, encodeMove(adress, currentSquare, CAP));
                                 break;
                             }
                             else{
                                 for(int i : ray){
                                     if(i == currentSquare) {
-                                        addToStack(stack, stackIndx, encodeMove(adress, currentSquare, QUIET));
+                                        addToStack(stack, encodeMove(adress, currentSquare, QUIET));
                                     }
                                 }
                             }
@@ -1342,10 +1340,20 @@ void position::setFEN(std::string fen) {
     check = inCheck(m_side);
 }
 
-void position::addToStack(movebits stack[], int &stackIndx, movebits move) {
+void position::addToStack(movestack &stack, movebits move) {
     if(fromSq(move) > 0x77 || toSq(move) > 0x77) return; //Little sanity check in case a bad move slipped through
-    stack[stackIndx++] = move;
+    stack.moves[stack.size] = move;
+    //Now we actually give moves a value
+    //Those are really basic right now, and made so that captures go first, then promotions, then the rest
+    int moveValue{0};
+    int moveFlag = getFlag(move);
+    if(moveFlag & CAP) moveValue += 1000;
+    if(moveFlag & 0b1000) moveValue += 500;
+    stack.sortValue[stack.size] = moveValue;
+    stack.size++;
 }
+
+
 
 void position::showPosition() {
     int square;
@@ -1397,5 +1405,26 @@ void position::showPosition() {
               << (m_castling & BQCASTLE ? "q" : "") << std::endl << std::endl;
 
     std::cout << "Position hash : " << positionHash << std::endl << std::endl;
+}
+
+void position::sortStack(movestack &stack) {
+    //This is implemented using insertion sort
+    int j;
+    int swap;
+    movebits swapMv;
+    for(int i = 1; i < stack.size; i++){
+        if(stack.sortValue[i] > stack.sortValue[i-1]){
+            j = i;
+            swap = stack.sortValue[i];
+            swapMv = stack.moves[i];
+            while(stack.sortValue[j] > stack.sortValue[j-1] && j > 0){
+                stack.sortValue[j] = stack.sortValue[j-1];
+                stack.moves[j] = stack.moves[j-1];
+                j--;
+            }
+            stack.moves[j] = swapMv;
+            stack.sortValue[j] = swap;
+        }
+    }
 }
 

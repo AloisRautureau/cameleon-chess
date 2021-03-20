@@ -36,15 +36,15 @@ namespace Chameleon{
             int timeSpent;
 
             //Storing generated moves
-            movebits mvStack[256];
-            int mvStackIndx{0};
+            movestack stack;
             if(moveList.empty()){ //If no move list was given, just generate all moves
-                position.gen(mvStack, mvStackIndx);
+                position.gen(stack);
             } else { //Otherwise, store them
                 for(auto move : moveList){
-                    mvStack[mvStackIndx++] = move;
+                    position::addToStack(stack, move);
                 }
             }
+            position::sortStack(stack);
 
             //If no max depth was given, we assume that the search is meant to not care about depth and set it to be infinite
             if(!maxdepth || infinite) maxdepth = INT32_MAX;
@@ -59,9 +59,9 @@ namespace Chameleon{
             //then comparing them with the bestMove that was found unti we hit a stop condition
             //We will do that while incrementing the depth to go to (iterative deepening)
             for(int depth = 1; depth < maxdepth; depth++){
-                for(int i = 0; i < mvStackIndx; i++){
+                for(int i = 0; i < stack.size; i++){
                     nodesOnMove = 0;
-                    currentMove = mvStack[i];
+                    currentMove = stack.moves[i];
                     position.make(currentMove);
                     currentScore = -searchNode(position, -beta, -alpha, depth - 1, false);
                     //The bad side of aspiration windows: to make sure we don't miss stuff, if the score is too far
@@ -138,17 +138,17 @@ namespace Chameleon{
             }
 
             //Generate and store moves
-            movebits mvStack[256];
-            int mvStackIndx{0};
-            position.gen(mvStack, mvStackIndx);
+            movestack stack;
+            position.gen(stack);
             //Here, we check if we're in a checkmate or stalemate position
-            if(position.check && !mvStackIndx) return -100000; //Checkmate
-            else if(!mvStackIndx) return 0; //Stalemate draw
+            if(position.check && !stack.size) return -100000; //Checkmate
+            else if(!stack.size) return 0; //Stalemate draw
 
+            position::sortStack(stack);
             int score;
 
-            for(int i = 0; i < mvStackIndx; i++){
-                position.make(mvStack[i]);
+            for(int i = 0; i < stack.size; i++){
+                position.make(stack.moves[i]);
                 score = -searchNode(position, -beta, -alpha, depthLeft - 1, true);
                 position.takeback();
                 if(score >= beta){
@@ -177,19 +177,19 @@ namespace Chameleon{
             int score;
 
             //Generate and store noisy moves only as those are the ones interesting to us
-            movebits mvStack[256];
-            int mvStackIndx{0};
-            position.genNoisy(mvStack, mvStackIndx);
+            movestack stack;
+            position.genNoisy(stack);
 
             //Here, we check if we're in a checkmate or stalemate position
-            if(position.check && !mvStackIndx) return -100000; //Checkmate
-            else if(!mvStackIndx) return stand_pat; //The position is already quiet
+            if(position.check && !stack.size) return -100000; //Checkmate
+            else if(!stack.size) return stand_pat; //The position is already quiet
+            position::sortStack(stack);
 
-            for(int i = 0; i < mvStackIndx; i++){
-                if(position::getFlag(mvStack[i]) & CAP && Evaluation::see(position, mvStack[i], position.m_side) < 0) {
+            for(int i = 0; i < stack.size; i++){
+                if(position::getFlag(stack.moves[i]) & CAP && Evaluation::see(position, stack.moves[i], position.m_side) < 0) {
                     continue; //No point making the move, it is bad
                 }
-                position.make(mvStack[i]);
+                position.make(stack.moves[i]);
                 score = -quiescence(position, -beta, -alpha);
                 position.takeback();
 
