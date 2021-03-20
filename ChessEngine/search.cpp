@@ -109,7 +109,6 @@ namespace Chameleon{
                 //If we get there, the search has reached an end, so we can keep the move it produced
                 bestMove = iterationBest;
                 bestScore = iterationScore;
-                display::showPosition(position);
             }
 
             return bestMove;
@@ -121,6 +120,21 @@ namespace Chameleon{
             if(depthLeft <= 0){
                 //Call quiescence to reduce horizon effect
                 return quiescence(position, alpha, beta);
+            }
+            if(depthLeft == 1){ //We're on a frontier node and can use futility pruning
+                if(Evaluation::eval(position) + Evaluation::m_pieceValueMG[BISHOP] < alpha){
+                    return quiescence(position, alpha, beta);
+                }
+            }
+            if(depthLeft == 2){ //Extended futility pruning, same thing but using a bigger margin
+                if(Evaluation::eval(position) + Evaluation::m_pieceValueMG[ROOK] < alpha){
+                    return quiescence(position, alpha, beta);
+                }
+            }
+            if(depthLeft == 3){ //That's called razoring, we reduce the depth of the search if we're a queen away from alpha
+                if(Evaluation::eval(position) + Evaluation::m_pieceValueMG[QUEEN] < alpha){
+                    depthLeft--;
+                }
             }
 
             //Generate and store moves

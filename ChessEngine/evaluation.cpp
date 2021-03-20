@@ -4,346 +4,345 @@
 
 #include "evaluation.h"
 
-namespace {
-    //The value that each piece adds to the gamephase counter
-    //Values taken from RofChade once again
-    const int gamephaseValue[6] = {0, 1, 1, 2, 4, 0};
-    //Tables are indexed by side, piece, and square
-    int mg_tables[2][6][0x88]{0};
-    int eg_tables[2][6][0x88]{0};
-    const int m_pieceValueMG[6] = {100, 200, 225, 500, 900, 9999};
-    const int m_pieceValueEG[6] = {125, 150, 150, 550, 850, 9999};
+namespace Chameleon {
+    namespace Evaluation {
+        //The value that each piece adds to the gamephase counter
+        //Values taken from RofChade once again
+        const int gamephaseValue[6] = {0, 1, 1, 2, 4, 0};
+        //Tables are indexed by side, piece, and square
+        int mg_tables[2][6][0x88]{0};
+        int eg_tables[2][6][0x88]{0};
+        const int static m_pieceValueEG[6] = {125, 150, 150, 550, 850, 9999};
 
-    //The piece square table are from Rofchade by Ronald Friederich, adapted to 0x88 board representation
-    const int mg_plist[6][0x88]{
-            { //PAWNS
-                    0,   0,   0,   0,   0,   0,  0,   0,  0,   0,   0,   0,   0,   0,  0,   0,
-                    98, 134,  61,  95,  68, 126, 34, -11, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -6,   7,  26,  31,  65,  56, 25, -20, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -14,  13,   6,  21,  23,  12, 17, -23, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -27,  -2,  -5,  12,  17,   6, 10, -25, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -26,  -4,  -4, -10,   3,   3, 33, -12, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -35,  -1, -20, -23, -15,  24, 38, -22, 0,   0,   0,   0,   0,   0,  0,   0,
-                    0,   0,   0,   0,   0,   0,  0,   0, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //KNIGHTS
-                    -167, -89, -34, -49,  61, -97, -15, -107, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -73, -41,  72,  36,  23,  62,   7,  -17, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -47,  60,  37,  65,  84, 129,  73,   44, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -9,  17,  19,  53,  37,  69,  18,   22, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -13,   4,  16,  13,  28,  19,  21,   -8, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -23,  -9,  12,  10,  19,  17,  25,  -16, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -29, -53, -12,  -3,  -1,  18, -14,  -19, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -105, -21, -58, -33, -17, -28, -19,  -23, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //BISHOP
-                    -29,   4, -82, -37, -25, -42,   7,  -8, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -26,  16, -18, -13,  30,  59,  18, -47, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -16,  37,  43,  40,  35,  50,  37,  -2, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -4,   5,  19,  50,  37,  37,   7,  -2, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -6,  13,  13,  26,  34,  12,  10,   4, 0,   0,   0,   0,   0,   0,  0,   0,
-                    0,  15,  15,  15,  14,  27,  18,  10, 0,   0,   0,   0,   0,   0,  0,   0,
-                    4,  15,  16,   0,   7,  21,  33,   1, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -33,  -3, -14, -21, -13, -12, -39, -21, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //ROOK
-                    32,  42,  32,  51, 63,  9,  31,  43, 0,   0,   0,   0,   0,   0,  0,   0,
-                    27,  32,  58,  62, 80, 67,  26,  44, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -5,  19,  26,  36, 17, 45,  61,  16, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -24, -11,   7,  26, 24, 35,  -8, -20, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -36, -26, -12,  -1,  9, -7,   6, -23, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -45, -25, -16, -17,  3,  0,  -5, -33, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -44, -16, -20,  -9, -1, 11,  -6, -71, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -19, -13,   1,  17, 16,  7, -37, -26, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //QUEEN
-                    -28,   0,  29,  12,  59,  44,  43,  45, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -24, -39,  -5,   1, -16,  57,  28,  54, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -13, -17,   7,   8,  29,  56,  47,  57, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -27, -27, -16, -16,  -1,  17,  -2,   1, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -9, -26,  -9, -10,  -2,  -4,   3,  -3, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -14,   2, -11,  -2,  -5,   2,  14,   5, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -35,  -8,  11,   2,   8,  15,  -3,   1, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -1, -18,  -9,  10, -15, -25, -31, -50, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //KING
-                    -65,  23,  16, -15, -56, -34,   2,  13, 0,   0,   0,   0,   0,   0,  0,   0,
-                    29,  -1, -20,  -7,  -8,  -4, -38, -29, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -9,  24,   2, -16, -20,   6,  22, -22, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -17, -20, -12, -27, -30, -25, -14, -36, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -49,  -1, -27, -39, -46, -44, -33, -51, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -14, -14, -22, -46, -44, -30, -15, -27, 0,   0,   0,   0,   0,   0,  0,   0,
-                    1,   7,  -8, -64, -43, -16,   9,   8, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -15,  36,  12, -54,   8, -28,  24,  14, 0,   0,   0,   0,   0,   0,  0,   0,
-            }
-
-    };
-
-    const int eg_plist[6][0x88]{
-            { //PAWN
-                    0,   0,   0,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,  0,   0,
-                    178, 173, 158, 134, 147, 132, 165, 187, 0,   0,   0,   0,   0,   0,  0,   0,
-                    94, 100,  85,  67,  56,  53,  82,  84, 0,   0,   0,   0,   0,   0,  0,   0,
-                    32,  24,  13,   5,  -2,   4,  17,  17, 0,   0,   0,   0,   0,   0,  0,   0,
-                    13,   9,  -3,  -7,  -7,  -8,   3,  -1, 0,   0,   0,   0,   0,   0,  0,   0,
-                    4,   7,  -6,   1,   0,  -5,  -1,  -8, 0,   0,   0,   0,   0,   0,  0,   0,
-                    13,   8,   8,  10,  13,   0,   2,  -7, 0,   0,   0,   0,   0,   0,  0,   0,
-                    0,   0,   0,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //KNIGHT
-                    -58, -38, -13, -28, -31, -27, -63, -99, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -25,  -8, -25,  -2,  -9, -25, -24, -52, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -24, -20,  10,   9,  -1,  -9, -19, -41, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -17,   3,  22,  22,  22,  11,   8, -18, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -18,  -6,  16,  25,  16,  17,   4, -18, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -23,  -3,  -1,  15,  10,  -3, -20, -22, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -42, -20, -10,  -5,  -2, -20, -23, -44, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -29, -51, -23, -15, -22, -18, -50, -64, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //BISHOP
-                    -14, -21, -11,  -8, -7,  -9, -17, -24, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -8,  -4,   7, -12, -3, -13,  -4, -14, 0,   0,   0,   0,   0,   0,  0,   0,
-                    2,  -8,   0,  -1, -2,   6,   0,   4, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -3,   9,  12,   9, 14,  10,   3,   2, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -6,   3,  13,  19,  7,  10,  -3,  -9, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -12,  -3,   8,  10, 13,   3,  -7, -15, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -14, -18,  -7,  -1,  4,  -9, -15, -27, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -23,  -9, -23,  -5, -9, -16,  -5, -17, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //ROOK
-                    13, 10, 18, 15, 12,  12,   8,   5, 0,   0,   0,   0,   0,   0,  0,   0,
-                    11, 13, 13, 11, -3,   3,   8,   3, 0,   0,   0,   0,   0,   0,  0,   0,
-                    7,  7,  7,  5,  4,  -3,  -5,  -3, 0,   0,   0,   0,   0,   0,  0,   0,
-                    4,  3, 13,  1,  2,   1,  -1,   2, 0,   0,   0,   0,   0,   0,  0,   0,
-                    3,  5,  8,  4, -5,  -6,  -8, -11, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -4,  0, -5, -1, -7, -12,  -8, -16, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -6, -6,  0,  2, -9,  -9, -11,  -3, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -9,  2,  3, -1, -5, -13,   4, -20, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //QUEEN
-                    -9,  22,  22,  27,  27,  19,  10,  20, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -17,  20,  32,  41,  58,  25,  30,   0, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -20,   6,   9,  49,  47,  35,  19,   9, 0,   0,   0,   0,   0,   0,  0,   0,
-                    3,  22,  24,  45,  57,  40,  57,  36, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -18,  28,  19,  47,  31,  34,  39,  23, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -16, -27,  15,   6,   9,  17,  10,   5, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -22, -23, -30, -16, -16, -23, -36, -32, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -33, -28, -22, -43,  -5, -32, -20, -41, 0,   0,   0,   0,   0,   0,  0,   0,
-            },
-            { //KING
-                    -74, -35, -18, -18, -11,  15,   4, -17, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -12,  17,  14,  17,  17,  38,  23,  11, 0,   0,   0,   0,   0,   0,  0,   0,
-                    10,  17,  23,  15,  20,  45,  44,  13, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -8,  22,  24,  27,  26,  33,  26,   3, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -18,  -4,  21,  24,  27,  23,   9, -11, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -19,  -3,  11,  21,  23,  16,   7,  -9, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -27, -11,   4,  13,  14,   4,  -5, -17, 0,   0,   0,   0,   0,   0,  0,   0,
-                    -53, -34, -21, -11, -28, -14, -24, -43, 0,   0,   0,   0,   0,   0,  0,   0,
-            }
-    };
-}
-
-void Chameleon::Evaluation::init() {
-    for(int side = WHITE; side < 2; side++){
-        for(int piece = PAWN; piece < 6; piece++){
-            for(int sq = 0; sq < 0x88; sq++){
-                if(!side){
-                    mg_tables[side][piece][sq] = m_pieceValueMG[piece] + mg_plist[piece][sq];
-                    eg_tables[side][piece][sq] = m_pieceValueEG[piece] + eg_plist[piece][sq];
+        //The piece square table are from Rofchade by Ronald Friederich, adapted to 0x88 board representation
+        const int mg_plist[6][0x88]{
+                { //PAWNS
+                        0,    0,   0,   0,   0,   0,   0,   0,    0, 0, 0, 0, 0, 0, 0, 0,
+                        98,  134, 61,  95,  68,  126, 34,  -11, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -6,  7,   26, 31,  65,  56,  25, -20, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -14, 13,  6,   21,  23,  12,  17,  -23, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -27, -2,  -5,  12,  17,  6,   10,  -25, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -26, -4,  -4,  -10, 3,   3,   33,  -12, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -35, -1,  -20, -23, -15, 24,  38,  -22, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0,    0,   0,   0,   0,   0,   0,   0,   0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //KNIGHTS
+                        -167, -89, -34, -49, 61,  -97, -15, -107, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -73, -41, 72,  36,  23,  62,  7,   -17, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -47, 60,  37, 65,  84,  129, 73, 44,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -9,  17,  19,  53,  37,  69,  18,  22,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -13, 4,   16,  13,  28,  19,  21,  -8,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -23, -9,  12,  10,  19,  17,  25,  -16, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -29, -53, -12, -3,  -1,  18,  -14, -19, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -105, -21, -58, -33, -17, -28, -19, -23, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //BISHOP
+                        -29,  4,   -82, -37, -25, -42, 7,   -8,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -26, 16,  -18, -13, 30,  59,  18,  -47, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -16, 37,  43, 40,  35,  50,  37, -2,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -4,  5,   19,  50,  37,  37,  7,   -2,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -6,  13,  13,  26,  34,  12,  10,  4,   0, 0, 0, 0, 0, 0, 0, 0,
+                        0,   15,  15,  15,  14,  27,  18,  10,  0, 0, 0, 0, 0, 0, 0, 0,
+                        4,   15,  16,  0,   7,   21,  33,  1,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -33,  -3,  -14, -21, -13, -12, -39, -21, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //ROOK
+                        32,   42,  32,  51,  63,  9,   31,  43,   0, 0, 0, 0, 0, 0, 0, 0,
+                        27,  32,  58,  62,  80,  67,  26,  44,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -5,  19,  26, 36,  17,  45,  61, 16,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -24, -11, 7,   26,  24,  35,  -8,  -20, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -36, -26, -12, -1,  9,   -7,  6,   -23, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -45, -25, -16, -17, 3,   0,   -5,  -33, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -44, -16, -20, -9,  -1,  11,  -6,  -71, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -19,  -13, 1,   17,  16,  7,   -37, -26, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //QUEEN
+                        -28,  0,   29,  12,  59,  44,  43,  45,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -24, -39, -5,  1,   -16, 57,  28,  54,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -13, -17, 7,  8,   29,  56,  47, 57,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -27, -27, -16, -16, -1,  17,  -2,  1,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -9,  -26, -9,  -10, -2,  -4,  3,   -3,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -14, 2,   -11, -2,  -5,  2,   14,  5,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -35, -8,  11,  2,   8,   15,  -3,  1,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -1,   -18, -9,  10,  -15, -25, -31, -50, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //KING
+                        -65,  23,  16,  -15, -56, -34, 2,   13,   0, 0, 0, 0, 0, 0, 0, 0,
+                        29,  -1,  -20, -7,  -8,  -4,  -38, -29, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -9,  24,  2,  -16, -20, 6,   22, -22, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -17, -20, -12, -27, -30, -25, -14, -36, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -49, -1,  -27, -39, -46, -44, -33, -51, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -14, -14, -22, -46, -44, -30, -15, -27, 0, 0, 0, 0, 0, 0, 0, 0,
+                        1,   7,   -8,  -64, -43, -16, 9,   8,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -15,  36,  12,  -54, 8,   -28, 24,  14,  0, 0, 0, 0, 0, 0, 0, 0,
                 }
-                else{
-                    mg_tables[side][piece][sq] = m_pieceValueMG[piece] + mg_plist[piece][sq^0x70];
-                    eg_tables[side][piece][sq] = m_pieceValueEG[piece] + eg_plist[piece][sq^0x70];
+
+        };
+
+        const int eg_plist[6][0x88]{
+                { //PAWN
+                        0,   0,   0,   0,   0,   0,   0,   0,   0, 0, 0, 0, 0, 0, 0, 0,
+                        178, 173, 158, 134, 147, 132, 165, 187, 0, 0, 0, 0, 0, 0, 0, 0,
+                        94,  100, 85, 67, 56, 53, 82,  84,  0, 0, 0, 0, 0, 0, 0, 0,
+                        32,  24, 13, 5,  -2, 4,  17, 17,  0, 0, 0, 0, 0, 0, 0, 0,
+                        13,  9,  -3, -7, -7, -8, 3,  -1,  0, 0, 0, 0, 0, 0, 0, 0,
+                        4,   7,   -6, 1,  0,  -5,  -1,  -8,  0, 0, 0, 0, 0, 0, 0, 0,
+                        13,  8,   8,   10,  13,  0,   2,   -7,  0, 0, 0, 0, 0, 0, 0, 0,
+                        0,   0,   0,   0,   0,   0,   0,   0,   0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //KNIGHT
+                        -58, -38, -13, -28, -31, -27, -63, -99, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -25, -8,  -25, -2,  -9,  -25, -24, -52, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -24, -20, 10, 9,  -1, -9, -19, -41, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -17, 3,  22, 22, 22, 11, 8,  -18, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -18, -6, 16, 25, 16, 17, 4,  -18, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -23, -3,  -1, 15, 10, -3,  -20, -22, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -42, -20, -10, -5,  -2,  -20, -23, -44, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -29, -51, -23, -15, -22, -18, -50, -64, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //BISHOP
+                        -14, -21, -11, -8,  -7,  -9,  -17, -24, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -8,  -4,  7,   -12, -3,  -13, -4,  -14, 0, 0, 0, 0, 0, 0, 0, 0,
+                        2,   -8,  0,  -1, -2, 6,  0,   4,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -3,  9,  12, 9,  14, 10, 3,  2,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -6,  3,  13, 19, 7,  10, -3, -9,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -12, -3,  8,  10, 13, 3,   -7,  -15, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -14, -18, -7,  -1,  4,   -9,  -15, -27, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -23, -9,  -23, -5,  -9,  -16, -5,  -17, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //ROOK
+                        13,  10,  18,  15,  12,  12,  8,   5,   0, 0, 0, 0, 0, 0, 0, 0,
+                        11,  13,  13,  11,  -3,  3,   8,   3,   0, 0, 0, 0, 0, 0, 0, 0,
+                        7,   7,   7,  5,  4,  -3, -5,  -3,  0, 0, 0, 0, 0, 0, 0, 0,
+                        4,   3,  13, 1,  2,  1,  -1, 2,   0, 0, 0, 0, 0, 0, 0, 0,
+                        3,   5,  8,  4,  -5, -6, -8, -11, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -4,  0,   -5, -1, -7, -12, -8,  -16, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -6,  -6,  0,   2,   -9,  -9,  -11, -3,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -9,  2,   3,   -1,  -5,  -13, 4,   -20, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //QUEEN
+                        -9,  22,  22,  27,  27,  19,  10,  20,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -17, 20,  32,  41,  58,  25,  30,  0,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -20, 6,   9,  49, 47, 35, 19,  9,   0, 0, 0, 0, 0, 0, 0, 0,
+                        3,   22, 24, 45, 57, 40, 57, 36,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -18, 28, 19, 47, 31, 34, 39, 23,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -16, -27, 15, 6,  9,  17,  10,  5,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -22, -23, -30, -16, -16, -23, -36, -32, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -33, -28, -22, -43, -5,  -32, -20, -41, 0, 0, 0, 0, 0, 0, 0, 0,
+                },
+                { //KING
+                        -74, -35, -18, -18, -11, 15,  4,   -17, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -12, 17,  14,  17,  17,  38,  23,  11,  0, 0, 0, 0, 0, 0, 0, 0,
+                        10,  17,  23, 15, 20, 45, 44,  13,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -8,  22, 24, 27, 26, 33, 26, 3,   0, 0, 0, 0, 0, 0, 0, 0,
+                        -18, -4, 21, 24, 27, 23, 9,  -11, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -19, -3,  11, 21, 23, 16,  7,   -9,  0, 0, 0, 0, 0, 0, 0, 0,
+                        -27, -11, 4,   13,  14,  4,   -5,  -17, 0, 0, 0, 0, 0, 0, 0, 0,
+                        -53, -34, -21, -11, -28, -14, -24, -43, 0, 0, 0, 0, 0, 0, 0, 0,
                 }
-            }
-        }
-    }
-}
+        };
 
-int Chameleon::Evaluation::eval(position &board) {
-    //The idea between tappered evaluation is to interpolate endgame and midgame evalution depending on the pieces
-    //present on the board (they determine gamephase sort of)
-    int midgameEval[2]{0};
-    int endgameEval[2]{0};
-    int gamephase = 0;
-
-    //Evaluate each piece in an endgame and midgame situation
-    int sq;
-    for(int side = WHITE; side < 2; side++){
-        for(int pieceType = PAWN; pieceType < 6; pieceType++){
-            for(int index = 0; index < board.m_plist[side][pieceType].size(); index++){
-                sq = board.m_plist[side][pieceType].get(index);
-                midgameEval[side] += mg_tables[side][pieceType][sq];
-                endgameEval[side] += eg_tables[side][pieceType][sq];
-                gamephase += gamephaseValue[pieceType];
-            }
-        }
-    }
-
-    //We can now interpolate the results based on the gamephase value
-    int midgameScore = midgameEval[board.m_side] - midgameEval[!board.m_side];
-    int endgameScore = endgameEval[board.m_side] - endgameEval[!board.m_side];
-    int midgameProximity = gamephase; //How close to the midgame are we?
-    if(midgameProximity > 24) midgameProximity = 24; //The max we can have with all initial pieces, we can go above this value with promotions
-    int endgameProximity = 24 - midgameProximity;
-    return (midgameScore * midgameProximity + endgameScore * endgameProximity);
-}
-
-int Chameleon::Evaluation::see(const position& pos, movebits move, bool side) {
-    //We first need to find every potential attackers to the square, making sure they aren't pinned !
-    pieceList wAttackers{{}};
-    pieceList bAttackers{{}};
-    int scores[32];
-    int scoreIndex{0};
-    int from = position::fromSq(move);
-    int to = position::toSq(move);
-    int attackerDelta;
-
-    //Check for the bishop deltas
-    for (auto delta : m_pieceDelta[BISHOP]) {
-        if (!delta) break;
-        //While we check for diagonnaly attacking pieces, might as well take care of pawns/kings
-        if (pos.m_pieces[to + delta] == PAWN || pos.m_pieces[to + delta] == KING) {
-            if (to + delta == from) {
-                attackerDelta = delta;
-                continue;
-            }
-            if (pos.m_color[to + delta] == WHITE) wAttackers.add(to + delta);
-            else bAttackers.add(to + delta);
-            continue;
-        }
-
-        for (int currSquare = to + delta; !(currSquare & 0x88); currSquare += delta) {
-            if (pos.m_pieces[currSquare] == BISHOP || pos.m_pieces[currSquare] == QUEEN) {
-                if (currSquare == from) {
-                    attackerDelta = delta;
-                    break;
-                }
-                if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
-                else bAttackers.add(currSquare);
-                break;
-            }
-            else if(pos.m_pieces[currSquare] != EMPTY) break;
-        }
-    }
-
-    //Same thing for rook
-    for (auto delta : m_pieceDelta[ROOK]) {
-        if (!delta) break;
-        //Here we just need to check for king moves
-        if (pos.m_pieces[to + delta] == KING) {
-            if (to + delta == from) {
-                attackerDelta = delta;
-                continue; //We don't add the original attacker to the plist
-            }
-            if (pos.m_color[to + delta] == WHITE) wAttackers.add(to + delta);
-            else bAttackers.add(to + delta);
-            continue;
-        }
-
-        for (int currSquare = to + delta; !(currSquare & 0x88); currSquare += delta) {
-            if (pos.m_pieces[currSquare] == ROOK || pos.m_pieces[currSquare] == QUEEN) {
-                if (currSquare == from) {
-                    attackerDelta = delta;
-                    break;
-                }
-                if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
-                else bAttackers.add(currSquare);
-                break;
-            }
-            else if(pos.m_pieces[currSquare] != EMPTY) break;
-        }
-    }
-
-
-    //Finally, same for knights
-    for (auto delta : m_pieceDelta[KNIGHT]) {
-        if (!delta) break;
-        if (pos.m_pieces[to + delta] == KNIGHT) {
-            if (to + delta == from) {
-                attackerDelta = delta;
-                break;
-            }
-            if (pos.m_color[to + delta] == WHITE) wAttackers.add(to + delta);
-            else bAttackers.add(to + delta);
-        }
-    }
-
-    //Now we've got every direct attacker, we can simulate the initial capture
-    int capturedValue = m_pieceValueMG[pos.m_pieces[to]];
-    int attackerValue = m_pieceValueMG[pos.m_pieces[from]];
-    scores[scoreIndex++] = capturedValue;
-    side ^= 1;
-
-    char attacker = pos.m_pieces[from];
-    int attackerSquare = from;
-    //We'll repeat this for every attacker
-    do {
-        //The attacker is now the captures piece
-        capturedValue = attackerValue;
-
-        //We now add hidden attackers after the first move, those can be found by following the attackerDelta from the from square
-        if (pos.m_pieces[attacker] != KNIGHT && pos.m_pieces[attacker] != KING && scoreIndex < 32) {
-            for (int currSquare = from + attackerDelta; !(currSquare & 0x88); currSquare += attackerDelta) {
-                if (pos.m_pieces[currSquare] != EMPTY) {
-                    //Check if the piece found can use the delta
-                    int attack = pos.m_attackArray[to - currSquare + 128];
-                    switch (pos.m_pieces[currSquare]) {
-                        case BISHOP:
-                            if (attack == position::attKQBbP || attack == position::attKQBwP ||
-                                attack == position::attQB) {
-                                if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
-                                else bAttackers.add(currSquare);
-                            }
-                            break;
-                        case ROOK:
-                            if (attack == position::attKQR || attack == position::attQR) {
-                                if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
-                                else bAttackers.add(currSquare);
-                            }
-                            break;
-                        case QUEEN:
-                            if (attack != position::attNONE && attack != position::attN) {
-                                if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
-                                else bAttackers.add(currSquare);
-                            }
-                            break;
-                        default:
-                            break;
+        void init() {
+            for (int side = WHITE; side < 2; side++) {
+                for (int piece = PAWN; piece < 6; piece++) {
+                    for (int sq = 0; sq < 0x88; sq++) {
+                        if (!side) {
+                            mg_tables[side][piece][sq] = m_pieceValueMG[piece] + mg_plist[piece][sq];
+                            eg_tables[side][piece][sq] = m_pieceValueEG[piece] + eg_plist[piece][sq];
+                        } else {
+                            mg_tables[side][piece][sq] = m_pieceValueMG[piece] + mg_plist[piece][sq ^ 0x70];
+                            eg_tables[side][piece][sq] = m_pieceValueEG[piece] + eg_plist[piece][sq ^ 0x70];
+                        }
                     }
-                    break;
                 }
             }
         }
-        if(bAttackers.size() < 1 || wAttackers.size() < 1) break;
 
-        //Now, we find the least valuable attacking piece, and make it capture the square
-        int size = side ? bAttackers.size() : wAttackers.size();
-        for (int i = 0; i < size; i++) {
-            if (i == 0 || m_pieceValueMG[pos.m_pieces[side ? bAttackers.get(i) : wAttackers.get(i)]] < attackerValue) {
-                attackerSquare = side ? bAttackers.get(i) : wAttackers.get(i);
-                attacker = pos.m_pieces[attackerSquare];
-                attackerValue = m_pieceValueMG[attacker];
+        int eval(position &board) {
+            //The idea between tappered evaluation is to interpolate endgame and midgame evalution depending on the pieces
+            //present on the board (they determine gamephase sort of)
+            int midgameEval[2]{0};
+            int endgameEval[2]{0};
+            int gamephase = 0;
+
+            //Evaluate each piece in an endgame and midgame situation
+            int sq;
+            for (int side = WHITE; side < 2; side++) {
+                for (int pieceType = PAWN; pieceType < 6; pieceType++) {
+                    for (int index = 0; index < board.m_plist[side][pieceType].size(); index++) {
+                        sq = board.m_plist[side][pieceType].get(index);
+                        midgameEval[side] += mg_tables[side][pieceType][sq];
+                        endgameEval[side] += eg_tables[side][pieceType][sq];
+                        gamephase += gamephaseValue[pieceType];
+                    }
+                }
             }
+
+            //We can now interpolate the results based on the gamephase value
+            int midgameScore = midgameEval[board.m_side] - midgameEval[!board.m_side];
+            int endgameScore = endgameEval[board.m_side] - endgameEval[!board.m_side];
+            int midgameProximity = gamephase; //How close to the midgame are we?
+            if (midgameProximity > 24) midgameProximity = 24; //The max we can have with all initial pieces, we can go above this value with promotions
+            int endgameProximity = 24 - midgameProximity;
+            return (midgameScore * midgameProximity + endgameScore * endgameProximity);
         }
 
-        // We should remove the attacker since it won't be attacking anymore
-        if(!side) wAttackers.remove(attackerSquare);
-        else bAttackers.remove(attackerSquare);
+        int see(const position &pos, movebits move, bool side) {
+            //We first need to find every potential attackers to the square, making sure they aren't pinned !
+            pieceList wAttackers{{}};
+            pieceList bAttackers{{}};
+            int scores[32];
+            int scoreIndex{0};
+            int from = position::fromSq(move);
+            int to = position::toSq(move);
+            int attackerDelta;
 
-        //And update the score
-        scores[scoreIndex] = capturedValue - scores[scoreIndex - 1];
-        scoreIndex++;
-        side ^= 1;
-    } while(bAttackers.size() > 0 && wAttackers.size() > 0);
+            //Check for the bishop deltas
+            for (auto delta : m_pieceDelta[BISHOP]) {
+                if (!delta) break;
+                //While we check for diagonnaly attacking pieces, might as well take care of pawns/kings
+                if (pos.m_pieces[to + delta] == PAWN || pos.m_pieces[to + delta] == KING) {
+                    if (to + delta == from) {
+                        attackerDelta = delta;
+                        continue;
+                    }
+                    if (pos.m_color[to + delta] == WHITE) wAttackers.add(to + delta);
+                    else bAttackers.add(to + delta);
+                    continue;
+                }
 
-    //Now evaluate the whole sequence
-    while(scoreIndex > 1){
-        scoreIndex--;
-        if(scores[scoreIndex-1] > -scores[scoreIndex]){
-            scores[scoreIndex - 1] = -scores[scoreIndex];
+                for (int currSquare = to + delta; !(currSquare & 0x88); currSquare += delta) {
+                    if (pos.m_pieces[currSquare] == BISHOP || pos.m_pieces[currSquare] == QUEEN) {
+                        if (currSquare == from) {
+                            attackerDelta = delta;
+                            break;
+                        }
+                        if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
+                        else bAttackers.add(currSquare);
+                        break;
+                    } else if (pos.m_pieces[currSquare] != EMPTY) break;
+                }
+            }
+
+            //Same thing for rook
+            for (auto delta : m_pieceDelta[ROOK]) {
+                if (!delta) break;
+                //Here we just need to check for king moves
+                if (pos.m_pieces[to + delta] == KING) {
+                    if (to + delta == from) {
+                        attackerDelta = delta;
+                        continue; //We don't add the original attacker to the plist
+                    }
+                    if (pos.m_color[to + delta] == WHITE) wAttackers.add(to + delta);
+                    else bAttackers.add(to + delta);
+                    continue;
+                }
+
+                for (int currSquare = to + delta; !(currSquare & 0x88); currSquare += delta) {
+                    if (pos.m_pieces[currSquare] == ROOK || pos.m_pieces[currSquare] == QUEEN) {
+                        if (currSquare == from) {
+                            attackerDelta = delta;
+                            break;
+                        }
+                        if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
+                        else bAttackers.add(currSquare);
+                        break;
+                    } else if (pos.m_pieces[currSquare] != EMPTY) break;
+                }
+            }
+
+
+            //Finally, same for knights
+            for (auto delta : m_pieceDelta[KNIGHT]) {
+                if (!delta) break;
+                if (pos.m_pieces[to + delta] == KNIGHT) {
+                    if (to + delta == from) {
+                        attackerDelta = delta;
+                        break;
+                    }
+                    if (pos.m_color[to + delta] == WHITE) wAttackers.add(to + delta);
+                    else bAttackers.add(to + delta);
+                }
+            }
+
+            //Now we've got every direct attacker, we can simulate the initial capture
+            int capturedValue = m_pieceValueMG[pos.m_pieces[to]];
+            int attackerValue = m_pieceValueMG[pos.m_pieces[from]];
+            scores[scoreIndex++] = capturedValue;
+            side ^= 1;
+
+            char attacker = pos.m_pieces[from];
+            int attackerSquare = from;
+            //We'll repeat this for every attacker
+            do {
+                //The attacker is now the captures piece
+                capturedValue = attackerValue;
+
+                //We now add hidden attackers after the first move, those can be found by following the attackerDelta from the from square
+                if (pos.m_pieces[attacker] != KNIGHT && pos.m_pieces[attacker] != KING && scoreIndex < 32) {
+                    for (int currSquare = from + attackerDelta; !(currSquare & 0x88); currSquare += attackerDelta) {
+                        if (pos.m_pieces[currSquare] != EMPTY) {
+                            //Check if the piece found can use the delta
+                            int attack = pos.m_attackArray[to - currSquare + 128];
+                            switch (pos.m_pieces[currSquare]) {
+                                case BISHOP:
+                                    if (attack == position::attKQBbP || attack == position::attKQBwP ||
+                                        attack == position::attQB) {
+                                        if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
+                                        else bAttackers.add(currSquare);
+                                    }
+                                    break;
+                                case ROOK:
+                                    if (attack == position::attKQR || attack == position::attQR) {
+                                        if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
+                                        else bAttackers.add(currSquare);
+                                    }
+                                    break;
+                                case QUEEN:
+                                    if (attack != position::attNONE && attack != position::attN) {
+                                        if (pos.m_color[currSquare] == WHITE) wAttackers.add(currSquare);
+                                        else bAttackers.add(currSquare);
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (bAttackers.size() < 1 || wAttackers.size() < 1) break;
+
+                //Now, we find the least valuable attacking piece, and make it capture the square
+                int size = side ? bAttackers.size() : wAttackers.size();
+                for (int i = 0; i < size; i++) {
+                    if (i == 0 ||
+                        m_pieceValueMG[pos.m_pieces[side ? bAttackers.get(i) : wAttackers.get(i)]] < attackerValue) {
+                        attackerSquare = side ? bAttackers.get(i) : wAttackers.get(i);
+                        attacker = pos.m_pieces[attackerSquare];
+                        attackerValue = m_pieceValueMG[attacker];
+                    }
+                }
+
+                // We should remove the attacker since it won't be attacking anymore
+                if (!side) wAttackers.remove(attackerSquare);
+                else bAttackers.remove(attackerSquare);
+
+                //And update the score
+                scores[scoreIndex] = capturedValue - scores[scoreIndex - 1];
+                scoreIndex++;
+                side ^= 1;
+            } while (bAttackers.size() > 0 && wAttackers.size() > 0);
+
+            //Now evaluate the whole sequence
+            while (scoreIndex > 1) {
+                scoreIndex--;
+                if (scores[scoreIndex - 1] > -scores[scoreIndex]) {
+                    scores[scoreIndex - 1] = -scores[scoreIndex];
+                }
+            }
+
+            return scores[0];
         }
     }
-
-    return scores[0];
 }

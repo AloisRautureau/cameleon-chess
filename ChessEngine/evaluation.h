@@ -22,6 +22,8 @@
 
 namespace Chameleon {
     namespace Evaluation {
+        static const int m_pieceValueMG[6] = {100, 200, 225, 500, 900, 9999};
+
         void init();
 
         //Simply returns the given board's evaluation (positive => sideToMove is winning)
@@ -30,6 +32,8 @@ namespace Chameleon {
         //A function that evaluates a capture/move from a pure material perspective, to take a guess at whether or not it might
         //even be worth playing without actually making any move
         int see(const position& pos, movebits move, bool side);
+
+        int getPieceValue(position &pos, char pieceType);
     }
 }
 
