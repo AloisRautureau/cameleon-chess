@@ -108,7 +108,7 @@ class pieceList {
 private:
     int indices[10]{inv}; //There can be a maximum of 10 of the same pieces (if all pawns promote to said pieceType
     int board[0x88]{EMPTY}; //This let's us search a piece with O(1) efficiency
-    int m_size{0};
+    int m_size = 0;
 
 public:
     explicit pieceList(const std::vector<int>& basePieces){
@@ -119,13 +119,14 @@ public:
     }
 
     void add(int adress){
-        if(m_size < 10){
+        if(m_size < 10 && adress >= 0 && adress < 0x88){
             board[adress] = m_size;
             indices[m_size++] = adress;
         }
     }
 
     void remove(int adress){
+        if(!m_size || adress >= 0x88 || adress < 0 ) return;
         m_size--;
         int index = board[adress];
         indices[index] = indices[m_size];

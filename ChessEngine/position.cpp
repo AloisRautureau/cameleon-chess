@@ -1353,65 +1353,11 @@ void position::addToStack(movestack &stack, movebits move) {
     stack.size++;
 }
 
-
-
-void position::showPosition() {
-    int square;
-    std::cout << std::endl << (!m_side ? "White " : "Black ") << "to move!" << std::endl << std::endl;
-    std::cout << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            square = (7-i) * 0x10 + j;
-
-            switch(m_pieces[square]){
-                case PAWN:
-                    std::cout << (m_color[square] == WHITE ? "|  P  " : "|  p  ");
-                    break;
-                case KNIGHT:
-                    std::cout << (m_color[square] == WHITE ? "|  N  " : "|  n  ");
-                    break;
-                case BISHOP:
-                    std::cout << (m_color[square] == WHITE ? "|  B  " : "|  b  ");
-                    break;
-                case ROOK:
-                    std::cout << (m_color[square] == WHITE ? "|  R  " : "|  r  ");
-                    break;
-                case QUEEN:
-                    std::cout << (m_color[square] == WHITE ? "|  Q  " : "|  q  ");
-                    break;
-                case KING:
-                    std::cout << (m_color[square] == WHITE ? "|  K  " : "|  k  ");
-                    break;
-                case EMPTY:
-                    std::cout << "|     ";
-                    break;
-            }
-
-
-            //End of rank, print the rank and return
-            if(file(square) == 7) std::cout << "|  " << rank(square)+1 << std::endl << "+-----+-----+-----+-----+-----+-----+-----+-----+" << std::endl;
-        }
-    }
-
-    //We end up by printing the file names
-    for(int i = 0; i < 8; i++){
-        std::cout << "   " << char('A' + i) << "  ";
-    }
-
-    std::cout << std::endl << std::endl << "Move " << m_ply << " (" << m_halfclock << " moves since last capture or pawn move)" << std::endl;
-    std::cout << "Castling rights : " << (m_castling & WKCASTLE ? "K" : "")
-              << (m_castling & WQCASTLE ? "Q" : "")
-              << (m_castling & BKCASTLE ? "k" : "")
-              << (m_castling & BQCASTLE ? "q" : "") << std::endl << std::endl;
-
-    std::cout << "Position hash : " << positionHash << std::endl << std::endl;
-}
-
 void position::sortStack(movestack &stack) {
     //This is implemented using insertion sort
-    int j;
-    int swap;
-    movebits swapMv;
+    int j = 0;
+    int swap = 0;
+    movebits swapMv = 0;
     for(int i = 1; i < stack.size; i++){
         if(stack.sortValue[i] > stack.sortValue[i-1]){
             j = i;

@@ -59,6 +59,7 @@ namespace Chameleon{
             //then comparing them with the bestMove that was found unti we hit a stop condition
             //We will do that while incrementing the depth to go to (iterative deepening)
             for(int depth = 1; depth < maxdepth; depth++){
+                iterationScore = -99999;
                 for(int i = 0; i < stack.size; i++){
                     nodesOnMove = 0;
                     currentMove = stack.moves[i];
@@ -74,7 +75,7 @@ namespace Chameleon{
                     }
                     position.takeback();
 
-                    //If the best score is less than what we got, we got ourselvs a new best move!
+                    //If the best score is less than what we got, we got ourselves a new best move!
                     if(currentScore > iterationScore){
                         iterationScore = currentScore;
                         iterationBest = currentMove;
@@ -122,17 +123,17 @@ namespace Chameleon{
                 return quiescence(position, alpha, beta);
             }
             if(depthLeft == 1){ //We're on a frontier node and can use futility pruning
-                if(Evaluation::eval(position) + Evaluation::m_pieceValueMG[BISHOP] < alpha){
+                if(Evaluation::eval(position) + Evaluation::m_pieceValue[BISHOP] < alpha){
                     return quiescence(position, alpha, beta);
                 }
             }
             if(depthLeft == 2){ //Extended futility pruning, same thing but using a bigger margin
-                if(Evaluation::eval(position) + Evaluation::m_pieceValueMG[ROOK] < alpha){
+                if(Evaluation::eval(position) + Evaluation::m_pieceValue[ROOK] < alpha){
                     return quiescence(position, alpha, beta);
                 }
             }
             if(depthLeft == 3){ //That's called razoring, we reduce the depth of the search if we're a queen away from alpha
-                if(Evaluation::eval(position) + Evaluation::m_pieceValueMG[QUEEN] < alpha){
+                if(Evaluation::eval(position) + Evaluation::m_pieceValue[QUEEN] < alpha){
                     depthLeft--;
                 }
             }
@@ -141,8 +142,8 @@ namespace Chameleon{
             movestack stack;
             position.gen(stack);
             //Here, we check if we're in a checkmate or stalemate position
-            if(position.check && !stack.size) return -100000; //Checkmate
-            else if(!stack.size) return 0; //Stalemate draw
+            //if(position.check && !stack.size) return -100000; //Checkmate
+            //else if(!stack.size) return 0; //Stalemate draw
 
             position::sortStack(stack);
             int score;
@@ -181,8 +182,8 @@ namespace Chameleon{
             position.genNoisy(stack);
 
             //Here, we check if we're in a checkmate or stalemate position
-            if(position.check && !stack.size) return -100000; //Checkmate
-            else if(!stack.size) return stand_pat; //The position is already quiet
+            //if(position.check && !stack.size) return -100000; //Checkmate
+            if(!stack.size) return stand_pat; //The position is already quiet
             position::sortStack(stack);
 
             for(int i = 0; i < stack.size; i++){

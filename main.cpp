@@ -12,7 +12,8 @@ int main() {
 
     position pos;
     display::showPosition(pos);
-    Evaluation::init();
+
+    std::cout << Evaluation::eval(pos) << std::endl;
 
     UCI::uciListen(pos);
 
