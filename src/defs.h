@@ -7,12 +7,23 @@
  */
 
 #include <cstdint>
+#include <vector>
 
 namespace Chameleon{
-
     /*
-     * POSITIONAL INFORMATION
-     */
+        * POSITIONAL INFORMATION
+        */
+
+    //Let's us access arrays indexed by piece type/color easily
+    static const int Wh = 0;
+    static const int Bl = 1;
+
+    static const int P = 0;
+    static const int N = 1;
+    static const int B = 2;
+    static const int R = 3;
+    static const int Q = 4;
+    static const int K = 5;
 
     //Piece encoding (we or color value and piece type to get the full piece encoding)
     typedef uint8_t piece;
@@ -26,9 +37,10 @@ namespace Chameleon{
     static const piece ROOK = 0b00100000;
     static const piece QUEEN = 0b01000000;
     static const piece KING = 0b10000000;
-    
+    static const piece PTMASK = 0b11111100;
+
     //Definition of initial chessboard position
-    piece initialPosition[0x88] = {
+    static piece initialPosition[0x88] = {
             ROOK|WHITE, KNIGHT|WHITE, BISHOP|WHITE, QUEEN|WHITE, KING|WHITE, ROOK|WHITE, KNIGHT|WHITE, BISHOP|WHITE, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
             PAWN|WHITE, PAWN|WHITE, PAWN|WHITE, PAWN|WHITE, PAWN|WHITE, PAWN|WHITE, PAWN|WHITE, PAWN|WHITE, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
             EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
@@ -40,61 +52,233 @@ namespace Chameleon{
     };
 
     //Coordinate transformation in 0x88 little-endian setup
-    int getFile(int square) {
+    static int getFile(int square) {
         return square & 7;
     }
 
-    int getRank(int square) {
+    static int getRank(int square) {
         return square >> 4;
     }
 
-    int getSquare(int rank, int file) {
+    static int getSquare(int rank, int file) {
         return 16 * rank + file;
     }
 
     //Know if a square is invalid
-    bool isInvalid(int square) {
+    static bool isInvalid(int square) {
         return square & 0x88;
     }
 
     struct plist {
-        int indexes[10]{0x88};
+        int indexes[32]{0x88};
         int size{0};
         int indexesBoard[0x88]{0x88};
     };
+
+    static void init_plist(plist &list, const std::vector<int>& squares) {
+        for(auto square : squares) {
+            list.indexesBoard[square] = list.size;
+            list.indexes[list.size] = square;
+            list.size++;
+        }
+    }
+
+    static void plist_update(plist &list, int from, int to) {
+        int index = list.indexesBoard[from];
+        list.indexesBoard[to] = index;
+        list.indexes[index] = to;
+    }
+
+    static void plist_remove(plist &list, int square) {
+        list.size--;
+        int index = list.indexesBoard[square];
+        int sq = list.indexes[list.size];
+        list.indexes[index] = sq;
+        list.indexesBoard[sq] = index;
+    }
+
+    static void plist_add(plist &list, int square) {
+        list.indexes[list.size] = square;
+        list.indexesBoard[square] = list.size;
+        list.size++;
+    }
 
 
     /*
      * MOVE ENCODING/STORING
      */
-    //Definition of movebits type, which will encode moves in 16 bits
-    typedef uint16_t movebits;
+    //Definition of movebyte type, which will encode moves in 16 bits
+    typedef uint16_t movebyte;
 
-    movebits encode(int from, int to, int flag){
+    enum flag {
+        QUIET,
+        DPAWNPUSH,
+        KCASTLE,
+        QCASTLE,
+        CAP,
+        EPCAP,
+        NPROM = 8,
+        BPROM,
+        RPROM,
+        QPROM,
+        NPROMCAP,
+        BPROMCAP,
+        RPROMCAP,
+        QPROMCAP,
+    };
+
+    static movebyte encode(int from, int to, int flag){
         return (((from + (from & 7)) >> 1) << 10) + (((to + (to & 7)) >> 1) << 4) + flag;
     }
 
-    int fromSq(movebits move) {
-        return (move & 0b1111110000000000) >> 10;
+    static int fromSq(movebyte move) {
+        return ((move & 0b1111110000000000) >> 10) + (((move & 0b1111110000000000) >> 10) & ~7);
     }
 
-    int toSq(movebits move) {
-        return (move & 0b1111110000) >> 4;
+    static int toSq(movebyte move) {
+        return ((move & 0b1111110000) >> 4) + (((move & 0b1111110000) >> 4) & ~7);
     }
 
-    int flag(movebits move) {
+    static int flag(movebyte move) {
         return (move & 0b1111);
     }
 
     //Definition of the movestack structure, which will hold generated moves
     struct movestack {
-        movebits moves[256]{0};
+        movebyte moves[256]{0};
         int size{0};
     };
 
-    void storeMove(movebits move, movestack &stack){
-        stack.moves[stack.size] = move;
+    static void storeMove(int from, int to, int flag, movestack &stack){
+        stack.moves[stack.size] = encode(from, to, flag);
         stack.size++;
+        if(flag & NPROM) { //If we're promoting, add all types of promotions as well
+            for(int i = flag + 1; i < flag + 4; i++){
+                stack.moves[stack.size] = encode(from, to, i);
+                stack.size++;
+            }
+        }
+    }
+
+    /*
+     * STORING POSSIBLE MOVEMENTS FOR PIECES
+     */
+    static const int piece_delta[6][8] = {
+            { //Pawns don't actually use deltas, we instead use their array to tell if a piece can slide or not
+                0, 0, 1, 1, 1, 0, 0, 0
+            },
+            { //Knights
+                0x21, 0x12, -0x21, -0x12, 0x1F, 0x0E, -0x1F, -0x0E
+            },
+            { //Bishops
+                0x09, 0x11, -0x09, -0x11, 0, 0, 0, 0
+            },
+            { //Rooks
+                0x10, -0x10, 1, -1, 0, 0, 0, 0
+            },
+            { //Queen
+                0x10, -0x10, 1, -1, 0x09, 0x11, -0x09, -0x11,
+            },
+            { //King
+                0x10, -0x10, 1, -1, 0x09, 0x11, -0x09, -0x11,
+            },
+    };
+
+    /*
+     * ATTACK ARRAY
+     * This part was taken from Mediocre Chess by Jonatan Pettersson
+     * He has a really cool blog explaining the process of making a chess engine in Java
+     * That's the particular article that I'm referring to : http://mediocrechess.blogspot.com/2006/12/guide-attacked-squares.html
+     */
+    static const int ATTACK_NONE = 0;
+    static const int ATTACK_KQR = 1;
+    static const int ATTACK_QR = 2;
+    static const int ATTACK_KQBwP = 3;
+    static const int ATTACK_KQBbP = 4;
+    static const int ATTACK_QB = 5;
+    static const int ATTACK_N = 6;
+
+    static const int ATTACK_ARRAY[257] =
+            {0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,2,0,0,0,     //0-19
+             0,0,0,5,0,0,5,0,0,0,0,0,2,0,0,0,0,0,5,0,     //20-39
+             0,0,0,5,0,0,0,0,2,0,0,0,0,5,0,0,0,0,0,0,     //40-59
+             5,0,0,0,2,0,0,0,5,0,0,0,0,0,0,0,0,5,0,0,     //60-79
+             2,0,0,5,0,0,0,0,0,0,0,0,0,0,5,6,2,6,5,0,     //80-99
+             0,0,0,0,0,0,0,0,0,0,6,4,1,4,6,0,0,0,0,0,     //100-119
+             0,2,2,2,2,2,2,1,0,1,2,2,2,2,2,2,0,0,0,0,     //120-139
+             0,0,6,3,1,3,6,0,0,0,0,0,0,0,0,0,0,0,5,6,     //140-159
+             2,6,5,0,0,0,0,0,0,0,0,0,0,5,0,0,2,0,0,5,     //160-179
+             0,0,0,0,0,0,0,0,5,0,0,0,2,0,0,0,5,0,0,0,     //180-199
+             0,0,0,5,0,0,0,0,2,0,0,0,0,5,0,0,0,0,5,0,     //200-219
+             0,0,0,0,2,0,0,0,0,0,5,0,0,5,0,0,0,0,0,0,     //220-239
+             2,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0         }; //240-256
+
+    static const int DELTA_ARRAY[257] =
+            {0,0,0,0,0,0,0,0,0,-17,0,0,0,0,0,0,-16,0,0,0,     //0-19
+             0,0,0,-15,0,0,-17,0,0,0,0,0,-16,0,0,0,0,0,-15,0,     //20-39
+             0,0,0,-17,0,0,0,0,-16,0,0,0,0,-15,0,0,0,0,0,0,     //40-59
+             -17,0,0,0,-16,0,0,0,-15,0,0,0,0,0,0,0,0,-17,0,0,     //60-79
+             -16,0,0,-15,0,0,0,0,0,0,0,0,0,0,-17,-33,-16,-31,-15,0,     //80-99
+             0,0,0,0,0,0,0,0,0,0,-14,-15,-16,-17,-18,0,0,0,0,0,     //100-119
+             0,-1,-1,-1,-1,-1,-1,-1,0,1,1,1,1,1,1,1,0,0,0,0,     //120-139
+             0,0,14,15,16,17,18,0,0,0,0,0,0,0,0,0,0,0,15,31,     //140-159
+             16,33,17,0,0,0,0,0,0,0,0,0,0,15,0,0,16,0,0,17,     //160-179
+             0,0,0,0,0,0,0,0,15,0,0,0,16,0,0,0,17,0,0,0,     //180-199
+             0,0,0,15,0,0,0,0,16,0,0,0,0,17,0,0,0,0,15,0,     //200-219
+             0,0,0,0,16,0,0,0,0,0,17,0,0,15,0,0,0,0,0,0,     //220-239
+             16,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0         }; //240-256
+
+    static int get_attackingdelta(int attacked, int attacking, int pieceType, int side) {
+        int attack = ATTACK_ARRAY[attacked - attacking + 128];
+        //We first check if the attack is even possible
+        if(attack == ATTACK_NONE) return 0;
+        switch(pieceType){
+            case P:
+                if((!side && attack != ATTACK_KQBwP) || (side && attack != ATTACK_KQBbP)) return 0;
+                break;
+            case B:
+                if(attack != ATTACK_QB && attack != ATTACK_KQBwP && attack != ATTACK_KQBbP) return 0;
+                break;
+            case N:
+                if(attack != ATTACK_N) return 0;
+                break;
+            case R:
+                if(attack != ATTACK_KQR && attack != ATTACK_QR) return 0;
+                break;
+            case Q:
+                if(attack == ATTACK_N) return 0;
+                break;
+            case K:
+                if(attack != ATTACK_KQR && attack != ATTACK_KQBbP && attack != ATTACK_KQBwP) return 0;
+                break;
+            default: break;
+        }
+
+        //If we haven't returned anything till now, the attack is possible and we'll return the corresponding delta
+        return DELTA_ARRAY[attacked - attacking + 128];
+    }
+
+    /*
+     * PINS CONTAINERS
+     * This is a particular piece container that keeps in memory pinning information, that is the square that is pinning/pinned,
+     * as well as the pinning delta
+     */
+    struct pins {
+        int squares[32]{0};
+        int deltas[32]{0};
+        int index_board[0x88]{-1};
+        int size{0};
+    };
+
+    static void addPin(pins &pin, int square, int delta) {
+        pin.squares[pin.size] = square;
+        pin.deltas[pin.size] = delta;
+        pin.index_board[square] = pin.size;
+        pin.size++;
+    }
+
+    static int getPinDelta(pins &pin, int square) {
+        return pin.index_board[square] == -1 ? 0 : pin.index_board[square];
     }
 }
 
