@@ -10,7 +10,9 @@
 
 namespace Chameleon {
         class position {
-        protected:
+        public:
+            //ATTRIBUTES
+
             piece m_board[0x88]{EMPTY}; //The board holding piece placement information
             plist m_plists[2][6]; //Piece position info, with an array of 2x6 (color x pieces)
 
@@ -29,7 +31,8 @@ namespace Chameleon {
             bool m_capture[0x88]{true}; //Same as the above, but for captures
             bool m_doublechecked = false; //Keeps track of whether or not we're in a double check situation
 
-        public:
+            // METHODS
+
             position();
 
             /*
