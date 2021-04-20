@@ -51,9 +51,11 @@ namespace Chameleon {
         int from;
         int raySq;
         int pinDelta;
+        int piece_type;
+        int i;
         //Traverse every piece list of the side to move, then for each piece, get it's type and generate corresponding moves
-        for (int piece_type = PAWN; piece_type < KING && !m_doublechecked; piece_type++) {
-            for (int i = 0; i < m_plists[m_side][piece_type].size; i++) {
+        for (piece_type = PAWN; piece_type < KING && !m_doublechecked; piece_type++) {
+            for (i = 0; i < m_plists[m_side][piece_type].size; i++) {
                 from = m_plists[m_side][piece_type].indexes[i];
                 pinDelta = getPinDelta(m_pinned, from); //If this is equal to 0 the piece can move freely. Otherwise it is limited to its delta
                 if (piece_type == PAWN) {
@@ -62,61 +64,61 @@ namespace Chameleon {
                     if (!m_side) {
                         if (m_board[from + 0x10] == EMPTY && !(pinDelta%0x10)) {
                             if (from >= 0x60 && from <= 0x67 && m_push[from + 0x10])
-                                storeMove(from, from + 0x10, NPROM, stack); //Quiet promotion
+                                storeMove(encode(from, from + 0x10, NPROM), stack); //Quiet promotion
                             else {
-                                if(m_push[from + 0x10]) storeMove(from, from + 0x10, QUIET, stack); //Pure quiet
+                                if(m_push[from + 0x10]) storeMove(encode(from, from + 0x10, QUIET), stack); //Pure quiet
                                 if (m_board[from + 0x20] == EMPTY && from <= 0x17 && m_push[from + 0x20]) {
-                                    storeMove(from, from + 0x20, DPAWNPUSH, stack); //Double pawn push
+                                    storeMove(encode(from, from + 0x20, DPAWNPUSH), stack); //Double pawn push
                                 }
                             }
                         }
 
                         if (m_board[from + 0x11] & BLACK && !(pinDelta%0x11) && m_capture[from + 0x11]) {
                             if (from >= 0x60 && from <= 0x67)
-                                storeMove(from, from + 0x11, NPROMCAP, stack); //Capture promotion
-                            else storeMove(from, from + 0x11, CAP, stack);
+                                storeMove(encode(from, from + 0x11, NPROMCAP), stack); //Capture promotion
+                            else storeMove(encode(from, from + 0x11, CAP), stack);
                         }
                         else if (from + 0x11 == m_ep && !(pinDelta%0x11) && !epGotcha(from, from+1) && (m_capture[from + 0x01] || m_push[from + 0x11])){
-                            storeMove(from, from + 0x11, EPCAP, stack);
+                            storeMove(encode(from, from + 0x11, EPCAP), stack);
                         }
 
                         if (m_board[from + 0x0F] & BLACK && !(pinDelta%0x0F) && m_capture[from + 0x0F]) {
                             if (from >= 0x60 && from <= 0x67)
-                                storeMove(from, from + 0x0F, NPROMCAP, stack); //Capture promotion
-                            else storeMove(from, from + 0x0F, CAP, stack);
+                                storeMove(encode(from, from + 0x0F, NPROMCAP), stack); //Capture promotion
+                            else storeMove(encode(from, from + 0x0F, CAP), stack);
                         }
                         else if (from + 0x0F == m_ep && !(pinDelta%0x0F) && !epGotcha(from, from-1) && (m_capture[from - 0x01] || m_push[from + 0x0F])){
-                            storeMove(from, from + 0x0F, EPCAP, stack);
+                            storeMove(encode(from, from + 0x0F, EPCAP), stack);
                         }
                     }
                     else {
                         if (m_board[from - 0x10] == EMPTY && !(pinDelta%0x10)) {
                             if (from >= 0x10 && from <= 0x17 && m_push[from - 0x10])
-                                storeMove(from, from - 0x10, NPROM, stack); //Quiet promotion
+                                storeMove(encode(from, from - 0x10, NPROM), stack); //Quiet promotion
                             else {
-                                if(m_push[from - 0x10]) storeMove(from, from - 0x10, QUIET, stack); //Pure quiet
+                                if(m_push[from - 0x10]) storeMove(encode(from, from - 0x10, QUIET), stack); //Pure quiet
                                 if (m_board[from - 0x20] == EMPTY && from >= 0x60 && m_push[from - 0x20]) {
-                                    storeMove(from, from - 0x20, DPAWNPUSH, stack); //Double pawn push
+                                    storeMove(encode(from, from - 0x20, DPAWNPUSH), stack); //Double pawn push
                                 }
                             }
                         }
 
                         if (m_board[from - 0x11] & WHITE && !(pinDelta%0x11) && m_capture[from - 0x11]) {
                             if (from >= 0x10 && from <= 0x17)
-                                storeMove(from, from - 0x11, NPROMCAP, stack); //Capture promotion
-                            else storeMove(from, from - 0x11, CAP, stack);
+                                storeMove(encode(from, from - 0x11, NPROMCAP), stack); //Capture promotion
+                            else storeMove(encode(from, from - 0x11, CAP), stack);
                         }
                         else if (from - 0x11 == m_ep && !(pinDelta%0x11) && !epGotcha(from, from-1) && (m_capture[from - 0x01] || m_push[from - 0x11])){
-                            storeMove(from, from - 0x11, EPCAP, stack);
+                            storeMove(encode(from, from - 0x11, EPCAP), stack);
                         }
 
                         if (m_board[from - 0x0F] & WHITE && !(pinDelta%0x0F) && m_capture[from - 0x0F]) {
                             if (from >= 0x10 && from <= 0x17)
-                                storeMove(from, from - 0x0F, NPROMCAP, stack); //Capture promotion
-                            else storeMove(from, from - 0x0F, CAP, stack);
+                                storeMove(encode(from, from - 0x0F, NPROMCAP), stack); //Capture promotion
+                            else storeMove(encode(from, from - 0x0F, CAP), stack);
                         }
                         else if (from - 0x0F == m_ep && !(pinDelta%0x0F) && !epGotcha(from, from+1) && (m_capture[from + 0x01] || m_push[from - 0x0F])){
-                            storeMove(from, from - 0x0F, EPCAP, stack);
+                            storeMove(encode(from, from - 0x0F, EPCAP), stack);
                         }
                     }
                 }
@@ -126,7 +128,7 @@ namespace Chameleon {
                     // - it hits a piece (if it's of an opposite color, we add the move as a capture, else don't add it)
                     // - it hits an invalid square
                     // - it can't slide
-                    for(auto delta : piece_delta[piece_type]){
+                    for(int delta : piece_delta[piece_type]){
                         if(!delta) break;
                         if(pinDelta%delta || (abs(delta) == 1 && pinDelta && abs(pinDelta) != abs(delta))) continue;
 
@@ -135,10 +137,10 @@ namespace Chameleon {
                             raySq += delta;
                             if(isInvalid(raySq) || m_board[raySq] & (m_side ? BLACK : WHITE)) break;
                             if(m_board[raySq] & (m_side ? WHITE : BLACK)) { //Current square is occupied by opposing piece
-                                if(m_capture[raySq]) storeMove(from, raySq, CAP, stack);
+                                if(m_capture[raySq]) storeMove(encode(from, raySq, CAP), stack);
                                 break;
                             }
-                            else if(m_push[raySq]) storeMove(from, raySq, QUIET, stack);
+                            else if(m_push[raySq]) storeMove(encode(from, raySq, QUIET), stack);
                             if(!piece_delta[0][piece_type]) break;
                         }
                     }
@@ -152,8 +154,8 @@ namespace Chameleon {
         for(auto delta : piece_delta[KING]){
             raySq = from + delta;
             if(!isInvalid(raySq) && !(m_board[raySq] & (m_side ? BLACK : WHITE)) && !isAttacked(raySq, true)) {
-                if(m_board[raySq] == EMPTY) storeMove(from, raySq, QUIET, stack);
-                else storeMove(from, raySq, CAP, stack);
+                if(m_board[raySq] == EMPTY) storeMove(encode(from, raySq, QUIET), stack);
+                else storeMove(encode(from, raySq, CAP), stack);
             }
         }
 
@@ -163,12 +165,12 @@ namespace Chameleon {
         // - King not in check (but this generator shouldn't be called if the king is in check anyway)
         // - No squares between king from and to are attacked by the opponent
         if(!m_side && !m_checked){
-            if(m_castling&0b1000 && m_board[0x05] == EMPTY && m_board[0x06] == EMPTY && !isAttacked(0x05) && !isAttacked(0x06)) storeMove(0x04, 0x06, KCASTLE, stack);
-            if(m_castling&0b0100 && m_board[0x03] == EMPTY && m_board[0x02] == EMPTY && m_board[0x01] == EMPTY && !isAttacked(0x03) && !isAttacked(0x02)) storeMove(0x04, 0x02, QCASTLE, stack);
+            if(m_castling&0b1000 && m_board[0x05] == EMPTY && m_board[0x06] == EMPTY && !isAttacked(0x05) && !isAttacked(0x06)) storeMove(encode(0x04, 0x06, KCASTLE), stack);
+            if(m_castling&0b0100 && m_board[0x03] == EMPTY && m_board[0x02] == EMPTY && m_board[0x01] == EMPTY && !isAttacked(0x03) && !isAttacked(0x02)) storeMove(encode(0x04, 0x02, QCASTLE), stack);
         }
         else if(m_side && !m_checked){
-            if(m_castling&0b0010 && m_board[0x75] == EMPTY && m_board[0x76] == EMPTY && !isAttacked(0x75) && !isAttacked(0x76)) storeMove(0x74, 0x76, KCASTLE, stack);
-            if(m_castling&0b0001 && m_board[0x73] == EMPTY && m_board[0x72] == EMPTY && m_board[0x71] == EMPTY && !isAttacked(0x73) && !isAttacked(0x72)) storeMove(0x74, 0x72, QCASTLE, stack);
+            if(m_castling&0b0010 && m_board[0x75] == EMPTY && m_board[0x76] == EMPTY && !isAttacked(0x75) && !isAttacked(0x76)) storeMove(encode(0x74, 0x76, KCASTLE), stack);
+            if(m_castling&0b0001 && m_board[0x73] == EMPTY && m_board[0x72] == EMPTY && m_board[0x71] == EMPTY && !isAttacked(0x73) && !isAttacked(0x72)) storeMove(encode(0x74, 0x72, QCASTLE), stack);
         }
 
         /*

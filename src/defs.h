@@ -10,6 +10,7 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <iostream>
 
 namespace Chameleon{
     /*
@@ -169,17 +170,62 @@ namespace Chameleon{
     struct movestack {
         movebyte moves[256]{0};
         int size{0};
+        int move_heuristic[256]{0};
     };
 
-    static void storeMove(int from, int to, int flag, movestack &stack){
-        stack.moves[stack.size] = encode(from, to, flag);
+    static void storeMove(movebyte move, movestack &stack, int heuristic = 0){
+        //Check if the move already exists, if so no need to add it, just update the heuristic if needed
+        for(int i = 0; i < stack.size; i++) {
+            if(stack.moves[i] == move){
+                stack.move_heuristic[i] += heuristic;
+                return;
+            }
+        }
+
+        stack.moves[stack.size] = move;
+        stack.move_heuristic[stack.size] = heuristic;
+        //Get some heuristics in there for move ordering purpose
+        int fl = flag(move);
+        if(fl & CAP) {
+            stack.move_heuristic[stack.size] += 1000;
+        }
+        if((fl & KCASTLE) || (fl & QCASTLE)){
+            stack.move_heuristic[stack.size] += 1000;
+        }
         stack.size++;
-        if(flag & NPROM) { //If we're promoting, add all types of promotions as well
-            for(int i = flag + 1; i < flag + 4; i++){
-                stack.moves[stack.size] = encode(from, to, i);
+
+        if(fl & NPROM) { //If we're promoting, add all types of promotions as well
+            stack.move_heuristic[stack.size-1] += 700;
+            for(int i = fl + 1; i < fl + 4; i++){
+                stack.moves[stack.size] = encode(fromSq(move), toSq(move), i);
+                stack.move_heuristic[stack.size] += 700;
                 stack.size++;
             }
         }
+    }
+
+    //Mainly used in search, this lets you fetch the most highly rated move, then delete it
+    static movebyte fetch(movestack &stack) {
+        int max = -99999;
+        int max_index = 0;
+        movebyte best = 0;
+        for(int i = 0; i < stack.size; i++) {
+            if(stack.move_heuristic[i] > max) {
+                max = stack.move_heuristic[i];
+                best = stack.moves[i];
+            }
+        }
+
+        //Delete the move fetched
+        stack.move_heuristic[max_index] = stack.move_heuristic[stack.size];
+        stack.moves[max_index] = stack.moves[stack.size];
+        stack.size--;
+
+        return best;
+    }
+
+    static void sortstack(movestack &stack) {
+
     }
 
     /*
