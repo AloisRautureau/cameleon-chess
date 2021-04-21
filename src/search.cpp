@@ -45,7 +45,8 @@ namespace Search {
                 if(duration_cast<milliseconds>(current_time - start_time).count() > movetime) break;
 
                 pos.make(stack.moves[i]);
-                score = -search_node(pos, depth - 1, -beta, -alpha);
+                //Under the assumption that out first move is the best, we reduce the alpha beta window by a lot for the first move
+                score = -search_node(pos, depth - 1, -beta, -alpha, true);
                 if (score <= alpha) { //Cases where we evaluate outside of the window
                     if(!bad_alpha){
                         alpha -= 100;
@@ -57,7 +58,7 @@ namespace Search {
                         alpha = -99999;
                         bad_alpha++;
                     }
-                    score = -search_node(pos, depth - 1, -beta, -alpha);
+                    score = -search_node(pos, depth - 1, -beta, -alpha, true);
                 } else if(score >= beta) {
                     if(!bad_beta) {
                         beta += 100;
@@ -69,7 +70,7 @@ namespace Search {
                         beta = 99999;
                         bad_beta++;
                     }
-                    score = -search_node(pos, depth - 1, -beta, -alpha);
+                    score = -search_node(pos, depth - 1, -beta, -alpha, true);
                 }
                 pos.unmake();
 
@@ -95,9 +96,9 @@ namespace Search {
         return best;
     }
 
-    int search_node(position &pos, int depth, int alpha, int beta) {
-        //When reaching the max depth, return an evaluation
-        if(depth == 0) return quiescence(pos, alpha, beta);
+    int search_node(position &pos, int depth, int alpha, int beta, bool null) {
+        //if(depth < 0) return Eval::eval(pos);
+        if(depth <= 0) return quiescence(pos, alpha, beta);
 
         movestack stack;
         pos.gen(stack);
@@ -109,12 +110,23 @@ namespace Search {
         }
 
         int score;
-        for(int i = 0; i < stack.size; i++) {
-            pos.make(stack.moves[i]);
-            score = -search_node(pos, depth - 1, -beta, -alpha);
-            pos.unmake();
+        if(null && !pos.m_checked){
+            pos.make_null();
+            score = -search_node(pos, depth - 1 - R_FACTOR, -beta, -beta+1, false);
+            pos.unmake_null();
 
             if(score >= beta) return score;
+        }
+
+        for(int i = 0; i < stack.size; i++) {
+            pos.make(stack.moves[i]);
+            score = -search_node(pos, depth - 1, -beta, -alpha, true);
+            pos.unmake();
+
+            if(score >= beta) {
+                killers[pos.m_ply] = stack.moves[i];
+                return score;
+            }
             if(score > alpha) alpha = score;
         }
         return alpha;
@@ -143,8 +155,9 @@ namespace Search {
 
     int timeboy(int timeleft, int increment) {
         //As a starting point, we'll allow 20% of remaining time to search, plus any increment
-        int time = 0;
-        time += (int)(timeleft/50) + increment;
+        int time = (int)(timeleft/50+(increment/2));
+        if(time >= timeleft) time = timeleft - 500;
+        if(time < 0) time = 100;
         return time;
     }
 }

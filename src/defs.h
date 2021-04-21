@@ -365,6 +365,7 @@ namespace Chameleon{
         int captured{0};
         pins pinned{0};
         bool checked{false};
+        bool null{false};
     };
 
     /*
@@ -541,7 +542,7 @@ namespace Chameleon{
     };
 
     /*
-     * SEARCH CONSTANTS
+     * SEARCH CONSTANTS/UTILITY
      */
     static const int INFINITY = 999999;
     static const int MATE_SCORE = 999999;

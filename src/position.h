@@ -47,8 +47,13 @@ namespace Chameleon {
             //Makes the move on the board
             void make(movebyte move);
 
+            //Makes a null move (passing move), useful for search
+            void make_null();
+
             //Unmakes the last move played
             void unmake();
+
+            void unmake_null();
 
             /*
             * UTILITY

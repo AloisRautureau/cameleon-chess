@@ -223,7 +223,7 @@ namespace Chameleon {
         piece captured = m_board[to];
 
         //Save the current position in the history so that we can unmake the move if necessary
-        history_entry hist = {move, m_ep, m_castling, m_fifty, captured, m_pinned, m_checked};
+        history_entry hist = {move, m_ep, m_castling, m_fifty, captured, m_pinned, m_checked, false};
         m_history.push(hist);
 
         //Move our piece
@@ -300,9 +300,25 @@ namespace Chameleon {
         m_doublechecked = false;
     }
 
+    void position::make_null() {
+        history_entry hist = {0, m_ep, 0, m_fifty, 0, m_pinned, m_checked, true};
+        m_history.push(hist);
+        m_ep = 0x88;
+        m_fifty++;
+        m_ply++;
+        m_side ^= 1;
+        updatePins();
+        m_checked = isAttacked(m_plists[m_side][KING].indexes[0]);
+        m_doublechecked = false;
+    }
+
     void position::unmake() {
         //Extract the info from the history entry
         history_entry hist = m_history.top();
+        if(hist.null) {
+            unmake_null();
+            return;
+        }
         m_checked = hist.checked;
         m_pinned = hist.pinned;
         m_castling = hist.castling;
@@ -360,6 +376,19 @@ namespace Chameleon {
 
             default: break;
         }
+        m_history.pop();
+        m_doublechecked = false;
+    }
+
+    void position::unmake_null() {
+        //Extract the info from the history entry
+        history_entry hist = m_history.top();
+        m_checked = hist.checked;
+        m_pinned = hist.pinned;
+        m_ep = hist.ep;
+        m_fifty = hist.fifty;
+        m_ply--;
+        m_side ^= 1;
         m_history.pop();
         m_doublechecked = false;
     }
