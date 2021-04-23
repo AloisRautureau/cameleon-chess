@@ -4,7 +4,7 @@
 using namespace Chameleon;
 
 int main() {
-    system("clear");
+    inithash(); //Always call that first, otherwise AI goes boom
 
     UCI::listen();
 

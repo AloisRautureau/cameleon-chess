@@ -7,6 +7,7 @@
 
 #include <string>
 #include "defs.h"
+#include <chrono>
 
 namespace Chameleon {
         class position {
@@ -30,6 +31,8 @@ namespace Chameleon {
             bool m_push[0x88]{true}; //Used mainly for check evasion, this is the push mask indicating which squares you can push to in order to get out of check
             bool m_capture[0x88]{true}; //Same as the above, but for captures
             bool m_doublechecked = false; //Keeps track of whether or not we're in a double check situation
+
+            zhash m_positionhash;
 
             // METHODS
 
@@ -84,6 +87,9 @@ namespace Chameleon {
 
             //Display method
             void show();
+
+            //Generate hash for current position
+            zhash hash();
         };
 }
 #endif //CHAMELEON_POSITION_H

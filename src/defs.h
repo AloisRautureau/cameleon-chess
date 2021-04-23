@@ -11,6 +11,7 @@
 #include <stack>
 #include <string>
 #include <iostream>
+#include <random>
 
 namespace Chameleon{
     /*
@@ -544,8 +545,43 @@ namespace Chameleon{
     /*
      * SEARCH CONSTANTS/UTILITY
      */
-    static const int INFINITY = 999999;
+    static const int INFINITE = 999999;
     static const int MATE_SCORE = 999999;
+
+    /*
+     * HASH EVERYTHING
+     */
+    //Keys
+    typedef uint64_t zhash;
+    static zhash PIECESKEYS[2][6][0x88];
+    static zhash CASTLINGKEYS[16];
+    static zhash EPKEYS[0x88];
+    static zhash SIDEKEY;
+
+    static void inithash() {
+        std::mt19937_64 twister(time(nullptr));
+
+        SIDEKEY = twister();
+
+        for(unsigned long & i : CASTLINGKEYS) {
+            i = twister();
+        }
+        for(auto &i : EPKEYS) {
+            i = twister();
+        }
+        for(auto &side : PIECESKEYS) {
+            for(auto &piece : side) {
+                for(auto &square : piece) {
+
+                    square = twister();
+                }
+            }
+        }
+    }
+
+    static int table_index(zhash hash, int table_size) {
+        return (int)(hash % table_size);
+    }
 }
 
 

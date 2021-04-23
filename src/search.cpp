@@ -21,6 +21,7 @@ namespace Search {
         //We first need to generate every move for the root position, then check every single one of them to find our best move
         movestack stack;
         pos.gen(stack);
+        best = stack.moves[0];
 
         //Re search counts (we widen the window more and more on each re search)
         int bad_alpha{0};
@@ -31,14 +32,18 @@ namespace Search {
         else if (infinite) movetime = 99999999;
         auto start_time = high_resolution_clock::now();
         auto current_time = high_resolution_clock::now();
+        auto iteration_start = high_resolution_clock::now();
         bool depth_complete{false};
 
 
         //The actual search
         int depth = 1;
         for(depth; depth <= maxdepth; depth++) {
+            nodes_searched = 0;
+            quiescence_nodes = 0;
             current_time = high_resolution_clock::now();
             if(duration_cast<milliseconds>(current_time - start_time).count() > movetime) break;
+            iteration_start = high_resolution_clock::now();
             for(int i = 0; i < stack.size; i++) {
                 //Check if we've got time left before checking every move
                 current_time = high_resolution_clock::now();
@@ -83,12 +88,14 @@ namespace Search {
             std::cout << "info "
             << "depth " << depth
             << " score cp " << best_score
+            << " time " << duration_cast<milliseconds>(current_time - iteration_start).count()
+            << " nodes " << nodes_searched
+            << " nps " << nodes_searched/(duration_cast<microseconds>(current_time - iteration_start).count()/100000 ? duration_cast<microseconds>(current_time - iteration_start).count()/100000 : 0.0001)
             << std::endl;
             //After searching every move we adjust the window
             alpha = best_score + aspiration_window;
             beta = best_score - aspiration_window;
         }
-
         //Send some info back to the user
         std::cout << "bestmove " << moveToString(best) << std::endl;
 
@@ -99,6 +106,17 @@ namespace Search {
     int search_node(position &pos, int depth, int alpha, int beta, bool null) {
         //if(depth < 0) return Eval::eval(pos);
         if(depth <= 0) return quiescence(pos, alpha, beta);
+        if(depth == 1 && !(flag(pos.m_history.top().move)&CAP) && !pos.m_checked) {
+            if(Eval::eval(pos) + 350 < alpha) return quiescence(pos, alpha, beta);
+        }
+        if(depth == 2 && !(flag(pos.m_history.top().move)&CAP) && !pos.m_checked) {
+            if(Eval::eval(pos) + 700 < alpha) return quiescence(pos, alpha, beta);
+        }
+        if(depth == 3 && !(flag(pos.m_history.top().move)&CAP) && !pos.m_checked) {
+            if(Eval::eval(pos) + 900 < alpha) return depth--;
+        }
+
+        nodes_searched++;
 
         movestack stack;
         pos.gen(stack);
@@ -140,6 +158,9 @@ namespace Search {
 
         movestack stack;
         pos.gen(stack, true); //Generate all noisy moves
+
+        nodes_searched++;
+        quiescence_nodes++;
 
         for(int i = 0; i < stack.size; i++) {
             //TODO : check SEE for every move, if the move has SEE < 0, do not consider it at all

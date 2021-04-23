@@ -6,6 +6,8 @@
 #include <bitset>
 #include "position.h"
 
+using namespace std::chrono;
+
 namespace Chameleon {
     position::position() {
         //Here, we initialize every variable to be equivalent to the initial position of a chess game
@@ -31,6 +33,8 @@ namespace Chameleon {
         init_plist(m_plists[B][KING], {0x74});
 
         initPin(m_pinned);
+
+        m_positionhash = hash();
     }
 
     void position::gen(movestack &stack, bool noisy) {
@@ -230,41 +234,57 @@ namespace Chameleon {
         plist_update(m_plists[m_side][moved&PTMASK], from, to);
         m_board[from] = EMPTY;
         m_board[to] = moved;
+        m_positionhash ^= PIECESKEYS[m_side][moved&PTMASK][from];
+        m_positionhash ^= PIECESKEYS[m_side][moved&PTMASK][to];
 
         //Update variables
         m_fifty++;
         m_ply++;
+        m_positionhash ^= (m_ep == 0x88 ? 0 : EPKEYS[m_ep]);
         m_ep = 0x88;
 
         //We now have to deal with special flags
+        int depart;
+        int target;
         switch(fl){
             case DPAWNPUSH: //Update ep square, reset halfmove clock
                 m_ep = to + (m_side ? 0x10 : -0x10);
+                m_positionhash ^= EPKEYS[m_ep];
                 m_fifty = 0;
                 break;
 
             case KCASTLE: //Move the rook, update the castling rights
+                depart = (m_side ? 0x77 : 0x07);
+                target = (m_side ? 0x75 : 0x05);
                 m_castling &= (m_side ? 0b1100 : 0b0011);
-                m_board[(m_side ? 0x75 : 0x05)] = m_board[(m_side ? 0x77 : 0x07)];
-                m_board[(m_side ? 0x77 : 0x07)] = EMPTY;
-                plist_update(m_plists[m_side][ROOK], (m_side ? 0x77 : 0x07), (m_side ? 0x75 : 0x05));
+                m_board[target] = m_board[depart];
+                m_board[depart] = EMPTY;
+                plist_update(m_plists[m_side][ROOK], depart, target);
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][depart];
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][target];
                 break;
 
             case QCASTLE: //Move the rook, update castling rights
+                depart = (m_side ? 0x70 : 0x00);
+                target = (m_side ? 0x73 : 0x03);
                 m_castling &= (m_side ? 0b1100 : 0b0011);
-                m_board[(m_side ? 0x73 : 0x03)] = m_board[(m_side ? 0x70 : 0x00)];
-                m_board[(m_side ? 0x70 : 0x00)] = EMPTY;
-                plist_update(m_plists[m_side][ROOK], (m_side ? 0x70 : 0x00), (m_side ? 0x73 : 0x03));
+                m_board[target] = m_board[depart];
+                m_board[depart] = EMPTY;
+                plist_update(m_plists[m_side][ROOK], depart, target);
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][depart];
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][target];
                 break;
 
             case CAP: //Remove the piece that has been captured from the piece list
                 plist_remove(m_plists[!m_side][captured&PTMASK], to);
+                m_positionhash ^= PIECESKEYS[!m_side][captured&PTMASK][to];
                 m_fifty = 0;
                 break;
 
             case EPCAP: //Remove captured pawn from the piece list and from the board
                 m_fifty = 0;
                 plist_remove(m_plists[!m_side][PAWN], to + (m_side ? 0x10 : -0x10));
+                m_positionhash ^= PIECESKEYS[!m_side][PAWN][to + (m_side ? 0x10 : -0x10)];
                 m_board[to + (m_side ? 0x10 : -0x10)] = EMPTY;
                 break;
 
@@ -276,8 +296,11 @@ namespace Chameleon {
             m_board[to] = (m_side ? BLACK : WHITE) | ((fl&0b0011) + 1);
             plist_remove(m_plists[m_side][PAWN], to);
             plist_add(m_plists[m_side][(fl&0b11) + 1], to);
+            m_positionhash ^= PIECESKEYS[m_side][PAWN][to];
+            m_positionhash ^= PIECESKEYS[m_side][(fl&0b11) + 1][to];
             if(fl&CAP) {
                 plist_remove(m_plists[!m_side][captured&PTMASK], to);
+                m_positionhash ^= PIECESKEYS[!m_side][captured&PTMASK][to];
                 m_fifty = 0;
             }
         }
@@ -292,9 +315,11 @@ namespace Chameleon {
             if(to == (m_side ? 0x00 : 0x70)) m_castling &= (m_side ? 0b1011 : 0b1110);
             if(to == (m_side ? 0x07 : 0x77)) m_castling &= (m_side ? 0b0111 : 0b1101);
         }
+        m_positionhash ^= CASTLINGKEYS[m_castling];
 
         //Finally, we can change side and check our pins/if we're checked
         m_side ^= 1;
+        m_positionhash ^= SIDEKEY;
         updatePins();
         m_checked = isAttacked(m_plists[m_side][KING].indexes[0]);
         m_doublechecked = false;
@@ -304,9 +329,11 @@ namespace Chameleon {
         history_entry hist = {0, m_ep, 0, m_fifty, 0, m_pinned, m_checked, true};
         m_history.push(hist);
         m_ep = 0x88;
+        m_positionhash ^= (m_ep == 0x88 ? 0 : EPKEYS[m_ep]);
         m_fifty++;
         m_ply++;
         m_side ^= 1;
+        m_positionhash ^= SIDEKEY;
         updatePins();
         m_checked = isAttacked(m_plists[m_side][KING].indexes[0]);
         m_doublechecked = false;
@@ -322,10 +349,13 @@ namespace Chameleon {
         m_checked = hist.checked;
         m_pinned = hist.pinned;
         m_castling = hist.castling;
+        m_positionhash ^= CASTLINGKEYS[m_castling];
         m_ep = hist.ep;
+        m_positionhash ^= (m_ep == 0x88 ? 0 : EPKEYS[m_ep]);
         m_fifty = hist.fifty;
         m_ply--;
         m_side ^= 1;
+        m_positionhash ^= SIDEKEY;
 
         int from = fromSq(hist.move);
         int to = toSq(hist.move);
@@ -339,6 +369,8 @@ namespace Chameleon {
             plist_add(m_plists[m_side][PAWN], to);
             plist_remove(m_plists[m_side][moved&PTMASK], to);
             m_board[to] = (m_side ? BLACK : WHITE) | (PAWN);
+            m_positionhash ^= PIECESKEYS[m_side][(fl&0b11) + 1][to];
+            m_positionhash ^= PIECESKEYS[m_side][PAWN][to];
             moved = m_board[to];
             if(fl&CAP){
                 fl = CAP;
@@ -349,29 +381,43 @@ namespace Chameleon {
         plist_update(m_plists[m_side][moved&PTMASK], to, from);
         m_board[to] = EMPTY;
         m_board[from] = moved;
+        m_positionhash ^= PIECESKEYS[m_side][moved&PTMASK][to];
+        m_positionhash ^= PIECESKEYS[m_side][moved&PTMASK][from];
 
         //Deal with special flags
+        int depart;
+        int target;
         switch(fl){
             case KCASTLE: //Move the rook
-                m_board[(m_side ? 0x77 : 0x07)] = m_board[(m_side ? 0x75 : 0x05)];
-                m_board[(m_side ? 0x75 : 0x05)] = EMPTY;
-                plist_update(m_plists[m_side][ROOK], (m_side ? 0x75 : 0x05), (m_side ? 0x77 : 0x07));
+                target = (m_side ? 0x77 : 0x07);
+                depart = (m_side ? 0x75 : 0x05);
+                m_board[target] = m_board[depart];
+                m_board[depart] = EMPTY;
+                plist_update(m_plists[m_side][ROOK], target, depart);
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][depart];
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][target];
                 break;
 
             case QCASTLE: //Move the rook
-                m_board[(m_side ? 0x70 : 0x00)] = m_board[(m_side ? 0x73 : 0x03)];
-                m_board[(m_side ? 0x73 : 0x03)] = EMPTY;
-                plist_update(m_plists[m_side][ROOK],  (m_side ? 0x73 : 0x03), (m_side ? 0x70 : 0x00));
+                target = (m_side ? 0x73 : 0x03);
+                depart = (m_side ? 0x70 : 0x00);
+                m_board[target] = m_board[depart];
+                m_board[depart] = EMPTY;
+                plist_update(m_plists[m_side][ROOK], target, depart);
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][depart];
+                m_positionhash ^= PIECESKEYS[m_side][ROOK][target];
                 break;
 
             case CAP: //Read the piece that had been captured from the piece list
                 plist_add(m_plists[!m_side][captured&PTMASK], to);
                 m_board[to] = captured;
+                m_positionhash ^= PIECESKEYS[!m_side][captured&PTMASK][to];
                 break;
 
             case EPCAP: //Put back captured pawn in the piece list and on the board
                 plist_add(m_plists[!m_side][PAWN], to + (m_side ? 0x10 : -0x10));
                 m_board[to + (m_side ? 0x10 : -0x10)] = (m_side ? WHITE : BLACK) | PAWN;
+                m_positionhash ^= PIECESKEYS[!m_side][PAWN][to + (m_side ? 0x10 : -0x10)];
                 break;
 
             default: break;
@@ -386,9 +432,11 @@ namespace Chameleon {
         m_checked = hist.checked;
         m_pinned = hist.pinned;
         m_ep = hist.ep;
+        m_positionhash ^= (m_ep == 0x88 ? 0 : EPKEYS[m_ep]);
         m_fifty = hist.fifty;
         m_ply--;
         m_side ^= 1;
+        m_positionhash ^= SIDEKEY;
         m_history.pop();
         m_doublechecked = false;
     }
@@ -623,6 +671,7 @@ namespace Chameleon {
             }
         }
 
+        m_positionhash = hash();
         updatePins();
         m_checked = isAttacked(m_plists[m_side][KING].indexes[0]);
         m_doublechecked = false;
@@ -634,16 +683,23 @@ namespace Chameleon {
         uint64_t nodes;
         uint64_t total{0};
 
+        auto start_time = high_resolution_clock::now();
+        auto curr_time = high_resolution_clock::now();
         for(int i = 0; i < stack.size; i++) {
             std::cout << intToSq(fromSq(stack.moves[i])) << intToSq(toSq(stack.moves[i])) <<  " :  ";
             make(stack.moves[i]);
             nodes = depth == 1 ? 1 : perftRecursive(depth-1);
-            std::cout << nodes << std::endl;
+            std::cout << nodes;
+            curr_time = high_resolution_clock::now();
+            std::cout << " (" << duration_cast<seconds>(curr_time - start_time).count() << " sec)" << std::endl;
             total += nodes;
             unmake();
         }
 
-        std::cout << std::endl << "depth " << depth << " : " << total << std::endl;
+        curr_time = high_resolution_clock::now();
+        std::cout << std::endl << "depth " << depth << " : " << total;
+        double time = duration_cast<microseconds>(curr_time - start_time).count()/1000000;
+        std::cout << " (" << total/(time == 0 ? time : 0.00001) << " nps)" << std::endl;
     }
 
     uint64_t position::perftRecursive(int depth){
@@ -655,10 +711,13 @@ namespace Chameleon {
             return stack.size;
         }
 
+        zhash keycheck = m_positionhash;
+
         for(int i = 0; i < stack.size; i++) {
             make(stack.moves[i]);
             nodes += perftRecursive(depth - 1);
             unmake();
+            if(m_positionhash != keycheck) std::cout << "Position hash update bug" << std::endl;
         }
         return nodes;
     }
@@ -704,5 +763,20 @@ namespace Chameleon {
                                   << (m_castling & 0b0010 ? "k" : ".")
                                   << (m_castling & 0b0001 ? "q" : ".");
         std::cout << "     ep: " << (m_ep == 0x88 ? "-" : intToSq(m_ep)) << std::endl << std::endl;
+    }
+
+    zhash position::hash() {
+        zhash poshash = 0;
+
+        for(int i = 0; i < 0x88; i++){
+            if(m_board[i] != EMPTY) {
+                poshash ^= PIECESKEYS[(m_board[i]&BLACK ? 1 : 0)][m_board[i]&PTMASK][i];
+            }
+        }
+        poshash ^= CASTLINGKEYS[m_castling];
+        if(m_ep != 0x88) poshash ^= EPKEYS[m_ep];
+        if(m_side) poshash ^= SIDEKEY;
+
+        return poshash;
     }
 }

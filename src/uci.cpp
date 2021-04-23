@@ -33,6 +33,7 @@ namespace UCI {
             else if(command == "go") go(pos, args);
             else if(command == "show") pos.show();
             else if(command == "position") setPosition(pos, args);
+            else if(command == "perft") pos.perft(std::stoi(args.at(0)));
         } while(command != "quit");
     }
 
