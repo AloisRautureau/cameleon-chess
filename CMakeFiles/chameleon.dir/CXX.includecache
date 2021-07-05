@@ -48,10 +48,6 @@ evaluation.h
 display.h
 /home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.h
 
-/home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.cpp
-uci.h
-/home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.h
-
 /home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.h
 vector
 -
@@ -66,5 +62,19 @@ thread
 search.h
 /home/bitterboyy/Documents/chameleon-chess/ChessEngine/search.h
 debug.h
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/debug.h
+
+/home/bitterboyy/Documents/chameleon-chess/main.cpp
+iostream
+-
+ChessEngine/position.h
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/position.h
+ChessEngine/display.h
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.h
+ChessEngine/evaluation.h
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/evaluation.h
+ChessEngine/uci.h
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.h
+ChessEngine/debug.h
 /home/bitterboyy/Documents/chameleon-chess/ChessEngine/debug.h
 

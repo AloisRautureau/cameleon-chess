@@ -13,8 +13,6 @@ int main() {
     position pos;
     display::showPosition(pos);
 
-    std::cout << Evaluation::eval(pos) << std::endl;
-
     UCI::uciListen(pos);
 
     return 0;
