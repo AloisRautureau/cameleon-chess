@@ -156,6 +156,7 @@ namespace Chameleon{
             if(command == "quit") exit(0);
             
             //Those are commands implemented for using Chameleon in a pure CLI environnement, although this is not recommended
+            if(command == "help") helpMessage();
             if(command == "show") showPosition(pos);
             if(command == "perft") Debug::perft(pos, std::stoi(args[0]));
             if(command == "divide") Debug::perftDivide(pos, std::stoi(args[0]));
@@ -313,6 +314,24 @@ namespace Chameleon{
                       << (pos.m_castling & BQCASTLE ? "q" : "") << std::endl << std::endl;
 
             std::cout << "Position hash : " << pos.positionHash << std::endl << std::endl;
+        }
+
+        void helpMessage() {
+            std::cout << "List of commands :\n"
+                         "ucinewgame: tells the program the position we want to search is from a different game\n"
+                         "position [< fen > | startpos] moves ... : sets the position to either the given fen string or the start position, then plays the given moves\n"
+                         "show : prints the current position int the terminal\n"
+                         "go : fires up a search! Here is a list of arguments for that particular command :\n"
+                         "   searchmoves ... : gives a list of moves to search\n"
+                         "   wtime : sets white side's time left\n"
+                         "   btime : sets black side's time left\n"
+                         "   winc : sets the time increment for white\n"
+                         "   binc : sets the time increment for black\n"
+                         "   depth : gives a max depth to the search\n"
+                         "   nodes : sets a max number of nodes the engine can search\n"
+                         "   movetime : sets the max time allocated to the search in ms\n"
+                         "   infinite : a boolean that, when set, let's the search continue on forever\n"
+                         "quit : stops the program\n" << std::endl;
         }
     }
 }

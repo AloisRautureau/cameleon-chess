@@ -8,26 +8,16 @@
 chameleon-chess is the **chess engine** which will be powering up BAUB-Chess in the near future. The goal is to make it a fully functionnal, decent, and UCI compatible engine, optimized enough to run correctly on a Raspberry Pi.<br/>
 It uses a combination of a 0x88 board representation, speed up by keeping a piece-list to avoid scanning it in its entirety.
 
-## TODO
-
-[x] Board Representation<br/>
-[x] Evaluation function<br/>
-[x] Search function<br/>
-[x] UCI compatibility (partial at the time)<br/>
-[ ] Deep optimization<br/>
-[ ] Opening book<br/>
-
 ## How do I use chameleon ?
 
-**!!! DISCLAIMER !!!**
-**The program as it is now is given as a proof of concept, it is still really buggy and unoptimised and shouldn't be considered as a finished product**
-
-You can acquire the engine by **compiling the sources** at this point. Releases will be uploaded when a lot more bugs have been ironed out.<br>
+You can acquire the engine by **compiling the sources** or downloading the release here.<br>
 The program uses an UCI implementation, and while it can be used directly in a terminal, it is best used in combination with a UCI-compatible GUI (e.g Arena, Lucas, ChessBase...)<br>
+You can use the engine in a terminal/command-line by opening one in the executable's directory, then using the ./chameleon command.
 
 Here is a list of commands which are useful when using the program as a CLI<br>
 Note that it can also be found on http://wbec-ridderkerk.nl/html/UCIProtocol.html<br>
 <ul>
+<li> help : lists the commands below
 <li> ucinewgame: tells the program the position we cant to search is from a different game</li>
 <li> position [< fen > | startpos] moves <x> <y>... : sets the position to either the given fen string or the start position, then plays the given moves</li>
 <li> show : prints the current position int the terminal </li>

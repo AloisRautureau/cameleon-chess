@@ -48,6 +48,10 @@ evaluation.h
 display.h
 /home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.h
 
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.cpp
+uci.h
+/home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.h
+
 /home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.h
 vector
 -

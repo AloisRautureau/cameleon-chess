@@ -37,6 +37,7 @@ namespace Chameleon{
         void setpos(position &pos, std::vector<std::string> args);
         bool go(position &pos, std::vector<std::string> args);
         void showPosition(position &pos);
+        void helpMessage();
     }
 }
 
