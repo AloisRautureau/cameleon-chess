@@ -1,19 +1,11 @@
 #include <iostream>
-#include "ChessEngine/position.h"
-#include "ChessEngine/display.h"
-#include "ChessEngine/evaluation.h"
-#include "ChessEngine/uci.h"
-#include "ChessEngine/debug.h"
-
-using namespace Chameleon;
+#include "src/position.h"
 
 int main() {
-    system("clear");
+    using namespace Chameleon;
 
-    position pos;
-    display::showPosition(pos);
-
-    UCI::uciListen(pos);
+    Position pos;
+    std::cout << pos << std::endl;
 
     return 0;
 }

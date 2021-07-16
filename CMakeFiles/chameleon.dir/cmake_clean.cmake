@@ -1,11 +1,8 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o"
-  "CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o"
-  "CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o"
-  "CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o"
-  "CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o"
-  "CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o"
   "CMakeFiles/chameleon.dir/main.cpp.o"
+  "CMakeFiles/chameleon.dir/src/bitboard.cpp.o"
+  "CMakeFiles/chameleon.dir/src/movegen.cpp.o"
+  "CMakeFiles/chameleon.dir/src/position.cpp.o"
   "chameleon"
   "chameleon.pdb"
 )

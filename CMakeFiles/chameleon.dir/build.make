@@ -89,107 +89,62 @@ CMakeFiles/chameleon.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/main.cpp -o CMakeFiles/chameleon.dir/main.cpp.s
 
-CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o: CMakeFiles/chameleon.dir/flags.make
-CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o: ChessEngine/position.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/ChessEngine/position.cpp
+CMakeFiles/chameleon.dir/src/bitboard.cpp.o: CMakeFiles/chameleon.dir/flags.make
+CMakeFiles/chameleon.dir/src/bitboard.cpp.o: src/bitboard.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/chameleon.dir/src/bitboard.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/src/bitboard.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/src/bitboard.cpp
 
-CMakeFiles/chameleon.dir/ChessEngine/position.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/ChessEngine/position.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/ChessEngine/position.cpp > CMakeFiles/chameleon.dir/ChessEngine/position.cpp.i
+CMakeFiles/chameleon.dir/src/bitboard.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/src/bitboard.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/src/bitboard.cpp > CMakeFiles/chameleon.dir/src/bitboard.cpp.i
 
-CMakeFiles/chameleon.dir/ChessEngine/position.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/ChessEngine/position.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/ChessEngine/position.cpp -o CMakeFiles/chameleon.dir/ChessEngine/position.cpp.s
+CMakeFiles/chameleon.dir/src/bitboard.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/src/bitboard.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/src/bitboard.cpp -o CMakeFiles/chameleon.dir/src/bitboard.cpp.s
 
-CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o: CMakeFiles/chameleon.dir/flags.make
-CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o: ChessEngine/display.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.cpp
+CMakeFiles/chameleon.dir/src/movegen.cpp.o: CMakeFiles/chameleon.dir/flags.make
+CMakeFiles/chameleon.dir/src/movegen.cpp.o: src/movegen.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/chameleon.dir/src/movegen.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/src/movegen.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/src/movegen.cpp
 
-CMakeFiles/chameleon.dir/ChessEngine/display.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/ChessEngine/display.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.cpp > CMakeFiles/chameleon.dir/ChessEngine/display.cpp.i
+CMakeFiles/chameleon.dir/src/movegen.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/src/movegen.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/src/movegen.cpp > CMakeFiles/chameleon.dir/src/movegen.cpp.i
 
-CMakeFiles/chameleon.dir/ChessEngine/display.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/ChessEngine/display.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.cpp -o CMakeFiles/chameleon.dir/ChessEngine/display.cpp.s
+CMakeFiles/chameleon.dir/src/movegen.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/src/movegen.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/src/movegen.cpp -o CMakeFiles/chameleon.dir/src/movegen.cpp.s
 
-CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o: CMakeFiles/chameleon.dir/flags.make
-CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o: ChessEngine/debug.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/ChessEngine/debug.cpp
+CMakeFiles/chameleon.dir/src/position.cpp.o: CMakeFiles/chameleon.dir/flags.make
+CMakeFiles/chameleon.dir/src/position.cpp.o: src/position.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/chameleon.dir/src/position.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/src/position.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/src/position.cpp
 
-CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/ChessEngine/debug.cpp > CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.i
+CMakeFiles/chameleon.dir/src/position.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/src/position.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/src/position.cpp > CMakeFiles/chameleon.dir/src/position.cpp.i
 
-CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/ChessEngine/debug.cpp -o CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.s
-
-CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o: CMakeFiles/chameleon.dir/flags.make
-CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o: ChessEngine/evaluation.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/ChessEngine/evaluation.cpp
-
-CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/ChessEngine/evaluation.cpp > CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.i
-
-CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/ChessEngine/evaluation.cpp -o CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.s
-
-CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o: CMakeFiles/chameleon.dir/flags.make
-CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o: ChessEngine/search.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/ChessEngine/search.cpp
-
-CMakeFiles/chameleon.dir/ChessEngine/search.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/ChessEngine/search.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/ChessEngine/search.cpp > CMakeFiles/chameleon.dir/ChessEngine/search.cpp.i
-
-CMakeFiles/chameleon.dir/ChessEngine/search.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/ChessEngine/search.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/ChessEngine/search.cpp -o CMakeFiles/chameleon.dir/ChessEngine/search.cpp.s
-
-CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o: CMakeFiles/chameleon.dir/flags.make
-CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o: ChessEngine/uci.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o -c /home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.cpp
-
-CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.cpp > CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.i
-
-CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.cpp -o CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.s
+CMakeFiles/chameleon.dir/src/position.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/chameleon.dir/src/position.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/bitterboyy/Documents/chameleon-chess/src/position.cpp -o CMakeFiles/chameleon.dir/src/position.cpp.s
 
 # Object files for target chameleon
 chameleon_OBJECTS = \
 "CMakeFiles/chameleon.dir/main.cpp.o" \
-"CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o" \
-"CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o" \
-"CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o" \
-"CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o" \
-"CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o" \
-"CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o"
+"CMakeFiles/chameleon.dir/src/bitboard.cpp.o" \
+"CMakeFiles/chameleon.dir/src/movegen.cpp.o" \
+"CMakeFiles/chameleon.dir/src/position.cpp.o"
 
 # External object files for target chameleon
 chameleon_EXTERNAL_OBJECTS =
 
 chameleon: CMakeFiles/chameleon.dir/main.cpp.o
-chameleon: CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o
-chameleon: CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o
-chameleon: CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o
-chameleon: CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o
-chameleon: CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o
-chameleon: CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o
+chameleon: CMakeFiles/chameleon.dir/src/bitboard.cpp.o
+chameleon: CMakeFiles/chameleon.dir/src/movegen.cpp.o
+chameleon: CMakeFiles/chameleon.dir/src/position.cpp.o
 chameleon: CMakeFiles/chameleon.dir/build.make
 chameleon: CMakeFiles/chameleon.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable chameleon"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/bitterboyy/Documents/chameleon-chess/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable chameleon"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/chameleon.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

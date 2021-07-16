@@ -142,168 +142,6 @@ chameleon/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/build
 .PHONY : chameleon/fast
 
-ChessEngine/debug.o: ChessEngine/debug.cpp.o
-
-.PHONY : ChessEngine/debug.o
-
-# target to build an object file
-ChessEngine/debug.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o
-.PHONY : ChessEngine/debug.cpp.o
-
-ChessEngine/debug.i: ChessEngine/debug.cpp.i
-
-.PHONY : ChessEngine/debug.i
-
-# target to preprocess a source file
-ChessEngine/debug.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.i
-.PHONY : ChessEngine/debug.cpp.i
-
-ChessEngine/debug.s: ChessEngine/debug.cpp.s
-
-.PHONY : ChessEngine/debug.s
-
-# target to generate assembly for a file
-ChessEngine/debug.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.s
-.PHONY : ChessEngine/debug.cpp.s
-
-ChessEngine/display.o: ChessEngine/display.cpp.o
-
-.PHONY : ChessEngine/display.o
-
-# target to build an object file
-ChessEngine/display.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o
-.PHONY : ChessEngine/display.cpp.o
-
-ChessEngine/display.i: ChessEngine/display.cpp.i
-
-.PHONY : ChessEngine/display.i
-
-# target to preprocess a source file
-ChessEngine/display.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/display.cpp.i
-.PHONY : ChessEngine/display.cpp.i
-
-ChessEngine/display.s: ChessEngine/display.cpp.s
-
-.PHONY : ChessEngine/display.s
-
-# target to generate assembly for a file
-ChessEngine/display.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/display.cpp.s
-.PHONY : ChessEngine/display.cpp.s
-
-ChessEngine/evaluation.o: ChessEngine/evaluation.cpp.o
-
-.PHONY : ChessEngine/evaluation.o
-
-# target to build an object file
-ChessEngine/evaluation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o
-.PHONY : ChessEngine/evaluation.cpp.o
-
-ChessEngine/evaluation.i: ChessEngine/evaluation.cpp.i
-
-.PHONY : ChessEngine/evaluation.i
-
-# target to preprocess a source file
-ChessEngine/evaluation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.i
-.PHONY : ChessEngine/evaluation.cpp.i
-
-ChessEngine/evaluation.s: ChessEngine/evaluation.cpp.s
-
-.PHONY : ChessEngine/evaluation.s
-
-# target to generate assembly for a file
-ChessEngine/evaluation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.s
-.PHONY : ChessEngine/evaluation.cpp.s
-
-ChessEngine/position.o: ChessEngine/position.cpp.o
-
-.PHONY : ChessEngine/position.o
-
-# target to build an object file
-ChessEngine/position.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o
-.PHONY : ChessEngine/position.cpp.o
-
-ChessEngine/position.i: ChessEngine/position.cpp.i
-
-.PHONY : ChessEngine/position.i
-
-# target to preprocess a source file
-ChessEngine/position.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/position.cpp.i
-.PHONY : ChessEngine/position.cpp.i
-
-ChessEngine/position.s: ChessEngine/position.cpp.s
-
-.PHONY : ChessEngine/position.s
-
-# target to generate assembly for a file
-ChessEngine/position.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/position.cpp.s
-.PHONY : ChessEngine/position.cpp.s
-
-ChessEngine/search.o: ChessEngine/search.cpp.o
-
-.PHONY : ChessEngine/search.o
-
-# target to build an object file
-ChessEngine/search.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o
-.PHONY : ChessEngine/search.cpp.o
-
-ChessEngine/search.i: ChessEngine/search.cpp.i
-
-.PHONY : ChessEngine/search.i
-
-# target to preprocess a source file
-ChessEngine/search.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/search.cpp.i
-.PHONY : ChessEngine/search.cpp.i
-
-ChessEngine/search.s: ChessEngine/search.cpp.s
-
-.PHONY : ChessEngine/search.s
-
-# target to generate assembly for a file
-ChessEngine/search.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/search.cpp.s
-.PHONY : ChessEngine/search.cpp.s
-
-ChessEngine/uci.o: ChessEngine/uci.cpp.o
-
-.PHONY : ChessEngine/uci.o
-
-# target to build an object file
-ChessEngine/uci.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o
-.PHONY : ChessEngine/uci.cpp.o
-
-ChessEngine/uci.i: ChessEngine/uci.cpp.i
-
-.PHONY : ChessEngine/uci.i
-
-# target to preprocess a source file
-ChessEngine/uci.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.i
-.PHONY : ChessEngine/uci.cpp.i
-
-ChessEngine/uci.s: ChessEngine/uci.cpp.s
-
-.PHONY : ChessEngine/uci.s
-
-# target to generate assembly for a file
-ChessEngine/uci.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.s
-.PHONY : ChessEngine/uci.cpp.s
-
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -331,6 +169,87 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/bitboard.o: src/bitboard.cpp.o
+
+.PHONY : src/bitboard.o
+
+# target to build an object file
+src/bitboard.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/bitboard.cpp.o
+.PHONY : src/bitboard.cpp.o
+
+src/bitboard.i: src/bitboard.cpp.i
+
+.PHONY : src/bitboard.i
+
+# target to preprocess a source file
+src/bitboard.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/bitboard.cpp.i
+.PHONY : src/bitboard.cpp.i
+
+src/bitboard.s: src/bitboard.cpp.s
+
+.PHONY : src/bitboard.s
+
+# target to generate assembly for a file
+src/bitboard.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/bitboard.cpp.s
+.PHONY : src/bitboard.cpp.s
+
+src/movegen.o: src/movegen.cpp.o
+
+.PHONY : src/movegen.o
+
+# target to build an object file
+src/movegen.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/movegen.cpp.o
+.PHONY : src/movegen.cpp.o
+
+src/movegen.i: src/movegen.cpp.i
+
+.PHONY : src/movegen.i
+
+# target to preprocess a source file
+src/movegen.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/movegen.cpp.i
+.PHONY : src/movegen.cpp.i
+
+src/movegen.s: src/movegen.cpp.s
+
+.PHONY : src/movegen.s
+
+# target to generate assembly for a file
+src/movegen.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/movegen.cpp.s
+.PHONY : src/movegen.cpp.s
+
+src/position.o: src/position.cpp.o
+
+.PHONY : src/position.o
+
+# target to build an object file
+src/position.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/position.cpp.o
+.PHONY : src/position.cpp.o
+
+src/position.i: src/position.cpp.i
+
+.PHONY : src/position.i
+
+# target to preprocess a source file
+src/position.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/position.cpp.i
+.PHONY : src/position.cpp.i
+
+src/position.s: src/position.cpp.s
+
+.PHONY : src/position.s
+
+# target to generate assembly for a file
+src/position.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chameleon.dir/build.make CMakeFiles/chameleon.dir/src/position.cpp.s
+.PHONY : src/position.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -340,27 +259,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... chameleon"
-	@echo "... ChessEngine/debug.o"
-	@echo "... ChessEngine/debug.i"
-	@echo "... ChessEngine/debug.s"
-	@echo "... ChessEngine/display.o"
-	@echo "... ChessEngine/display.i"
-	@echo "... ChessEngine/display.s"
-	@echo "... ChessEngine/evaluation.o"
-	@echo "... ChessEngine/evaluation.i"
-	@echo "... ChessEngine/evaluation.s"
-	@echo "... ChessEngine/position.o"
-	@echo "... ChessEngine/position.i"
-	@echo "... ChessEngine/position.s"
-	@echo "... ChessEngine/search.o"
-	@echo "... ChessEngine/search.i"
-	@echo "... ChessEngine/search.s"
-	@echo "... ChessEngine/uci.o"
-	@echo "... ChessEngine/uci.i"
-	@echo "... ChessEngine/uci.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/bitboard.o"
+	@echo "... src/bitboard.i"
+	@echo "... src/bitboard.s"
+	@echo "... src/movegen.o"
+	@echo "... src/movegen.i"
+	@echo "... src/movegen.s"
+	@echo "... src/position.o"
+	@echo "... src/position.i"
+	@echo "... src/position.s"
 .PHONY : help
 
 

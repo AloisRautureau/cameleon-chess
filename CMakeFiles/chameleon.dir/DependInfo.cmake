@@ -4,13 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/bitterboyy/Documents/chameleon-chess/ChessEngine/debug.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/ChessEngine/debug.cpp.o"
-  "/home/bitterboyy/Documents/chameleon-chess/ChessEngine/display.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/ChessEngine/display.cpp.o"
-  "/home/bitterboyy/Documents/chameleon-chess/ChessEngine/evaluation.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/ChessEngine/evaluation.cpp.o"
-  "/home/bitterboyy/Documents/chameleon-chess/ChessEngine/position.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/ChessEngine/position.cpp.o"
-  "/home/bitterboyy/Documents/chameleon-chess/ChessEngine/search.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/ChessEngine/search.cpp.o"
-  "/home/bitterboyy/Documents/chameleon-chess/ChessEngine/uci.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/ChessEngine/uci.cpp.o"
   "/home/bitterboyy/Documents/chameleon-chess/main.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/main.cpp.o"
+  "/home/bitterboyy/Documents/chameleon-chess/src/bitboard.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/src/bitboard.cpp.o"
+  "/home/bitterboyy/Documents/chameleon-chess/src/movegen.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/src/movegen.cpp.o"
+  "/home/bitterboyy/Documents/chameleon-chess/src/position.cpp" "/home/bitterboyy/Documents/chameleon-chess/CMakeFiles/chameleon.dir/src/position.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
