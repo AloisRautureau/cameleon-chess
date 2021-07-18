@@ -23,4 +23,6 @@ bitboard.h
 /home/bitterboyy/Documents/chameleon-chess/src/types.h
 string
 -
+vector
+-
 
