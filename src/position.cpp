@@ -53,7 +53,43 @@ std::ostream& operator<< (std::ostream &out, const Position &pos) {
 
 
 void Position::make(move_t move) {
-    move = move_t(0);
+    // Unpack move info
+    sq_t from_sq { from(move) }, to_sq { to(move) };
+    mvflag_t fl { flag(move) };
+
+    // Get info about moving pieces and any captured pieces
+    const piece_t moving   { m_board8x8[from_sq] },
+                  captured { m_board8x8[to_sq] };
+
+    // Start by moving the piece from from_sq to to_sq
+    remove(from_sq, moving, m_side);
+    add(to_sq, moving, m_side);
+    // Remove the captured piece if necessary
+    if(captured != EMPTY) remove(to_sq, captured, m_opponent);
+
+    m_ep = inv; // Always invalidate m_ep (since it is reset every move)
+
+    // Then apply flag effects
+    if(fl == DPAWNPUSH) m_ep = sq_t(to_sq + (m_side ? -8 : 8));
+    else if(fl & NPROM) promote(to_sq, piece_t((fl&0b11) - 1));
+    else if(fl & KCASTLE) castle(fl == KCASTLE, m_side);
+
+    if(moving == KING) { // If we move our king, we can't castle anymore
+        m_castling &= (m_side ? 0b0011 : 0b1100);
+    }
+    else if(moving == ROOK) { // Moving a rook disables the ability to castle with it
+        m_castling &= (m_side ? (from_sq == h1 ? 0b0111 : 0b1011) 
+                              : (from_sq == h8 ? 0b1101 : 0b1110));
+    }
+
+    // Switch side to play
+    m_side = m_opponent;
+    m_opponent = m_side ? BLACK : WHITE;
+
+    // Increment ply, and halfmove clock if not a capture or pawn move
+    ++m_ply;
+    if(fl & CAP || moving == PAWN) m_halfmove = 0;
+    else ++m_halfmove;
 }
 
 void Position::unmake() {
@@ -93,22 +129,22 @@ void Position::setFEN(const std::string& fen) {
             curr_sq = sq_t(rank*8 + file);
             switch(tolower(c)) {
                 case 'p':
-                    islower(c) ? add<PAWN, BLACK>(curr_sq) : add<PAWN, WHITE>(curr_sq);
+                    add(curr_sq, PAWN, color_t(!islower(c)));
                     break;
                 case 'n':
-                    islower(c) ? add<KNIGHT, BLACK>(curr_sq) : add<KNIGHT, WHITE>(curr_sq);
+                    add(curr_sq, KNIGHT, color_t(!islower(c)));
                     break;
                 case 'b':
-                    islower(c) ? add<BISHOP, BLACK>(curr_sq) : add<BISHOP, WHITE>(curr_sq);
+                    add(curr_sq, BISHOP, color_t(!islower(c)));
                     break;
                 case 'r':
-                    islower(c) ? add<ROOK, BLACK>(curr_sq) : add<ROOK, WHITE>(curr_sq);
+                    add(curr_sq, ROOK, color_t(!islower(c)));;
                     break;
                 case 'q':
-                    islower(c) ? add<QUEEN, BLACK>(curr_sq) : add<QUEEN, WHITE>(curr_sq);
+                    add(curr_sq, QUEEN, color_t(!islower(c)));
                     break;
                 case 'k':
-                    islower(c) ? add<KING, BLACK>(curr_sq) : add<KING, WHITE>(curr_sq);
+                    add(curr_sq, KING, color_t(!islower(c)));
                     break;
 
                 default:
@@ -220,18 +256,43 @@ std::string Position::getFEN() const {
 * GETTERS
 */
 
-color_t Position::color(sq_t sq) const {
-    return (ONEBB << sq) & m_color_bb[WHITE] ? WHITE : BLACK;
+inline color_t Position::color(sq_t sq) const {
+    if((ONEBB << sq) & m_color_bb[WHITE]) return WHITE;
+    else if((ONEBB << sq) & m_color_bb[BLACK]) return BLACK;
+    else return NONE;
 }
 
 /*
 * SETTERS
 */ 
-template <piece_t Pt, color_t C> void Position::add(sq_t sq) {
-    m_ptype_bb[Pt] |= (ONEBB << sq);
-    m_color_bb[C] |= (ONEBB << sq);
+inline void Position::add(sq_t sq, piece_t piece, color_t color) {
+    m_ptype_bb[piece] |= (ONEBB << sq);
+    m_color_bb[color] |= (ONEBB << sq);
     m_empty_bb &= ~(ONEBB << sq);
-    m_board8x8[sq] = Pt;
+    m_board8x8[sq] = piece;
+}
+
+inline void Position::remove(sq_t sq, piece_t piece, color_t color) { 
+    m_ptype_bb[piece] &= ~(ONEBB << sq);
+    m_color_bb[color] &= ~(ONEBB << sq);
+    m_empty_bb |= (ONEBB << sq);
+    m_board8x8[sq] = EMPTY; 
+}
+
+inline void Position::promote(sq_t sq, piece_t target_p) {
+    m_ptype_bb[PAWN] &= ~(ONEBB << sq);
+    m_ptype_bb[target_p] |= (ONEBB << sq);
+    m_board8x8[sq] = target_p;
+}
+
+inline void Position::castle(bool kingside, color_t color) {
+    sq_t target { sq_t(kingside ? f1 + color * 52 : d1 + color * 52) }, 
+         origin { sq_t(kingside ? h1 + color * 52 : a1 + color * 52) };
+    m_ptype_bb[ROOK] ^= (ONEBB << target | ONEBB << origin);
+    m_color_bb[color] ^= (ONEBB << target | ONEBB << origin);
+    m_empty_bb ^= (ONEBB << target | ONEBB << origin);
+    m_board8x8[origin] = EMPTY;
+    m_board8x8[target] = ROOK;
 }
 
 }

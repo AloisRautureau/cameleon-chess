@@ -33,7 +33,7 @@ inline constexpr std::string_view SQ_STRING[] {
 };
 
 enum color_t {
-  BLACK, WHITE 
+  BLACK, WHITE, NONE
 };
 
 enum piece_t {
@@ -49,7 +49,26 @@ inline constexpr char PIECE_STR_REP[2][6] {
 // Moves are represented over 16 bits
 // 6 bits from, 6 bits to, 4 bits flag
 using move_t = unsigned int;
-inline std::string move_to_string;
+
+// Move flags
+enum mvflag_t {
+  QUIET, DPAWNPUSH, KCASTLE, QCASTLE, CAP,
+  NPROM = 8, BPROM, RPROM, QPROM, NPROMCAP, BPROMCAP, RPROMCAP, QPROMCAP
+};
+
+inline move_t encode(sq_t from, sq_t to, mvflag_t flag) {
+  return ((from << 10) + (to << 4) + flag);
+}
+inline sq_t from(const move_t& move) {
+  return sq_t(move >> 10);
+}
+inline sq_t to(const move_t& move) {
+  return sq_t((move&0x03F0) >> 4);
+}
+inline mvflag_t flag(const move_t& move) {
+  return mvflag_t(move&0xF);
+}
+
 
 // Castling rights are represented over 4 bits
 inline constexpr int WKCASTLE { 0b1000 };

@@ -8,7 +8,8 @@ namespace Chameleon {
 
 class Position {
 private:
-    color_t m_side { WHITE }; // Side to move
+    color_t m_side     { WHITE }; // Side to move
+    color_t m_opponent { BLACK };
     bitboard_t m_ptype_bb[6] { // Bitboard by piece_type
         0x00FF00000000FF00, 0x4200000000000042, 0x2400000000000024,
         0x8100000000000081, 0x800000000000008, 0x1000000000000010,
@@ -44,13 +45,18 @@ public:
     void setFEN(const std::string& fen); // Sets pos to given FEN string
     std::string getFEN() const; // Returns the FEN string of the current pos
 
-    // Color of the piece sitting on given square
-    color_t color(sq_t sq) const;
+    /*
+    * GETTERS
+    */
+    color_t color(sq_t sq) const; // Gets the colors of a piece given a square
 
     /*
     * SETTERS
     */
-    template <piece_t Pt, color_t C> void add(sq_t sq);
+    void add(sq_t sq, piece_t piece, color_t color); // Sets the given square to a piece Pt of color C
+    void remove(sq_t sq, piece_t piece, color_t color); // Removes the given piece from the given square
+    void promote(sq_t sq, piece_t target_p); // Promotes a pawn to the targeted piece
+    void castle(bool kingside, color_t color); // Moves the rook for castling
 
     friend std::ostream& operator<< (std::ostream &out, const Position &pos);
 };

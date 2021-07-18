@@ -3,10 +3,14 @@
 
 namespace Chameleon {
 
+class Position;
+
 namespace Movegen {
 
-}
+
 
 }
+
+} 
 
 #endif
